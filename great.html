@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>&lt;no title&gt; &mdash; ETL with airflow v1.8</title>
+  <title>What makes Airflow great? &mdash; ETL Best Practices with Airflow v1.8</title>
   
 
   
@@ -33,8 +33,9 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="ETL with airflow v1.8" href="index.html"/>
-        <link rel="prev" title="Welcome to ETL with airflow’s documentation!" href="index.html"/> 
+    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
+        <link rel="next" title="Full example" href="fullexample.html"/>
+        <link rel="prev" title="Gotcha’s" href="gotchas.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -52,7 +53,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> ETL with airflow
+            <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
           
 
           
@@ -83,10 +84,13 @@
           
             
             
-                <!-- Local TOC -->
-                <div class="local-toc"><ul class="simple">
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">What makes Airflow great?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fullexample.html">Full example</a></li>
 </ul>
-</div>
+
             
           
         </div>
@@ -98,7 +102,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">ETL with airflow</a>
+        <a href="index.html">ETL Best Practices with airflow 1.8</a>
       </nav>
 
 
@@ -115,11 +119,9 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>&lt;no title&gt;</li>
+    <li>What makes Airflow great?</li>
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/includeme.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -129,7 +131,39 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <p>Welcome to ETL with airflow!</p>
+  <div class="section" id="what-makes-airflow-great">
+<h1>What makes Airflow great?<a class="headerlink" href="#what-makes-airflow-great" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>Write workflows as if you&#8217;re writing programs</li>
+<li>Jobs can pass parameters to other jobs downstream</li>
+<li>Logic within workflows (not just logic within the program)</li>
+<li>Handle errors and failures gracefully</li>
+<li>Community and community support, size of community</li>
+<li>Ease of deployment of workflow changes (continuous integration)</li>
+<li>Job testing through airflow itself</li>
+<li>Low requirements for hardware setup</li>
+<li>built-in authentication details with encrypted passwords and extra details</li>
+<li>Easy environment awareness through airflow variables</li>
+<li>Resource pooling for shared resources</li>
+<li>Common tasks already implemented and usable</li>
+<li>Accessibility of log files and other meta-data through the web GUI</li>
+<li>Supporting documentation</li>
+<li>Growing user base and contributions</li>
+<li>Extensibility and ability to customize for specific purposes</li>
+<li>Ease of installation and automated redeployments</li>
+<li>Dynamic DAGs</li>
+<li>Conditional execution in job flow diagrams</li>
+<li>Easy to reprocess historical jobs by date</li>
+<li>Usability of the web interface, low number of clicks to get to where you want</li>
+<li>Detailed info about landing times, processing times and SLA misses</li>
+<li>Temporarily turning workflows on and off</li>
+<li>Easy to re-run processing for specific intervals</li>
+<li>Can (re)run only parts of the workflow and dependent tasks</li>
+<li>Schedules are defined in code, not in a separate tool and database</li>
+<li>Can run tasks based on whether the previous run succeeded or failed</li>
+<li>Trigger rules for tasks</li>
+</ul>
+</div>
 
 
            </div>
@@ -138,8 +172,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="fullexample.html" class="btn btn-neutral float-right" title="Full example" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="index.html" class="btn btn-neutral" title="Welcome to ETL with airflow’s documentation!" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="gotchas.html" class="btn btn-neutral" title="Gotcha’s" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

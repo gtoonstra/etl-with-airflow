@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>&lt;no title&gt; &mdash; ETL with airflow v1.8</title>
+  <title>Gotcha’s &mdash; ETL Best Practices with Airflow v1.8</title>
   
 
   
@@ -33,8 +33,9 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="ETL with airflow v1.8" href="index.html"/>
-        <link rel="prev" title="Welcome to ETL with airflow’s documentation!" href="index.html"/> 
+    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
+        <link rel="next" title="What makes Airflow great?" href="great.html"/>
+        <link rel="prev" title="ETL principles" href="principles.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -52,7 +53,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> ETL with airflow
+            <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
           
 
           
@@ -83,10 +84,13 @@
           
             
             
-                <!-- Local TOC -->
-                <div class="local-toc"><ul class="simple">
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fullexample.html">Full example</a></li>
 </ul>
-</div>
+
             
           
         </div>
@@ -98,7 +102,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">ETL with airflow</a>
+        <a href="index.html">ETL Best Practices with airflow 1.8</a>
       </nav>
 
 
@@ -115,11 +119,9 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>&lt;no title&gt;</li>
+    <li>Gotcha&#8217;s</li>
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/includeme.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -129,7 +131,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <p>Welcome to ETL with airflow!</p>
+  <div class="section" id="gotcha-s">
+<h1>Gotcha&#8217;s<a class="headerlink" href="#gotcha-s" title="Permalink to this headline">¶</a></h1>
+<p>It&#8217;s always a good idea to point out gotcha&#8217;s, so you don&#8217;t have to ask in forums / online to search
+for these issues when they pop up. Most of theses are consequential issues that cause situations where
+the system behaves differently than what you expect.</p>
+<p><strong>Start_date and interval confusion</strong>: The <em>start_date</em> specifies the first date and time for which
+you want to have data in a database. Airflow will run a job at <em>start_date + interval</em>, so after the
+interval has passed (because that&#8217;s when data becomes available). You can read more about the rationale
+in the <a class="reference external" href="https://airflow.incubator.apache.org/faq.html/">Airflow FAQ</a></p>
+<p><strong>Don&#8217;t forget to start a scheduler</strong>: When you use airflow for the first time, the tutorial makes
+you run a webserver, but doesn&#8217;t specify how to start a scheduler. If you play around with the web UI,
+specifically the tasks interface, you&#8217;ll notice that nothing gets rescheduled to be re-run.
+This is because you should run both a webserver and a scheduler.</p>
+<p>You can start a scheduler on the shell through:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">airflow</span> <span class="n">scheduler</span>
+</pre></div>
+</div>
+<p><strong>Additional info</strong>: Check out the <a class="reference external" href="https://airflow.incubator.apache.org/project.html">Project page</a>
+for additional info (see the <strong>Resources &amp; links</strong> section at the bottom).</p>
+</div>
 
 
            </div>
@@ -138,8 +159,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="great.html" class="btn btn-neutral float-right" title="What makes Airflow great?" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="index.html" class="btn btn-neutral" title="Welcome to ETL with airflow’s documentation!" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="principles.html" class="btn btn-neutral" title="ETL principles" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
