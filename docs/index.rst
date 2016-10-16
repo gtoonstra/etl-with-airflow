@@ -1,23 +1,29 @@
-.. ETL with airflow documentation master file, created by
-   sphinx-quickstart on Sun Oct 16 11:11:37 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+ETL best practices with Airflow documentation site
+==================================================
 
-Welcome to ETL with airflow's documentation!
-============================================
+.. important::
 
-Contents:
+    **Disclaimer**: This is not the official documentation site for
+    Apache airflow. This site is not affiliated, monitored or controlled by
+    the official Apache Airflow development effort. If you are looking for
+    the official documentation site, please follow this link:
+    
+    `Official Airflow documentation <https://airflow.incubator.apache.org/>`_
 
+    What you will find here are interesting examples, usage patterns and
+    ETL principles that I thought are going to help people use airflow to
+    much better effect.
+
+Content
+-------
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 4
 
-   includeme
+    principles
+    gotchas
+    great
+    fullexample
+    
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
