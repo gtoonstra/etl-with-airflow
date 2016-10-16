@@ -53,4 +53,22 @@ separately and run them in order from the command line.
     $ cd examples/do-this-first
     $ ./create_everything.sh
     
+Now, let's create some tables and populate it with some data.
+
+.. code-block:: bash
+
+    $ ./load_data.sh
+
+Add DAG to airflow
+------------------
+
+In a real setup you'd use continuous integration to update DAG's in airflow after changes, but now we're
+going to drop in a DAG by copying it from a directory:
+
+.. code-block:: bash
+
+    $ cd full-example
+    $ cp full-example.py $AIRFLOW_HOME/dags
+
+
 

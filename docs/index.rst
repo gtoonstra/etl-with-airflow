@@ -23,7 +23,4 @@ Content
     gotchas
     great
     fullexample
-    
-
-
 
