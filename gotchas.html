@@ -148,6 +148,24 @@ This is because you should run both a webserver and a scheduler.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">airflow</span> <span class="n">scheduler</span>
 </pre></div>
 </div>
+<p><strong>Starting your first DAG development</strong>: When you start developing your first DAG you&#8217;ll probably rename
+a couple of task instances in the process. When a DAG was run for a particular date, the instances are actually
+recorded in the database against the old task instance name. The UI will only ever show the DAG diagram for
+the tasks as they are currently known, so if you renamed things, they won&#8217;t be there. If you had 2 tasks that were
+already run and you renamed both of them, the UI will be empty. You can trigger a full DAG rerun through the
+command line only in that case to get your UI back in order:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">airflow</span> <span class="n">backfill</span> <span class="o">-</span><span class="n">s</span> <span class="n">YYYY</span><span class="o">-</span><span class="n">MM</span><span class="o">-</span><span class="n">DD</span> <span class="o">-</span><span class="n">e</span> <span class="n">YYYY</span><span class="o">-</span><span class="n">MM</span><span class="o">-</span><span class="n">DD</span> <span class="o">&lt;</span><span class="n">dag_id</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p><strong>Don&#8217;t change start_date + interval</strong>: When a DAG has been run, the scheduler database contains instances of
+the run of that DAG. If you change the start_date or the interval and redeploy it, the scheduler may get confused
+because the intervals are different or the start_date is way back. The best way to deal with this is to change
+the version of the DAG as soon as you change the start_date or interval, i.e. <em>my_dag_v1</em> and <em>my_dag_v1</em>. This way,
+historical information is also kept about the old version.</p>
+<p><strong>Refresh DAG in development</strong>: The webserver loads DAGs into the interpreter and doesn&#8217;t continuously update them
+or know when they changed. The scheduler however instantiates the DAGs continuously if they are needed. In the UI
+you can therefore see outdated versions when you check out the code or see the execution diagram. This is why there&#8217;s
+a <em>refresh</em> button on the main DAG screen, which is where you can reload the DAGs manually.</p>
 <p><strong>Additional info</strong>: Check out the <a class="reference external" href="https://airflow.incubator.apache.org/project.html">Project page</a>
 for additional info (see the <strong>Resources &amp; links</strong> section at the bottom).</p>
 </div>

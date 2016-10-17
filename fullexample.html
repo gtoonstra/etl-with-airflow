@@ -92,6 +92,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#clone-example-project">Clone example project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install-postgres">Install postgres</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#set-up-database">Set up database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#set-up-postgres-connection">Set up Postgres connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#drop-stuff-into-airflow">Drop stuff into airflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-it">Run it</a></li>
 </ul>
 </li>
 </ul>
@@ -173,10 +176,43 @@ through the postgresql menu top right.</p>
 <h2>Set up database<a class="headerlink" href="#set-up-database" title="Permalink to this headline">¶</a></h2>
 <p>On Linux, go to the <em>do-this-first</em> directory in the examples directory of the cloned github project,
 then run the <em>create_everything.sh</em> script. For Mac OSX, you probably have to open the SQL scripts
-separately and run them in order.</p>
+separately and run them in order from the command line.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> examples/do-this-first
+$ ./create_everything.sh
 </pre></div>
 </div>
+<p>Now, let&#8217;s create some tables and populate it with some data.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./load_data.sh
+</pre></div>
+</div>
+</div>
+<div class="section" id="set-up-postgres-connection">
+<h2>Set up Postgres connection<a class="headerlink" href="#set-up-postgres-connection" title="Permalink to this headline">¶</a></h2>
+<p>We need to declare this postgres connection in airflow. Go to the connections screen in the UI (through Admin)
+and edit the default. Make sure to keep the connection string ID as <em>postgres_default</em>. You can check if this
+connection is working for you in the <em>Ad-hoc query</em> section of the <em>Data Profiling</em> menu and select the same
+connection string from there and doing a select on the order_info table:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="o">*</span> <span class="n">FROM</span> <span class="n">order_info</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="drop-stuff-into-airflow">
+<h2>Drop stuff into airflow<a class="headerlink" href="#drop-stuff-into-airflow" title="Permalink to this headline">¶</a></h2>
+<p>In a real setup you&#8217;d use continuous integration to update DAG&#8217;s and dependencies in airflow after changes,
+but now we&#8217;re going to drop in the lot straight into the DAG directory for simplicity.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> full-example/dags
+$ cp -R * <span class="nv">$AIRFLOW_HOME</span>/dags
+$ mkdir <span class="nv">$AIRFLOW_HOME</span>/sql
+$ <span class="nb">cd</span> full-example/sql
+$ cp order_copy.sql <span class="nv">$AIRFLOW_HOME</span>/sql
+$ cp orderline_copy.sql <span class="nv">$AIRFLOW_HOME</span>/sql
+</pre></div>
+</div>
+</div>
+<div class="section" id="run-it">
+<h2>Run it<a class="headerlink" href="#run-it" title="Permalink to this headline">¶</a></h2>
+<p>In the airflow UI, refresh the main DAG UI and the new dag should be listed (full-example). Probably the scheduler
+has already started executing the DAG, so go into the detail view for the DAG to see what the result was.</p>
 </div>
 </div>
 
