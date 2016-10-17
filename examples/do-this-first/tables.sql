@@ -19,6 +19,8 @@ CREATE TABLE orderline (
     price         REAL
 );
 
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO svc_account;
+
 INSERT INTO order_info (order_id, customer_id, create_dtm) VALUES (5,1,current_timestamp);
 INSERT INTO order_info (order_id, customer_id, create_dtm) VALUES (4,1,current_timestamp - interval '1 hour');
 INSERT INTO order_info (order_id, customer_id, create_dtm) VALUES (3,1,current_timestamp - interval '4 days');

@@ -59,16 +59,36 @@ Now, let's create some tables and populate it with some data.
 
     $ ./load_data.sh
 
-Add DAG to airflow
-------------------
+Set up Postgres connection
+--------------------------
 
-In a real setup you'd use continuous integration to update DAG's in airflow after changes, but now we're
-going to drop in a DAG by copying it from a directory:
+We need to declare this postgres connection in airflow. Go to the connections screen in the UI (through Admin)
+and edit the default. Make sure to keep the connection string ID as *postgres_default*. You can check if this
+connection is working for you in the *Ad-hoc query* section of the *Data Profiling* menu and select the same
+connection string from there and doing a select on the order_info table:
+
+::
+
+    SELECT * FROM order_info;
+
+Drop stuff into airflow
+-----------------------
+
+In a real setup you'd use continuous integration to update DAG's and dependencies in airflow after changes, 
+but now we're going to drop in the lot straight into the DAG directory for simplicity.
 
 .. code-block:: bash
 
-    $ cd full-example
-    $ cp full-example.py $AIRFLOW_HOME/dags
+    $ cd full-example/dags
+    $ cp -R * $AIRFLOW_HOME/dags
+    $ mkdir $AIRFLOW_HOME/sql
+    $ cd full-example/sql
+    $ cp order_copy.sql $AIRFLOW_HOME/sql
+    $ cp orderline_copy.sql $AIRFLOW_HOME/sql
 
+Run it
+------
 
+In the airflow UI, refresh the main DAG UI and the new dag should be listed (full-example). Probably the scheduler
+has already started executing the DAG, so go into the detail view for the DAG to see what the result was.
 

@@ -15,12 +15,13 @@
 from __future__ import print_function
 import airflow
 from datetime import datetime, timedelta
-from airflow.operators.postgres_operator import PostgresOperator
+from acme.operators.postgres_to_postgres import PostgresToPostgresOperator
 
 
 seven_days_ago = datetime.combine(
     datetime.today() - timedelta(7),
     datetime.min.time())
+    
 args = {
     'owner': 'airflow',
     'start_date': seven_days_ago,
@@ -31,16 +32,23 @@ dag = airflow.DAG(
     'full_example',
     schedule_interval="@daily",
     dagrun_timeout=timedelta(minutes=60),
+    template_searchpath='/home/gt/airflow/sql',
     default_args=args)
 
-oper_1 = PostgresOperator(
-    sql='sql/copy_order_info.sql',
-    task_id='oper_1',
+oper_1 = PostgresToPostgresOperator(
+    sql='copy_order_info.sql',
+    pg_table='does_not_exist_orders',
+    pg_preoperator='TRUNCATE does_not_exist_orders',
+    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}"},
+    task_id='ingest_order',
     dag=dag)
 
-oper_2 = PostgresOperator(
-    sql='sql/copy_orderline.sql',
-    task_id='oper_2',
+oper_2 = PostgresToPostgresOperator(
+    sql='copy_orderline.sql',
+    pg_table='does_not_exist_orders',
+    pg_preoperator='TRUNCATE does_not_exist_orderline',
+    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}"},
+    task_id='ingest_orderline',
     dag=dag)
 
 oper_1 >> oper_2
