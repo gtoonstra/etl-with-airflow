@@ -25,7 +25,8 @@ seven_days_ago = datetime.combine(
 args = {
     'owner': 'airflow',
     'start_date': seven_days_ago,
-    'provide_context': True
+    'provide_context': True,
+    'depends_on_past': True
 }
 
 dag = airflow.DAG(
@@ -33,20 +34,25 @@ dag = airflow.DAG(
     schedule_interval="@daily",
     dagrun_timeout=timedelta(minutes=60),
     template_searchpath='/home/gt/airflow/sql',
-    default_args=args)
+    default_args=args,
+    max_active_runs=1)
 
 oper_1 = PostgresToPostgresOperator(
     sql='copy_order_info.sql',
-    pg_table='does_not_exist_orders',
-    pg_preoperator='TRUNCATE does_not_exist_orders',
+    pg_table='staging.order_info',
+    src_postgres_conn_id='postgres_oltp',
+    dest_postgress_conn_id='postgres_dwh',
+    #pg_preoperator='TRUNCATE staging.order_info',
     parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}"},
     task_id='ingest_order',
     dag=dag)
 
 oper_2 = PostgresToPostgresOperator(
     sql='copy_orderline.sql',
-    pg_table='does_not_exist_orders',
-    pg_preoperator='TRUNCATE does_not_exist_orderline',
+    pg_table='staging.orderline',
+    src_postgres_conn_id='postgres_oltp',
+    dest_postgress_conn_id='postgres_dwh',
+    #pg_preoperator='TRUNCATE staging.orderline',
     parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}"},
     task_id='ingest_orderline',
     dag=dag)

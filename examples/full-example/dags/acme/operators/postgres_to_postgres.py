@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import logging
+import time
+from random import random
 
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.models import BaseOperator
@@ -52,6 +54,7 @@ class PostgresToPostgresOperator(BaseOperator):
             *args, **kwargs):
         super(PostgresToPostgresOperator, self).__init__(*args, **kwargs)
         self.sql = sql
+        self.pg_table = pg_table
         self.src_postgres_conn_id = src_postgres_conn_id
         self.dest_postgress_conn_id = dest_postgress_conn_id
         self.pg_preoperator = pg_preoperator
@@ -71,6 +74,8 @@ class PostgresToPostgresOperator(BaseOperator):
         if self.pg_preoperator:
             logging.info("Running Postgres preoperator")
             dest_pg.run(self.pg_preoperator)
+
+        time.sleep(5*random())
 
         logging.info("Inserting rows into Postgres")
 

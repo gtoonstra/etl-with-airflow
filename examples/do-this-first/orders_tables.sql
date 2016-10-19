@@ -1,9 +1,5 @@
 DROP TABLE IF EXISTS order_info;
 DROP TABLE IF EXISTS orderline;
-DROP SEQUENCE IF EXISTS seq_order_info;
-CREATE SEQUENCE seq_order_info;
-DROP SEQUENCE IF EXISTS seq_orderline;
-CREATE SEQUENCE seq_orderline;
 
 CREATE TABLE order_info (
     order_id    INTEGER PRIMARY KEY,
@@ -19,10 +15,10 @@ CREATE TABLE orderline (
     price         REAL
 );
 
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO svc_account;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO oltp_read;
 
 INSERT INTO order_info (order_id, customer_id, create_dtm) VALUES (5,1,current_timestamp);
-INSERT INTO order_info (order_id, customer_id, create_dtm) VALUES (4,1,current_timestamp - interval '1 hour');
+INSERT INTO order_info (order_id, customer_id, create_dtm) VALUES (4,1,current_timestamp - interval '1 day');
 INSERT INTO order_info (order_id, customer_id, create_dtm) VALUES (3,1,current_timestamp - interval '4 days');
 INSERT INTO order_info (order_id, customer_id, create_dtm) VALUES (2,1,current_timestamp - interval '8 days');
 INSERT INTO order_info (order_id, customer_id, create_dtm) VALUES (1,1,current_timestamp - interval '10 days');
