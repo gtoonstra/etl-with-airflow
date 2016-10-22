@@ -51,7 +51,8 @@ extract_orderinfo = PostgresToPostgresOperator(
     dest_postgress_conn_id='postgres_dwh',
     pg_preoperator="DELETE FROM staging.order_info WHERE "
         "partition_dtm >= DATE '{{ ds }}' AND partition_dtm < DATE '{{ tomorrow_ds }}'",
-    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}", "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
+    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}",
+                "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
     task_id='ingest_order',
     dag=dag,
     pool='postgres_dwh')
@@ -63,7 +64,8 @@ extract_orderline = PostgresToPostgresOperator(
     dest_postgress_conn_id='postgres_dwh',
     pg_preoperator="DELETE FROM staging.orderline WHERE "
         "partition_dtm >= DATE '{{ ds }}' AND partition_dtm < DATE '{{ tomorrow_ds }}'",
-    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}", "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
+    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}",
+                "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
     task_id='ingest_orderline',
     dag=dag,
     pool='postgres_dwh')
@@ -73,4 +75,3 @@ get_auditid >> extract_orderinfo >> extract_orderline
 
 if __name__ == "__main__":
     dag.cli()
-

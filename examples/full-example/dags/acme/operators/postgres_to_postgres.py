@@ -13,13 +13,12 @@
 # limitations under the License.
 
 import logging
-import time
-from random import random
 
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 from datetime import datetime
+
 
 class PostgresToPostgresOperator(BaseOperator):
     """
@@ -37,16 +36,16 @@ class PostgresToPostgresOperator(BaseOperator):
     :type parameters: dict
     """
 
-    template_fields = ('sql','parameters','pg_table', 'pg_preoperator', 'pg_postoperator')
+    template_fields = ('sql', 'parameters', 'pg_table', 'pg_preoperator', 'pg_postoperator')
     template_ext = ('.sql',)
     ui_color = '#ededed'
 
     @apply_defaults
     def __init__(
-            self, 
+            self,
             sql,
             pg_table,
-            src_postgres_conn_id='postgres_default', 
+            src_postgres_conn_id='postgres_default',
             dest_postgress_conn_id='postgres_default',
             pg_preoperator=None,
             pg_postoperator=None,
@@ -98,15 +97,15 @@ class AuditOperator(BaseOperator):
     :type cycle_dtm: datetime
     """
 
-    template_fields = ('audit_key','cycle_dtm')
+    template_fields = ('audit_key', 'cycle_dtm')
     ui_color = '#ededed'
 
     @apply_defaults
     def __init__(
-            self, 
-            postgres_conn_id='postgres_default', 
+            self,
+            postgres_conn_id='postgres_default',
             audit_key=None,
-            cycle_dtm=None,            
+            cycle_dtm=None,
             *args, **kwargs):
         super(AuditOperator, self).__init__(*args, **kwargs)
         self.postgres_conn_id = postgres_conn_id
@@ -125,19 +124,22 @@ class AuditOperator(BaseOperator):
 
         logging.info("Acquiring new audit number")
         cursor = conn.cursor()
-        cursor.execute("SELECT COALESCE(MAX(audit_id), 0)+1 FROM staging.audit_runs WHERE audit_key=%(audit_key)s", 
-            {"audit_key": self.audit_key})
+        cursor.execute("SELECT COALESCE(MAX(audit_id), 0)+1 FROM staging.audit_runs WHERE "
+                       "audit_key=%(audit_key)s", {"audit_key": self.audit_key})
         row = cursor.fetchone()
         cursor.close()
         audit_id = row[0]
-        logging.info("Found audit id %d."%(audit_id))
-        
-        params = {"audit_id": audit_id, "audit_key": self.audit_key, "execution_dtm": datetime.now(), "cycle_dtm": self.cycle_dtm}
-        
+        logging.info("Found audit id %d." % (audit_id))
+
+        params = {"audit_id": audit_id, "audit_key": self.audit_key,
+                  "exec_dtm": datetime.now(), "cycle_dtm": self.cycle_dtm}
+
         cursor = conn.cursor()
-        logging.info("Updating audit table with audit id: %d"%(audit_id))
-        cursor.execute("INSERT INTO staging.audit_runs (audit_id, audit_key, execution_dtm, cycle_dtm) "
-            "VALUES (%(audit_id)s, %(audit_key)s, %(execution_dtm)s, %(cycle_dtm)s)", params)
+        logging.info("Updating audit table with audit id: %d" % (audit_id))
+        cursor.execute("INSERT INTO staging.audit_runs "
+                       "(audit_id, audit_key, execution_dtm, cycle_dtm) VALUES "
+                       "(%(audit_id)s, %(audit_key)s, %(exec_dtm)s, %(cycle_dtm)s)",
+                       params)
         conn.commit()
         cursor.close()
         conn.close()
@@ -146,4 +148,3 @@ class AuditOperator(BaseOperator):
         ti.xcom_push(key='audit_id', value=audit_id)
 
         return audit_id
-
