@@ -96,6 +96,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#drop-dags-into-airflow">Drop dags into airflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#run-it">Run it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#proof-of-principles-compliance">Proof of principles compliance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#code-for-reference">Code for reference</a></li>
 </ul>
 </li>
 </ul>
@@ -248,6 +249,213 @@ like orderline and invoiceline, but other tables should probably deal with a sin
 <p class="last">You do not want to reload data older than 90 days in that case, so another operator or function should be added that
 checks whether today-execution_date is greather than 90 and prohibits execution if that&#8217;s the case. Not doing that would
 truncate a non-existing table. An alternative is to follow a different path that uses DELETE FROM on the master table instead.</p>
+</div>
+</div>
+<div class="section" id="code-for-reference">
+<h2>Code for reference<a class="headerlink" href="#code-for-reference" title="Permalink to this headline">¶</a></h2>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">airflow</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">acme.operators.postgres_to_postgres</span> <span class="k">import</span> <span class="n">PostgresToPostgresOperator</span>
+<span class="kn">from</span> <span class="nn">acme.operators.postgres_to_postgres</span> <span class="k">import</span> <span class="n">AuditOperator</span>
+
+<span class="n">seven_days_ago</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span>
+    <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span>
+    <span class="n">datetime</span><span class="o">.</span><span class="n">min</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+
+<span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;owner&#39;</span><span class="p">:</span> <span class="s1">&#39;airflow&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;start_date&#39;</span><span class="p">:</span> <span class="n">seven_days_ago</span><span class="p">,</span>
+    <span class="s1">&#39;provide_context&#39;</span><span class="p">:</span> <span class="kc">True</span>
+<span class="p">}</span>
+
+<span class="n">dag</span> <span class="o">=</span> <span class="n">airflow</span><span class="o">.</span><span class="n">DAG</span><span class="p">(</span>
+    <span class="s1">&#39;orders_staging&#39;</span><span class="p">,</span>
+    <span class="n">schedule_interval</span><span class="o">=</span><span class="s2">&quot;@daily&quot;</span><span class="p">,</span>
+    <span class="n">dagrun_timeout</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">60</span><span class="p">),</span>
+    <span class="n">template_searchpath</span><span class="o">=</span><span class="s1">&#39;/home/gt/airflow/sql&#39;</span><span class="p">,</span>
+    <span class="n">default_args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+    <span class="n">max_active_runs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">get_auditid</span> <span class="o">=</span> <span class="n">AuditOperator</span><span class="p">(</span>
+    <span class="n">task_id</span><span class="o">=</span><span class="s1">&#39;get_audit_id&#39;</span><span class="p">,</span>
+    <span class="n">postgres_conn_id</span><span class="o">=</span><span class="s1">&#39;postgres_dwh&#39;</span><span class="p">,</span>
+    <span class="n">audit_key</span><span class="o">=</span><span class="s2">&quot;orders&quot;</span><span class="p">,</span>
+    <span class="n">cycle_dtm</span><span class="o">=</span><span class="s2">&quot;{{ ts }}&quot;</span><span class="p">,</span>
+    <span class="n">dag</span><span class="o">=</span><span class="n">dag</span><span class="p">,</span>
+    <span class="n">pool</span><span class="o">=</span><span class="s1">&#39;postgres_dwh&#39;</span><span class="p">)</span>
+
+<span class="n">extract_orderinfo</span> <span class="o">=</span> <span class="n">PostgresToPostgresOperator</span><span class="p">(</span>
+    <span class="n">sql</span><span class="o">=</span><span class="s1">&#39;select_order_info.sql&#39;</span><span class="p">,</span>
+    <span class="n">pg_table</span><span class="o">=</span><span class="s1">&#39;staging.order_info&#39;</span><span class="p">,</span>
+    <span class="n">src_postgres_conn_id</span><span class="o">=</span><span class="s1">&#39;postgres_oltp&#39;</span><span class="p">,</span>
+    <span class="n">dest_postgress_conn_id</span><span class="o">=</span><span class="s1">&#39;postgres_dwh&#39;</span><span class="p">,</span>
+    <span class="n">pg_preoperator</span><span class="o">=</span><span class="s2">&quot;DELETE FROM staging.order_info WHERE &quot;</span>
+        <span class="s2">&quot;partition_dtm &gt;= DATE &#39;{{ ds }}&#39; AND partition_dtm &lt; DATE &#39;{{ tomorrow_ds }}&#39;&quot;</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;window_start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;{{ ds }}&quot;</span><span class="p">,</span> <span class="s2">&quot;window_end_date&quot;</span><span class="p">:</span> <span class="s2">&quot;{{ tomorrow_ds }}&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;audit_id&quot;</span><span class="p">:</span> <span class="s2">&quot;{{ ti.xcom_pull(task_ids=&#39;get_audit_id&#39;, key=&#39;audit_id&#39;) }}&quot;</span><span class="p">},</span>
+    <span class="n">task_id</span><span class="o">=</span><span class="s1">&#39;ingest_order&#39;</span><span class="p">,</span>
+    <span class="n">dag</span><span class="o">=</span><span class="n">dag</span><span class="p">,</span>
+    <span class="n">pool</span><span class="o">=</span><span class="s1">&#39;postgres_dwh&#39;</span><span class="p">)</span>
+
+<span class="n">extract_orderline</span> <span class="o">=</span> <span class="n">PostgresToPostgresOperator</span><span class="p">(</span>
+    <span class="n">sql</span><span class="o">=</span><span class="s1">&#39;select_orderline.sql&#39;</span><span class="p">,</span>
+    <span class="n">pg_table</span><span class="o">=</span><span class="s1">&#39;staging.orderline&#39;</span><span class="p">,</span>
+    <span class="n">src_postgres_conn_id</span><span class="o">=</span><span class="s1">&#39;postgres_oltp&#39;</span><span class="p">,</span>
+    <span class="n">dest_postgress_conn_id</span><span class="o">=</span><span class="s1">&#39;postgres_dwh&#39;</span><span class="p">,</span>
+    <span class="n">pg_preoperator</span><span class="o">=</span><span class="s2">&quot;DELETE FROM staging.orderline WHERE &quot;</span>
+        <span class="s2">&quot;partition_dtm &gt;= DATE &#39;{{ ds }}&#39; AND partition_dtm &lt; DATE &#39;{{ tomorrow_ds }}&#39;&quot;</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;window_start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;{{ ds }}&quot;</span><span class="p">,</span> <span class="s2">&quot;window_end_date&quot;</span><span class="p">:</span> <span class="s2">&quot;{{ tomorrow_ds }}&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;audit_id&quot;</span><span class="p">:</span> <span class="s2">&quot;{{ ti.xcom_pull(task_ids=&#39;get_audit_id&#39;, key=&#39;audit_id&#39;) }}&quot;</span><span class="p">},</span>
+    <span class="n">task_id</span><span class="o">=</span><span class="s1">&#39;ingest_orderline&#39;</span><span class="p">,</span>
+    <span class="n">dag</span><span class="o">=</span><span class="n">dag</span><span class="p">,</span>
+    <span class="n">pool</span><span class="o">=</span><span class="s1">&#39;postgres_dwh&#39;</span><span class="p">)</span>
+
+<span class="n">get_auditid</span> <span class="o">&gt;&gt;</span> <span class="n">extract_orderinfo</span> <span class="o">&gt;&gt;</span> <span class="n">extract_orderline</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">dag</span><span class="o">.</span><span class="n">cli</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>And the code for the defined operators:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">airflow.hooks.postgres_hook</span> <span class="k">import</span> <span class="n">PostgresHook</span>
+<span class="kn">from</span> <span class="nn">airflow.models</span> <span class="k">import</span> <span class="n">BaseOperator</span>
+<span class="kn">from</span> <span class="nn">airflow.utils.decorators</span> <span class="k">import</span> <span class="n">apply_defaults</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+
+
+<span class="k">class</span> <span class="nc">PostgresToPostgresOperator</span><span class="p">(</span><span class="n">BaseOperator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Executes sql code in a Postgres database and insert into another</span>
+
+<span class="sd">    :param src_postgres_conn_id: reference to the source postgres database</span>
+<span class="sd">    :type src_postgres_conn_id: string</span>
+<span class="sd">    :param dest_postgress_conn_id: reference to the destination postgres database</span>
+<span class="sd">    :type dest_postgress_conn_id: string</span>
+<span class="sd">    :param sql: the sql code to be executed</span>
+<span class="sd">    :type sql: Can receive a str representing a sql statement,</span>
+<span class="sd">        a list of str (sql statements), or reference to a template file.</span>
+<span class="sd">        Template reference are recognized by str ending in &#39;.sql&#39;</span>
+<span class="sd">    :param parameters: a parameters dict that is substituted at query runtime.</span>
+<span class="sd">    :type parameters: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">template_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;sql&#39;</span><span class="p">,</span> <span class="s1">&#39;parameters&#39;</span><span class="p">,</span> <span class="s1">&#39;pg_table&#39;</span><span class="p">,</span> <span class="s1">&#39;pg_preoperator&#39;</span><span class="p">,</span> <span class="s1">&#39;pg_postoperator&#39;</span><span class="p">)</span>
+    <span class="n">template_ext</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.sql&#39;</span><span class="p">,)</span>
+    <span class="n">ui_color</span> <span class="o">=</span> <span class="s1">&#39;#ededed&#39;</span>
+
+    <span class="nd">@apply_defaults</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">sql</span><span class="p">,</span>
+            <span class="n">pg_table</span><span class="p">,</span>
+            <span class="n">src_postgres_conn_id</span><span class="o">=</span><span class="s1">&#39;postgres_default&#39;</span><span class="p">,</span>
+            <span class="n">dest_postgress_conn_id</span><span class="o">=</span><span class="s1">&#39;postgres_default&#39;</span><span class="p">,</span>
+            <span class="n">pg_preoperator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">pg_postoperator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PostgresToPostgresOperator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pg_table</span> <span class="o">=</span> <span class="n">pg_table</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src_postgres_conn_id</span> <span class="o">=</span> <span class="n">src_postgres_conn_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dest_postgress_conn_id</span> <span class="o">=</span> <span class="n">dest_postgress_conn_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pg_preoperator</span> <span class="o">=</span> <span class="n">pg_preoperator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pg_postoperator</span> <span class="o">=</span> <span class="n">pg_postoperator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span>
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Executing: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sql</span><span class="p">))</span>
+        <span class="n">src_pg</span> <span class="o">=</span> <span class="n">PostgresHook</span><span class="p">(</span><span class="n">postgres_conn_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">src_postgres_conn_id</span><span class="p">)</span>
+        <span class="n">dest_pg</span> <span class="o">=</span> <span class="n">PostgresHook</span><span class="p">(</span><span class="n">postgres_conn_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dest_postgress_conn_id</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Transferring Postgres query results into other Postgres database.&quot;</span><span class="p">)</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">src_pg</span><span class="o">.</span><span class="n">get_conn</span><span class="p">()</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sql</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pg_preoperator</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running Postgres preoperator&quot;</span><span class="p">)</span>
+            <span class="n">dest_pg</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pg_preoperator</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Inserting rows into Postgres&quot;</span><span class="p">)</span>
+
+        <span class="n">dest_pg</span><span class="o">.</span><span class="n">insert_rows</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pg_table</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="n">cursor</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pg_postoperator</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running Postgres postoperator&quot;</span><span class="p">)</span>
+            <span class="n">dest_pg</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pg_postoperator</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Done.&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">AuditOperator</span><span class="p">(</span><span class="n">BaseOperator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Executes sql code in a Postgres database and insert into another</span>
+
+<span class="sd">    :param postgres_conn_id: reference to the postgres database</span>
+<span class="sd">    :type postgres_conn_id: string</span>
+<span class="sd">    :param audit_key: The key to use in the audit table</span>
+<span class="sd">    :type audit_key: string</span>
+<span class="sd">    :param cycle_dtm: The dtm of the extraction cycle run (ds)</span>
+<span class="sd">    :type cycle_dtm: datetime</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">template_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;audit_key&#39;</span><span class="p">,</span> <span class="s1">&#39;cycle_dtm&#39;</span><span class="p">)</span>
+    <span class="n">ui_color</span> <span class="o">=</span> <span class="s1">&#39;#ededed&#39;</span>
+
+    <span class="nd">@apply_defaults</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">postgres_conn_id</span><span class="o">=</span><span class="s1">&#39;postgres_default&#39;</span><span class="p">,</span>
+            <span class="n">audit_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">cycle_dtm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AuditOperator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">postgres_conn_id</span> <span class="o">=</span> <span class="n">postgres_conn_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">audit_key</span> <span class="o">=</span> <span class="n">audit_key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_dtm</span> <span class="o">=</span> <span class="n">cycle_dtm</span>
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Getting postgres hook object&#39;</span><span class="p">)</span>
+        <span class="n">hook</span> <span class="o">=</span> <span class="n">PostgresHook</span><span class="p">(</span><span class="n">postgres_conn_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">postgres_conn_id</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Acquiring lock and updating audit table.&quot;</span><span class="p">)</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">hook</span><span class="o">.</span><span class="n">get_conn</span><span class="p">()</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;LOCK TABLE staging.audit_runs IN ACCESS EXCLUSIVE MODE&quot;</span><span class="p">)</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Acquiring new audit number&quot;</span><span class="p">)</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT COALESCE(MAX(audit_id), 0)+1 FROM staging.audit_runs WHERE &quot;</span>
+                       <span class="s2">&quot;audit_key=</span><span class="si">%(audit_key)s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;audit_key&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">audit_key</span><span class="p">})</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">audit_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Found audit id </span><span class="si">%d</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">audit_id</span><span class="p">))</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;audit_id&quot;</span><span class="p">:</span> <span class="n">audit_id</span><span class="p">,</span> <span class="s2">&quot;audit_key&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">audit_key</span><span class="p">,</span>
+                  <span class="s2">&quot;exec_dtm&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span> <span class="s2">&quot;cycle_dtm&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_dtm</span><span class="p">}</span>
+
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Updating audit table with audit id: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">audit_id</span><span class="p">))</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;INSERT INTO staging.audit_runs &quot;</span>
+                       <span class="s2">&quot;(audit_id, audit_key, execution_dtm, cycle_dtm) VALUES &quot;</span>
+                       <span class="s2">&quot;(</span><span class="si">%(audit_id)s</span><span class="s2">, </span><span class="si">%(audit_key)s</span><span class="s2">, </span><span class="si">%(exec_dtm)s</span><span class="s2">, </span><span class="si">%(cycle_dtm)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+                       <span class="n">params</span><span class="p">)</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">ti</span> <span class="o">=</span> <span class="n">context</span><span class="p">[</span><span class="s1">&#39;ti&#39;</span><span class="p">]</span>
+        <span class="n">ti</span><span class="o">.</span><span class="n">xcom_push</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s1">&#39;audit_id&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">audit_id</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">audit_id</span>
+</pre></div>
 </div>
 </div>
 </div>
