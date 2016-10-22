@@ -100,6 +100,10 @@ configurations simply by referring to the name of that connection and airflow ma
 Not all schedulers do this properly; sometimes the workflow files contain these details (leading to duplication everywhere 
 and a pain to update when it changes).
 
+**Specify configuration details once**: Following the DRY principle, avoid duplication of configuration details by specifying them in a single
+place once and look up the correct configuration from the code. Each airflow instance has "Variables" that can be set and looked up to
+specify the context in which a task is run.
+
 **Keep all metadata in one place**: You don’t need to do anything here. Airflow will manage logs, job duration, landing times in one place, 
 which reduces the amount of overhead on people to collect this metadata in order to analyze problems. 
 

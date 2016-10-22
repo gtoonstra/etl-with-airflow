@@ -12,8 +12,8 @@ can materialize in full and the processing becomes clear.
 Install airflow
 ---------------
 
-Follow `these <https://airflow.incubator.apache.org/start.html>`_ instructions for 
-the quick start. After you start the webserver, also start the scheduler. Play around with it for while,
+Before we begin on this more elaborate example, `follow the tutorial <https://airflow.incubator.apache.org/start.html>`_ to
+get acquainted with the basic principles. After you start the webserver, also start the scheduler. Play around with it for while,
 follow the tutorial there, then get back to this tutorial to further contextualize your understanding
 of this platform.
 
@@ -59,19 +59,29 @@ Now, let's create some tables and populate it with some data.
 
     $ ./load_data.sh
 
-Set up Postgres connection and pool
------------------------------------
+Configure airflow
+-----------------
 
-We need to declare this postgres connection in airflow. Go to the connections screen in the UI (through Admin)
-and edit the default. Make sure to keep the connection string ID as *postgres_default*. You can check if this
-connection is working for you in the *Ad-hoc query* section of the *Data Profiling* menu and select the same
-connection string from there and doing a select on the order_info table:
+We need to declare two postgres connections in airflow. 
+
+Go to the connections screen in the UI (through Admin) and create a new postgres connection and call this
+*postgres_oltp*. Then specify conntype=Postgres, Schema=orders, login=oltp_read (same password) and port 5432
+or whatever you're using.
+
+Then add another connection for Postgres, which connects to the data warehouse: conntype=Postgres, Schema=dwh,
+login=dwh_svc_account (same password) and port 5432.
+
+You can check if these connections are working for you in the *Ad-hoc query* section of the 
+*Data Profiling* menu and select the same connection string from there and doing a select on the order_info table:
 
 ::
 
     SELECT * FROM order_info;
-    
-Then add a pool to airflow (also under Admin) which is called *postgres_dwh*. 
+
+Then add a pool to airflow (also under Admin) which should be called *postgres_dwh*. Let's give this a value of 10.
+
+Finally add a Variable in the Variables section where the sql templates are stored; these are the SQL files 
+from the example repository. Create a new variable "sql_path" and set the value to the directory.
 
 Drop dags into airflow
 ----------------------
@@ -96,11 +106,30 @@ In the airflow UI, refresh the main DAG UI and the new dags should be listed:
 - customer_staging
 - product_staging
 - process_dimensions
+- process_order_fact
 
-They're inserted in non-active state, so activate the DAGS and the scheduler should start running the jobs.
+DAGs are inserted in a non-active state, so activate the DAGS and the scheduler should start running the jobs.
 The process copies data from a toy OLTP data store: order_info, orderline, customer and product. 
 Process_dimensions processes the product and customer dimensions using some Slowly Changing Dimensions with 
 Type 2 logic and process_facts processes the fact tables.
+
+How it works
+------------
+
+There are two databases created (on the same server) to simulate making a connection to a remote OLTP system
+and another database which is a simplistic Data WareHouse. The OLTP system only has a couple of rows for orders,
+orderlines and some customer and product info. 
+
+The *_staging processes extract data from the OLTP database and ingest them into the staging tables in the staging
+schema, taking care to make this process repeatable. 
+
+The *process_dimensions* DAG updates the customer and product dimensions in the data warehouse, prior to updating facts.
+It is set up with the *depends_on_past* parameter set to True, because dimensions should be updated in a specific
+sequence. This does have the effect that it can slow down the scheduling, because the task instances are now not
+parallelized.
+
+The *process_order_fact* processes the order+orderline data and associates them with the correct surrogate key in the
+dimension tables, based on the date/time the records were active.
 
 Proof of principles compliance
 ------------------------------
@@ -115,15 +144,21 @@ to work with partitioned tables at the destination, but to keep the example conc
 to comment them out. Uncomment them and adjust the operators to put this back. The principle **Partition ingested data**
 is not demonstrated by default for that reason; see the comment below for more information about the practice. 
 
-**Load data incrementally** is satisfied by loading only the new created orders of yesterday.
-**Process historic data** is possible by clearing the run; airflow will then reprocess the days that were cleared.
-**Enforce the idempotency constraint** is satisfied, because the relevant data is cleared out prior to reloading it.
-**Rest data between tasks** is satisfied, because the data is in two persistent stores before and after the operator.
-All operators use a pool identifier, so **Pool your resources** is also satisfied and **Manage login details in one place** 
-is satisfied through the connection settings in the Admin menu. The DAGs do not have all code in the dag itself, but it uses
-a set of generally available operators in the subdirectories, which means that **Develop your own workflow framework**
-is also satisfied. Other principles not listed are not applicable.
+Satisfied principles (not listed are not applicable):
 
+- **Load data incrementally** : extracts only the newly created orders of the day before, not the whole table.
+- **Process historic data** : it's possible to rerun the extract processes, but downstream DAGs have to be started manually.
+- **Enforce the idempotency constraint** : every DAG cleans out data if required and possible. Rerunning the same DAG multiple 
+  times has no undesirable side effects like duplication with the data.
+- **Rest data between tasks** : The data is in persistent storage before and after the operator.
+- **Pool your resources** : All task instances in the DAG use a pooled connection to the DWH by specifying the *pool* parameter.
+- **Manage login details in one place** : Connection settings are maintained in the Admin menu.
+- **Develop your own workflow framework** : A subdirectory in the DAG code repository contains a framework of operators that are 
+  reused between DAGs.
+- **Sense when to start a task** : The processing of dimensions and facts have external task sensors which wait until all processing
+  of external DAGs have finished up to the required day. 
+- **Specify configuration details once** : The place where SQL templates are is configured as an Airflow Variable and looked up 
+  as a global parameter when the DAG is instantiated.
 
 .. important::
     The commented code shows how to use the package manager to keep the last 90 days in a partition and then 
@@ -139,6 +174,6 @@ is also satisfied. Other principles not listed are not applicable.
     
     You do not want to reload data older than 90 days in that case, so another operator or function should be added that
     checks whether today-execution_date is greather than 90 and prohibits execution if that's the case. Not doing that would
-    truncate a non-existing table. An alternative is to follow a different path that uses DELETE FROM on the master table instead.
-
+    truncate a non-existing table. An alternative is to follow a different path in the DAG that uses DELETE FROM on the 
+    master table instead.
 

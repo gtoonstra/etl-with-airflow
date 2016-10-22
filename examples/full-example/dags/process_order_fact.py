@@ -17,6 +17,7 @@ import airflow
 from datetime import datetime, timedelta
 from acme.operators.dwh_operators import PostgresOperatorWithTemplatedParams
 from airflow.operators import ExternalTaskSensor
+from airflow.models import Variable
 
 
 seven_days_ago = datetime.combine(
@@ -29,11 +30,13 @@ args = {
     'provide_context': True
 }
 
+tmpl_search_path = Variable.get("sql_path")
+
 dag = airflow.DAG(
     'process_order_fact',
     schedule_interval="@daily",
     dagrun_timeout=timedelta(minutes=60),
-    template_searchpath='/home/gt/airflow/sql',
+    template_searchpath=tmpl_search_path,
     default_args=args,
     max_active_runs=1)
 
