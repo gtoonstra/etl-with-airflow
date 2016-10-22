@@ -1,11 +1,15 @@
 DROP TABLE IF EXISTS staging.order_info;
 DROP TABLE IF EXISTS staging.orderline;
 DROP TABLE IF EXISTS staging.audit_runs;
+DROP TABLE IF EXISTS staging.customer;
+DROP TABLE IF EXISTS staging.product;
 DROP TABLE IF EXISTS dwh.fact_order_transaction;
 DROP TABLE IF EXISTS dwh.dim_customer;
+DROP SEQUENCE IF EXISTS seq_customer;
 DROP TABLE IF EXISTS dwh.dim_date;
 DROP TABLE IF EXISTS dwh.dim_time;
 DROP TABLE IF EXISTS dwh.dim_product;
+DROP SEQUENCE IF EXISTS seq_product;
 
 CREATE TABLE staging.order_info (
     order_id       INTEGER PRIMARY KEY NOT NULL,
@@ -25,6 +29,23 @@ CREATE TABLE staging.orderline (
     partition_dtm  TIMESTAMP NOT NULL
 );
 
+CREATE TABLE staging.customer (
+    customer_id    VARCHAR(16) PRIMARY KEY NOT NULL,
+    cust_name      VARCHAR(20) NOT NULL,
+    street         VARCHAR(50),
+    city           VARCHAR(30),
+    audit_id       INTEGER NOT NULL,
+    partition_dtm  TIMESTAMP NOT NULL
+);
+
+CREATE TABLE staging.product (
+    product_id     INTEGER PRIMARY KEY NOT NULL,
+    product_name   VARCHAR(50) NOT NULL,
+    supplier_id    INTEGER NOT NULL,
+    audit_id       INTEGER NOT NULL,
+    partition_dtm  TIMESTAMP NOT NULL
+);
+
 CREATE TABLE staging.audit_runs (
     audit_id       INTEGER NOT NULL,
     audit_key      VARCHAR(16) NOT NULL,
@@ -39,51 +60,66 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA staging TO dwh_svc_account;
 --SELECT partman.create_parent('staging.orderline', 'partition_dtm', 'time', 'daily', NULL, 4, true, to_char((CURRENT_TIMESTAMP - INTERVAL '90 days'), 'YYYY-MM-DD' ) );
 --UPDATE partman.part_config set retention = '90', retention_schema = NULL, retention_keep_table = false, retention_keep_index = false;
 
-CREATE TABLE dwh.fact_order_transaction (
-    order_date   DATE,
-    product_key  INTEGER,
-    customer_key INTEGER,
-    quantity     INTEGER,
-    price        REAL,
-    time_key     VARCHAR(5),
-    order_id     INTEGER,
-    orderline_id INTEGER
+CREATE TABLE dwh.fact_orderline (
+    order_date_key   DATE NOT NULL,
+    time_key         VARCHAR(5) NOT NULL,
+    product_key      INTEGER NOT NULL,
+    customer_key     INTEGER NOT NULL,
+    order_id         INTEGER NOT NULL,
+    orderline_id     INTEGER NOT NULL,
+    quantity         INTEGER NOT NULL,
+    price            REAL NOT NULL
 );
+
+CREATE SEQUENCE seq_customer START 1;
+GRANT USAGE, SELECT ON SEQUENCE seq_customer TO dwh_svc_account;
 
 CREATE TABLE dwh.dim_customer (
-    customer_key  INTEGER PRIMARY KEY,
-    customer_id   VARCHAR(16)
+    customer_key  INTEGER PRIMARY KEY NOT NULL DEFAULT nextval('seq_customer'),
+    customer_id   VARCHAR(16) NOT NULL,
+    cust_name     VARCHAR(20) NOT NULL,
+    street        VARCHAR(50),
+    city          VARCHAR(30),
+    start_dtm     TIMESTAMP NOT NULL,
+    end_dtm       TIMESTAMP NOT NULL DEFAULT TIMESTAMP '9999-01-01'
 );
 
+CREATE SEQUENCE seq_product START 1;
+GRANT USAGE, SELECT ON SEQUENCE seq_product TO dwh_svc_account;
+
 CREATE TABLE dwh.dim_product (
-    product_key  INTEGER PRIMARY KEY,
-    product_id   INTEGER
+    product_key  INTEGER PRIMARY KEY NOT NULL DEFAULT nextval('seq_product'),
+    product_id   INTEGER NOT NULL,
+    product_name VARCHAR(50) NOT NULL,
+    supplier_id  INTEGER NOT NULL,
+    start_dtm    TIMESTAMP NOT NULL,
+    end_dtm      TIMESTAMP NOT NULL DEFAULT TIMESTAMP '9999-01-01'
 );
 
 CREATE TABLE dwh.dim_date (
-    date_pk       DATE,
-    year          INTEGER,
-    month         INTEGER,
-    month_name    VARCHAR(32),
-    day_of_month  INTEGER,
-    day_of_year   INTEGER,
-    week_day_name VARCHAR(32),
-    week          INTEGER,
-    fmt_datum     VARCHAR(20),
-    quarter       VARCHAR(2),
-    year_quarter  VARCHAR(7),
-    year_month    VARCHAR(7),
-    year_week     VARCHAR(7),
-    month_start   DATE,
-    month_end     DATE
+    date_pk       DATE NOT NULL,
+    year          INTEGER NOT NULL,
+    month         INTEGER NOT NULL,
+    month_name    VARCHAR(32) NOT NULL,
+    day_of_month  INTEGER NOT NULL,
+    day_of_year   INTEGER NOT NULL,
+    week_day_name VARCHAR(32) NOT NULL,
+    week          INTEGER NOT NULL,
+    fmt_datum     VARCHAR(20) NOT NULL,
+    quarter       VARCHAR(2) NOT NULL,
+    year_quarter  VARCHAR(7) NOT NULL,
+    year_month    VARCHAR(7) NOT NULL,
+    year_week     VARCHAR(7) NOT NULL,
+    month_start   DATE NOT NULL,
+    month_end     DATE NOT NULL
 );
 
 CREATE TABLE dwh.dim_time (
-    time_of_day  VARCHAR(5),
-    hour         INTEGER,
-    minute       INTEGER,
-    daytime_name VARCHAR(7),
-    day_night    VARCHAR(5)
+    time_of_day  VARCHAR(5) NOT NULL,
+    hour         INTEGER NOT NULL,
+    minute       INTEGER NOT NULL,
+    daytime_name VARCHAR(7) NOT NULL,
+    day_night    VARCHAR(5) NOT NULL
 );
 
 GRANT USAGE ON SCHEMA dwh TO dwh_svc_account;

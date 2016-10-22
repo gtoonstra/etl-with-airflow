@@ -29,7 +29,7 @@ args = {
 }
 
 dag = airflow.DAG(
-    'orders_staging',
+    'product_staging',
     schedule_interval="@daily",
     dagrun_timeout=timedelta(minutes=60),
     template_searchpath='/home/gt/airflow/sql',
@@ -39,38 +39,25 @@ dag = airflow.DAG(
 get_auditid = AuditOperator(
     task_id='get_audit_id',
     postgres_conn_id='postgres_dwh',
-    audit_key="orders",
+    audit_key="product",
     cycle_dtm="{{ ts }}",
     dag=dag,
     pool='postgres_dwh')
 
-extract_orderinfo = PostgresToPostgresOperator(
-    sql='select_order_info.sql',
-    pg_table='staging.order_info',
+extract_product = PostgresToPostgresOperator(
+    sql='select_product.sql',
+    pg_table='staging.product',
     src_postgres_conn_id='postgres_oltp',
     dest_postgress_conn_id='postgres_dwh',
-    pg_preoperator="DELETE FROM staging.order_info WHERE "
+    pg_preoperator="DELETE FROM staging.product WHERE "
         "partition_dtm >= DATE '{{ ds }}' AND partition_dtm < DATE '{{ tomorrow_ds }}'",
     parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}",
                 "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
-    task_id='extract_orderinfo',
+    task_id='extract_product',
     dag=dag,
     pool='postgres_dwh')
 
-extract_orderline = PostgresToPostgresOperator(
-    sql='select_orderline.sql',
-    pg_table='staging.orderline',
-    src_postgres_conn_id='postgres_oltp',
-    dest_postgress_conn_id='postgres_dwh',
-    pg_preoperator="DELETE FROM staging.orderline WHERE "
-        "partition_dtm >= DATE '{{ ds }}' AND partition_dtm < DATE '{{ tomorrow_ds }}'",
-    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}",
-                "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
-    task_id='extract_orderline',
-    dag=dag,
-    pool='postgres_dwh')
-
-get_auditid >> extract_orderinfo >> extract_orderline
+get_auditid >> extract_product
 
 
 if __name__ == "__main__":
