@@ -25,7 +25,6 @@ write it to the destination. As an organization grows however, you’ll need to 
 at regular intervals and only load data for an hour, day, week, etc. Airflow makes it very easy to schedule 
 jobs such that they process specific intervals with job parameters that allow you select data.
 
-
 **Process historic data**:  There are cases when you just finished a new workflow and need data that 
 goes back further than the date push your new code into production. In this situation you can simply use the
 *start_date* parameter in a DAG to specify the start date. Airflow will then back-fill tasks to process that data
@@ -34,6 +33,11 @@ data up-to-date, so there are some other strategies that you can use to process 
 better parametrization of the DAGS. That will be documented in a separate story on this site. I've personally seen
 cases where a lot of effort went into dealing with historical data loads and a lot of manual coding and workarounds
 to achieve this. The idea is to make this effort repeatable and simple.
+
+**Partition ingested data**: By partitioning data being ingested at the destination, you can parallellize dag runs,
+avoid write locks on data being ingested and optimize performance when that same data is being read. It will also
+serve as a historical snapshot of what the data looked like at specific moments in time for audit purposes. Partitions
+that are no longer relevant can be archived and removed from the database.
   
 **Enforce the idempotency constraint**:  The result of a DAG run should always have idempotency characteristics. This means that when you 
 run a process multiple times with the same parameters (even on different days), the outcome is exactly the same. You do

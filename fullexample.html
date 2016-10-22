@@ -92,9 +92,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#clone-example-project">Clone example project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install-postgres">Install postgres</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#set-up-database">Set up database</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#set-up-postgres-connection">Set up Postgres connection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#drop-stuff-into-airflow">Drop stuff into airflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#set-up-postgres-connection-and-pool">Set up Postgres connection and pool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#drop-dags-into-airflow">Drop dags into airflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#run-it">Run it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#proof-of-principles-compliance">Proof of principles compliance</a></li>
 </ul>
 </li>
 </ul>
@@ -141,7 +142,7 @@
             
   <div class="section" id="full-example">
 <h1>Full example<a class="headerlink" href="#full-example" title="Permalink to this headline">¶</a></h1>
-<p>To demonstrate how the ETL principles come together with airflow, let&#8217;s walk through a simple, full
+<p>To demonstrate how the ETL principles come together with airflow, let&#8217;s walk through a simple yet full
 example that implements a data flow pipeline adhering to these principles. I&#8217;m mostly assuming that
 people running airflow will have Linux (I use Ubuntu), but the examples should work for Mac OSX as
 well with a couple of simple changes.</p>
@@ -186,8 +187,8 @@ $ ./create_everything.sh
 </pre></div>
 </div>
 </div>
-<div class="section" id="set-up-postgres-connection">
-<h2>Set up Postgres connection<a class="headerlink" href="#set-up-postgres-connection" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="set-up-postgres-connection-and-pool">
+<h2>Set up Postgres connection and pool<a class="headerlink" href="#set-up-postgres-connection-and-pool" title="Permalink to this headline">¶</a></h2>
 <p>We need to declare this postgres connection in airflow. Go to the connections screen in the UI (through Admin)
 and edit the default. Make sure to keep the connection string ID as <em>postgres_default</em>. You can check if this
 connection is working for you in the <em>Ad-hoc query</em> section of the <em>Data Profiling</em> menu and select the same
@@ -195,24 +196,59 @@ connection string from there and doing a select on the order_info table:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="o">*</span> <span class="n">FROM</span> <span class="n">order_info</span><span class="p">;</span>
 </pre></div>
 </div>
+<p>Then add a pool to airflow (also under Admin) which is called <em>postgres_dwh</em>.</p>
 </div>
-<div class="section" id="drop-stuff-into-airflow">
-<h2>Drop stuff into airflow<a class="headerlink" href="#drop-stuff-into-airflow" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="drop-dags-into-airflow">
+<h2>Drop dags into airflow<a class="headerlink" href="#drop-dags-into-airflow" title="Permalink to this headline">¶</a></h2>
 <p>In a real setup you&#8217;d use continuous integration to update DAG&#8217;s and dependencies in airflow after changes,
 but now we&#8217;re going to drop in the lot straight into the DAG directory for simplicity.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> full-example/dags
 $ cp -R * <span class="nv">$AIRFLOW_HOME</span>/dags
 $ mkdir <span class="nv">$AIRFLOW_HOME</span>/sql
 $ <span class="nb">cd</span> full-example/sql
-$ cp order_copy.sql <span class="nv">$AIRFLOW_HOME</span>/sql
-$ cp orderline_copy.sql <span class="nv">$AIRFLOW_HOME</span>/sql
+$ cp *.sql <span class="nv">$AIRFLOW_HOME</span>/sql
 </pre></div>
 </div>
 </div>
 <div class="section" id="run-it">
 <h2>Run it<a class="headerlink" href="#run-it" title="Permalink to this headline">¶</a></h2>
-<p>In the airflow UI, refresh the main DAG UI and the new dag should be listed (full-example). Probably the scheduler
-has already started executing the DAG, so go into the detail view for the DAG to see what the result was.</p>
+<p>In the airflow UI, refresh the main DAG UI and the new dags should be listed (orders_staging and orders_dwh).
+Probably the scheduler has already started executing the DAG, so go into the detail view for the DAG to see
+what the result were.</p>
+</div>
+<div class="section" id="proof-of-principles-compliance">
+<h2>Proof of principles compliance<a class="headerlink" href="#proof-of-principles-compliance" title="Permalink to this headline">¶</a></h2>
+<p>If we set principles for ourselves, we need to verify that we comply with them. This section documents how the
+principles are implemented in the full example.</p>
+<p>The <em>PostgresToPostgresOperator</em> uses a hook to acquire a connection to the source and destination database.
+The data corresponding to the execution date (which is here start of yesterday up to
+most recent midnight, but from the perspective of airflow that&#8217;s <em>tomorrow</em>). There&#8217;s code available in the example
+to work with partitioned tables at the destination, but to keep the example concise and easily runnable, I decided
+to comment them out. Uncomment them and adjust the operators to put this back. The principle <strong>Partition ingested data</strong>
+is not demonstrated by default for that reason; see the comment below for more information about the practice.</p>
+<p><strong>Load data incrementally</strong> is satisfied by loading only the new created orders of yesterday.
+<strong>Process historic data</strong> is possible by clearing the run; airflow will then reprocess the days that were cleared.
+<strong>Enforce the idempotency constraint</strong> is satisfied, because the relevant data is cleared out prior to reloading it.
+<strong>Rest data between tasks</strong> is satisfied, because the data is in two persistent stores before and after the operator.
+All operators use a pool identifier, so <strong>Pool your resources</strong> is also satisfied and <strong>Manage login details in one place</strong>
+is satisfied through the connection settings in the Admin menu. The DAGs do not have all code in the dag itself, but it uses
+a set of generally available operators in the subdirectories, which means that <strong>Develop your own workflow framework</strong>
+is also satisfied. Other principles not listed are not applicable.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p>The commented code shows how to use the package manager to keep the last 90 days in a partition and then
+move partitions out to the master table as a retention strategy. Partition management is done through another
+scheduled function that runs daily and moves partitions around and creates new ones when required. What&#8217;s not
+demonstrated is archiving, which happens after that and depends on the accepted archiving policy for your
+organization.</p>
+<p>The benefit of partitioning is that rerunning ingests is very easy and there&#8217;s better parallellization of tasks
+in the DB engine. So ingest jobs get less in the way of each other. The downside is that there are many more tables
+and files to manage and this can slow down performance if too heavily used. So it&#8217;s good for the largest of tables
+like orderline and invoiceline, but other tables should probably deal with a single master table.</p>
+<p class="last">You do not want to reload data older than 90 days in that case, so another operator or function should be added that
+checks whether today-execution_date is greather than 90 and prohibits execution if that&#8217;s the case. Not doing that would
+truncate a non-existing table. An alternative is to follow a different path that uses DELETE FROM on the master table instead.</p>
+</div>
 </div>
 </div>
 

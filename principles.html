@@ -160,6 +160,10 @@ data up-to-date, so there are some other strategies that you can use to process 
 better parametrization of the DAGS. That will be documented in a separate story on this site. I&#8217;ve personally seen
 cases where a lot of effort went into dealing with historical data loads and a lot of manual coding and workarounds
 to achieve this. The idea is to make this effort repeatable and simple.</p>
+<p><strong>Partition ingested data</strong>: By partitioning data being ingested at the destination, you can parallellize dag runs,
+avoid write locks on data being ingested and optimize performance when that same data is being read. It will also
+serve as a historical snapshot of what the data looked like at specific moments in time for audit purposes. Partitions
+that are no longer relevant can be archived and removed from the database.</p>
 <p><strong>Enforce the idempotency constraint</strong>:  The result of a DAG run should always have idempotency characteristics. This means that when you
 run a process multiple times with the same parameters (even on different days), the outcome is exactly the same. You do
 not end up with multiple copies of the same data in your environment or other undesirable side effects. This is obviously
