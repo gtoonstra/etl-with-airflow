@@ -21,7 +21,7 @@ from acme.operators.postgres_to_postgres import AuditOperator
 seven_days_ago = datetime.combine(
     datetime.today() - timedelta(7),
     datetime.min.time())
-    
+
 args = {
     'owner': 'airflow',
     'start_date': seven_days_ago,
@@ -36,13 +36,13 @@ dag = airflow.DAG(
     default_args=args,
     max_active_runs=1)
 
-
 get_auditid = AuditOperator(
     task_id='get_audit_id',
     postgres_conn_id='postgres_dwh',
     audit_key="orders",
     cycle_dtm="{{ ts }}",
-    dag=dag)
+    dag=dag,
+    pool='postgres_dwh')
 
 extract_orderinfo = PostgresToPostgresOperator(
     sql='select_order_info.sql',
@@ -50,10 +50,11 @@ extract_orderinfo = PostgresToPostgresOperator(
     src_postgres_conn_id='postgres_oltp',
     dest_postgress_conn_id='postgres_dwh',
     pg_preoperator="DELETE FROM staging.order_info WHERE "
-        "insert_dtm >= DATE '{{ ds }}' AND insert_dtm < DATE '{{ tomorrow_ds }}'",
+        "partition_dtm >= DATE '{{ ds }}' AND partition_dtm < DATE '{{ tomorrow_ds }}'",
     parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}", "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
     task_id='ingest_order',
-    dag=dag)
+    dag=dag,
+    pool='postgres_dwh')
 
 extract_orderline = PostgresToPostgresOperator(
     sql='select_orderline.sql',
@@ -61,13 +62,15 @@ extract_orderline = PostgresToPostgresOperator(
     src_postgres_conn_id='postgres_oltp',
     dest_postgress_conn_id='postgres_dwh',
     pg_preoperator="DELETE FROM staging.orderline WHERE "
-        "insert_dtm >= DATE '{{ ds }}' AND insert_dtm < DATE '{{ tomorrow_ds }}'",
+        "partition_dtm >= DATE '{{ ds }}' AND partition_dtm < DATE '{{ tomorrow_ds }}'",
     parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}", "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
     task_id='ingest_orderline',
-    dag=dag)
+    dag=dag,
+    pool='postgres_dwh')
 
 get_auditid >> extract_orderinfo >> extract_orderline
 
 
 if __name__ == "__main__":
     dag.cli()
+

@@ -5,7 +5,7 @@ CREATE TABLE order_info (
     order_id    INTEGER PRIMARY KEY,
     customer_id VARCHAR(16),
     create_dtm  TIMESTAMP
-);
+);  
 
 CREATE TABLE orderline (
     orderline_id  INTEGER PRIMARY KEY,

@@ -8,32 +8,36 @@ DROP TABLE IF EXISTS dwh.dim_time;
 DROP TABLE IF EXISTS dwh.dim_product;
 
 CREATE TABLE staging.order_info (
-    order_id    INTEGER PRIMARY KEY,
-    customer_id VARCHAR(16),
-    create_dtm  TIMESTAMP,
-    audit_id    INTEGER,
-    insert_dtm  TIMESTAMP
+    order_id       INTEGER PRIMARY KEY NOT NULL,
+    customer_id    VARCHAR(16) NOT NULL,
+    create_dtm     TIMESTAMP NOT NULL,
+    audit_id       INTEGER NOT NULL,
+    partition_dtm  TIMESTAMP NOT NULL
 );
 
 CREATE TABLE staging.orderline (
-    orderline_id  INTEGER PRIMARY KEY,
-    order_id      INTEGER,
-    product_id    INTEGER,
-    quantity      INTEGER,
-    price         REAL,
-    audit_id      INTEGER,
-    insert_dtm    TIMESTAMP
+    orderline_id   INTEGER PRIMARY KEY NOT NULL,
+    order_id       INTEGER NOT NULL,
+    product_id     INTEGER NOT NULL,
+    quantity       INTEGER NOT NULL,
+    price          REAL NOT NULL,
+    audit_id       INTEGER NOT NULL,
+    partition_dtm  TIMESTAMP NOT NULL
 );
 
 CREATE TABLE staging.audit_runs (
-    audit_id      INTEGER,
-    audit_key     VARCHAR(16),
-    execution_dtm TIMESTAMP,
-    cycle_dtm     TIMESTAMP
+    audit_id       INTEGER NOT NULL,
+    audit_key      VARCHAR(16) NOT NULL,
+    execution_dtm  TIMESTAMP NOT NULL,
+    cycle_dtm      TIMESTAMP NOT NULL
 );
 
 GRANT USAGE ON SCHEMA staging TO dwh_svc_account;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA staging TO dwh_svc_account;
+
+--SELECT partman.create_parent('staging.order_info', 'partition_dtm', 'time', 'daily', NULL, 4, true, to_char((CURRENT_TIMESTAMP - INTERVAL '90 days'), 'YYYY-MM-DD') );
+--SELECT partman.create_parent('staging.orderline', 'partition_dtm', 'time', 'daily', NULL, 4, true, to_char((CURRENT_TIMESTAMP - INTERVAL '90 days'), 'YYYY-MM-DD' ) );
+--UPDATE partman.part_config set retention = '90', retention_schema = NULL, retention_keep_table = false, retention_keep_index = false;
 
 CREATE TABLE dwh.fact_order_transaction (
     order_date   DATE,

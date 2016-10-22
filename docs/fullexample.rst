@@ -1,7 +1,7 @@
 Full example
 ============
 
-To demonstrate how the ETL principles come together with airflow, let's walk through a simple, full
+To demonstrate how the ETL principles come together with airflow, let's walk through a simple yet full
 example that implements a data flow pipeline adhering to these principles. I'm mostly assuming that
 people running airflow will have Linux (I use Ubuntu), but the examples should work for Mac OSX as
 well with a couple of simple changes.
@@ -59,8 +59,8 @@ Now, let's create some tables and populate it with some data.
 
     $ ./load_data.sh
 
-Set up Postgres connection
---------------------------
+Set up Postgres connection and pool
+-----------------------------------
 
 We need to declare this postgres connection in airflow. Go to the connections screen in the UI (through Admin)
 and edit the default. Make sure to keep the connection string ID as *postgres_default*. You can check if this
@@ -70,9 +70,11 @@ connection string from there and doing a select on the order_info table:
 ::
 
     SELECT * FROM order_info;
+    
+Then add a pool to airflow (also under Admin) which is called *postgres_dwh*. 
 
-Drop stuff into airflow
------------------------
+Drop dags into airflow
+----------------------
 
 In a real setup you'd use continuous integration to update DAG's and dependencies in airflow after changes, 
 but now we're going to drop in the lot straight into the DAG directory for simplicity.
@@ -83,12 +85,51 @@ but now we're going to drop in the lot straight into the DAG directory for simpl
     $ cp -R * $AIRFLOW_HOME/dags
     $ mkdir $AIRFLOW_HOME/sql
     $ cd full-example/sql
-    $ cp order_copy.sql $AIRFLOW_HOME/sql
-    $ cp orderline_copy.sql $AIRFLOW_HOME/sql
+    $ cp *.sql $AIRFLOW_HOME/sql
 
 Run it
 ------
 
-In the airflow UI, refresh the main DAG UI and the new dag should be listed (full-example). Probably the scheduler
-has already started executing the DAG, so go into the detail view for the DAG to see what the result was.
+In the airflow UI, refresh the main DAG UI and the new dags should be listed (orders_staging and orders_dwh). 
+Probably the scheduler has already started executing the DAG, so go into the detail view for the DAG to see 
+what the result were.
+
+Proof of principles compliance
+------------------------------
+
+If we set principles for ourselves, we need to verify that we comply with them. This section documents how the
+principles are implemented in the full example.
+
+The *PostgresToPostgresOperator* uses a hook to acquire a connection to the source and destination database. 
+The data corresponding to the execution date (which is here start of yesterday up to 
+most recent midnight, but from the perspective of airflow that's *tomorrow*). There's code available in the example
+to work with partitioned tables at the destination, but to keep the example concise and easily runnable, I decided 
+to comment them out. Uncomment them and adjust the operators to put this back. The principle **Partition ingested data**
+is not demonstrated by default for that reason; see the comment below for more information about the practice. 
+
+**Load data incrementally** is satisfied by loading only the new created orders of yesterday.
+**Process historic data** is possible by clearing the run; airflow will then reprocess the days that were cleared.
+**Enforce the idempotency constraint** is satisfied, because the relevant data is cleared out prior to reloading it.
+**Rest data between tasks** is satisfied, because the data is in two persistent stores before and after the operator.
+All operators use a pool identifier, so **Pool your resources** is also satisfied and **Manage login details in one place** 
+is satisfied through the connection settings in the Admin menu. The DAGs do not have all code in the dag itself, but it uses
+a set of generally available operators in the subdirectories, which means that **Develop your own workflow framework**
+is also satisfied. Other principles not listed are not applicable.
+
+
+.. important::
+    The commented code shows how to use the package manager to keep the last 90 days in a partition and then 
+    move partitions out to the master table as a retention strategy. Partition management is done through another
+    scheduled function that runs daily and moves partitions around and creates new ones when required. What's not
+    demonstrated is archiving, which happens after that and depends on the accepted archiving policy for your
+    organization.
+
+    The benefit of partitioning is that rerunning ingests is very easy and there's better parallellization of tasks
+    in the DB engine. So ingest jobs get less in the way of each other. The downside is that there are many more tables
+    and files to manage and this can slow down performance if too heavily used. So it's good for the largest of tables
+    like orderline and invoiceline, but other tables should probably deal with a single master table.
+    
+    You do not want to reload data older than 90 days in that case, so another operator or function should be added that
+    checks whether today-execution_date is greather than 90 and prohibits execution if that's the case. Not doing that would
+    truncate a non-existing table. An alternative is to follow a different path that uses DELETE FROM on the master table instead.
 
