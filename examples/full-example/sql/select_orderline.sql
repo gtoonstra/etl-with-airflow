@@ -4,6 +4,8 @@ SELECT
       , product_id
       , quantity
       , price
+      , %(audit_id)s
+      , %(window_start_date)s
 FROM
       orderline ol INNER JOIN order_info o ON ol.order_id = o.order_id
 WHERE

@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS staging.order_info;
 DROP TABLE IF EXISTS staging.orderline;
+DROP TABLE IF EXISTS staging.audit_runs;
 DROP TABLE IF EXISTS dwh.fact_order_transaction;
 DROP TABLE IF EXISTS dwh.dim_customer;
 DROP TABLE IF EXISTS dwh.dim_date;
@@ -9,7 +10,9 @@ DROP TABLE IF EXISTS dwh.dim_product;
 CREATE TABLE staging.order_info (
     order_id    INTEGER PRIMARY KEY,
     customer_id VARCHAR(16),
-    create_dtm  TIMESTAMP
+    create_dtm  TIMESTAMP,
+    audit_id    INTEGER,
+    insert_dtm  TIMESTAMP
 );
 
 CREATE TABLE staging.orderline (
@@ -17,12 +20,20 @@ CREATE TABLE staging.orderline (
     order_id      INTEGER,
     product_id    INTEGER,
     quantity      INTEGER,
-    price         REAL
+    price         REAL,
+    audit_id      INTEGER,
+    insert_dtm    TIMESTAMP
+);
+
+CREATE TABLE staging.audit_runs (
+    audit_id      INTEGER,
+    audit_key     VARCHAR(16),
+    execution_dtm TIMESTAMP,
+    cycle_dtm     TIMESTAMP
 );
 
 GRANT USAGE ON SCHEMA staging TO dwh_svc_account;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA staging TO dwh_svc_account;
-
 
 CREATE TABLE dwh.fact_order_transaction (
     order_date   DATE,

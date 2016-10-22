@@ -16,7 +16,7 @@ from __future__ import print_function
 import airflow
 from datetime import datetime, timedelta
 from acme.operators.postgres_to_postgres import PostgresToPostgresOperator
-
+from acme.operators.postgres_to_postgres import AuditOperator
 
 seven_days_ago = datetime.combine(
     datetime.today() - timedelta(7),
@@ -25,39 +25,48 @@ seven_days_ago = datetime.combine(
 args = {
     'owner': 'airflow',
     'start_date': seven_days_ago,
-    'provide_context': True,
-    'depends_on_past': True
+    'provide_context': True
 }
 
 dag = airflow.DAG(
-    'full_example',
+    'orders_staging',
     schedule_interval="@daily",
     dagrun_timeout=timedelta(minutes=60),
     template_searchpath='/home/gt/airflow/sql',
     default_args=args,
     max_active_runs=1)
 
-oper_1 = PostgresToPostgresOperator(
-    sql='copy_order_info.sql',
+
+get_auditid = AuditOperator(
+    task_id='get_audit_id',
+    postgres_conn_id='postgres_dwh',
+    audit_key="orders",
+    cycle_dtm="{{ ts }}",
+    dag=dag)
+
+extract_orderinfo = PostgresToPostgresOperator(
+    sql='select_order_info.sql',
     pg_table='staging.order_info',
     src_postgres_conn_id='postgres_oltp',
     dest_postgress_conn_id='postgres_dwh',
-    #pg_preoperator='TRUNCATE staging.order_info',
-    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}"},
+    pg_preoperator="DELETE FROM staging.order_info WHERE "
+        "insert_dtm >= DATE '{{ ds }}' AND insert_dtm < DATE '{{ tomorrow_ds }}'",
+    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}", "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
     task_id='ingest_order',
     dag=dag)
 
-oper_2 = PostgresToPostgresOperator(
-    sql='copy_orderline.sql',
+extract_orderline = PostgresToPostgresOperator(
+    sql='select_orderline.sql',
     pg_table='staging.orderline',
     src_postgres_conn_id='postgres_oltp',
     dest_postgress_conn_id='postgres_dwh',
-    #pg_preoperator='TRUNCATE staging.orderline',
-    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}"},
+    pg_preoperator="DELETE FROM staging.orderline WHERE "
+        "insert_dtm >= DATE '{{ ds }}' AND insert_dtm < DATE '{{ tomorrow_ds }}'",
+    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}", "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
     task_id='ingest_orderline',
     dag=dag)
 
-oper_1 >> oper_2
+get_auditid >> extract_orderinfo >> extract_orderline
 
 
 if __name__ == "__main__":

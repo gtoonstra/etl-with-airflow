@@ -1,7 +1,8 @@
 DROP DATABASE orders;
 DROP DATABASE dwh;
-DROP USER svc_account;
+DROP USER dwh_svc_account;
 DROP USER db_owner;
+DROP USER oltp_read;
 CREATE USER db_owner PASSWORD 'db_owner';
 CREATE USER oltp_read PASSWORD 'oltp_read';
 CREATE USER dwh_svc_account PASSWORD 'dwh_svc_account';

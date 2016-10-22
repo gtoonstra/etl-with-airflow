@@ -19,7 +19,7 @@ from random import random
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
-
+from datetime import datetime
 
 class PostgresToPostgresOperator(BaseOperator):
     """
@@ -37,7 +37,7 @@ class PostgresToPostgresOperator(BaseOperator):
     :type parameters: dict
     """
 
-    template_fields = ('sql','parameters')
+    template_fields = ('sql','parameters','pg_table', 'pg_preoperator', 'pg_postoperator')
     template_ext = ('.sql',)
     ui_color = '#ededed'
 
@@ -75,8 +75,6 @@ class PostgresToPostgresOperator(BaseOperator):
             logging.info("Running Postgres preoperator")
             dest_pg.run(self.pg_preoperator)
 
-        time.sleep(5*random())
-
         logging.info("Inserting rows into Postgres")
 
         dest_pg.insert_rows(table=self.pg_table, rows=cursor)
@@ -86,4 +84,66 @@ class PostgresToPostgresOperator(BaseOperator):
             dest_pg.run(self.pg_postoperator)
 
         logging.info("Done.")
+
+
+class AuditOperator(BaseOperator):
+    """
+    Executes sql code in a Postgres database and insert into another
+
+    :param postgres_conn_id: reference to the postgres database
+    :type postgres_conn_id: string
+    :param audit_key: The key to use in the audit table
+    :type audit_key: string
+    :param cycle_dtm: The dtm of the extraction cycle run (ds)
+    :type cycle_dtm: datetime
+    """
+
+    template_fields = ('audit_key','cycle_dtm')
+    ui_color = '#ededed'
+
+    @apply_defaults
+    def __init__(
+            self, 
+            postgres_conn_id='postgres_default', 
+            audit_key=None,
+            cycle_dtm=None,            
+            *args, **kwargs):
+        super(AuditOperator, self).__init__(*args, **kwargs)
+        self.postgres_conn_id = postgres_conn_id
+        self.audit_key = audit_key
+        self.cycle_dtm = cycle_dtm
+
+    def execute(self, context):
+        logging.info('Getting postgres hook object')
+        hook = PostgresHook(postgres_conn_id=self.postgres_conn_id)
+
+        logging.info("Acquiring lock and updating audit table.")
+        conn = hook.get_conn()
+        cursor = conn.cursor()
+        cursor.execute("LOCK TABLE staging.audit_runs IN ACCESS EXCLUSIVE MODE")
+        cursor.close()
+
+        logging.info("Acquiring new audit number")
+        cursor = conn.cursor()
+        cursor.execute("SELECT COALESCE(MAX(audit_id), 0)+1 FROM staging.audit_runs WHERE audit_key=%(audit_key)s", 
+            {"audit_key": self.audit_key})
+        row = cursor.fetchone()
+        cursor.close()
+        audit_id = row[0]
+        logging.info("Found audit id %d."%(audit_id))
+        
+        params = {"audit_id": audit_id, "audit_key": self.audit_key, "execution_dtm": datetime.now(), "cycle_dtm": self.cycle_dtm}
+        
+        cursor = conn.cursor()
+        logging.info("Updating audit table with audit id: %d"%(audit_id))
+        cursor.execute("INSERT INTO staging.audit_runs (audit_id, audit_key, execution_dtm, cycle_dtm) "
+            "VALUES (%(audit_id)s, %(audit_key)s, %(execution_dtm)s, %(cycle_dtm)s)", params)
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        ti = context['ti']
+        ti.xcom_push(key='audit_id', value=audit_id)
+
+        return audit_id
 
