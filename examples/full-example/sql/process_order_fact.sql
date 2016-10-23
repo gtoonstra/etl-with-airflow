@@ -22,7 +22,7 @@ INSERT INTO dwh.fact_orderline(
     , price ) 
 SELECT
       (SELECT date_pk FROM dwh.dim_date d WHERE d.date_pk = o.create_dtm::date)
-    , (SELECT time_of_day FROM dwh.dim_time t WHERE t.time_of_day = to_char(o.create_dtm::time, 'hh24:mi'))
+    , (SELECT time_pk FROM dwh.dim_time t WHERE t.time_pk = date_trunc('minute', o.create_dtm::time))
     , (SELECT product_key FROM dwh.dim_product p WHERE p.product_id = ol.product_id AND ol.partition_dtm >= p.start_dtm AND ol.partition_dtm < p.end_dtm)
     , (SELECT customer_key FROM dwh.dim_customer c WHERE c.customer_id = o.customer_id AND ol.partition_dtm >= c.start_dtm AND ol.partition_dtm < c.end_dtm)
     , o.order_id

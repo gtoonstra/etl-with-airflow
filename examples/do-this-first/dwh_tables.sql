@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS staging.orderline;
 DROP TABLE IF EXISTS staging.audit_runs;
 DROP TABLE IF EXISTS staging.customer;
 DROP TABLE IF EXISTS staging.product;
-DROP TABLE IF EXISTS dwh.fact_order_transaction;
+DROP TABLE IF EXISTS dwh.fact_orderline;
 DROP TABLE IF EXISTS dwh.dim_customer;
 DROP SEQUENCE IF EXISTS seq_customer;
 DROP TABLE IF EXISTS dwh.dim_date;
@@ -60,17 +60,6 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA staging TO dwh_svc_account;
 --SELECT partman.create_parent('staging.orderline', 'partition_dtm', 'time', 'daily', NULL, 4, true, to_char((CURRENT_TIMESTAMP - INTERVAL '90 days'), 'YYYY-MM-DD' ) );
 --UPDATE partman.part_config set retention = '90', retention_schema = NULL, retention_keep_table = false, retention_keep_index = false;
 
-CREATE TABLE dwh.fact_orderline (
-    order_date_key   DATE NOT NULL,
-    time_key         VARCHAR(5) NOT NULL,
-    product_key      INTEGER NOT NULL,
-    customer_key     INTEGER NOT NULL,
-    order_id         INTEGER NOT NULL,
-    orderline_id     INTEGER NOT NULL,
-    quantity         INTEGER NOT NULL,
-    price            REAL NOT NULL
-);
-
 CREATE SEQUENCE seq_customer START 1;
 GRANT USAGE, SELECT ON SEQUENCE seq_customer TO dwh_svc_account;
 
@@ -97,7 +86,7 @@ CREATE TABLE dwh.dim_product (
 );
 
 CREATE TABLE dwh.dim_date (
-    date_pk       DATE NOT NULL,
+    date_pk       DATE NOT NULL PRIMARY KEY,
     year          INTEGER NOT NULL,
     month         INTEGER NOT NULL,
     month_name    VARCHAR(32) NOT NULL,
@@ -115,6 +104,7 @@ CREATE TABLE dwh.dim_date (
 );
 
 CREATE TABLE dwh.dim_time (
+    time_pk      TIME NOT NULL PRIMARY KEY,
     time_of_day  VARCHAR(5) NOT NULL,
     hour         INTEGER NOT NULL,
     minute       INTEGER NOT NULL,
@@ -122,9 +112,19 @@ CREATE TABLE dwh.dim_time (
     day_night    VARCHAR(5) NOT NULL
 );
 
+CREATE TABLE dwh.fact_orderline (
+    order_date_key   DATE NOT NULL REFERENCES dwh.dim_date (date_pk),
+    time_key         TIME NOT NULL REFERENCES dwh.dim_time (time_pk),
+    product_key      INTEGER NOT NULL REFERENCES dwh.dim_product (product_key),
+    customer_key     INTEGER NOT NULL REFERENCES dwh.dim_customer (customer_key),
+    order_id         INTEGER NOT NULL,
+    orderline_id     INTEGER NOT NULL,
+    quantity         INTEGER NOT NULL,
+    price            REAL NOT NULL
+);
+
 GRANT USAGE ON SCHEMA dwh TO dwh_svc_account;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA dwh TO dwh_svc_account;
-
 
 INSERT INTO dwh.dim_date(
     date_pk,
@@ -174,13 +174,15 @@ ORDER BY 1;
 
 
 INSERT INTO dwh.dim_time ( 
+    time_pk,
     time_of_day,
     hour,
     minute,
     daytime_name,
     day_night
 ) 
-SELECT to_char(MINUTE, 'hh24:mi') AS time_of_day,
+SELECT MINUTE as time_pk,
+    to_char(MINUTE, 'hh24:mi') AS time_of_day,
 	-- Hour of the day (0 - 23)
 	EXTRACT(HOUR FROM MINUTE) AS hour, 
 	-- Minute of the day (0 - 1439)
