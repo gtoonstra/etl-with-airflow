@@ -22,7 +22,7 @@ from datetime import datetime
 
 class PostgresToPostgresOperator(BaseOperator):
     """
-    Executes sql code in a Postgres database and insert into another
+    Executes sql code in a Postgres database and inserts into another
 
     :param src_postgres_conn_id: reference to the source postgres database
     :type src_postgres_conn_id: string
@@ -121,7 +121,8 @@ class PostgresOperatorWithTemplatedParams(BaseOperator):
 
 class AuditOperator(BaseOperator):
     """
-    Executes sql code in a Postgres database and insert into another
+    Manages audit id's in the database to make sure that 
+    operations are traceable.
 
     :param postgres_conn_id: reference to the postgres database
     :type postgres_conn_id: string

@@ -43,6 +43,26 @@ or know when they changed. The scheduler however instantiates the DAGs continuou
 you can therefore see outdated versions when you check out the code or see the execution diagram. This is why there's
 a *refresh* button on the main DAG screen, which is where you can reload the DAGs manually.
 
+**Run ExternalTaskSensors wisely**. If you simply run them without a good strategy, they can all get started by the 
+scheduler and if you have many DAGs that use sensors, this could consume all available task slots in the scheduler.
+The result is a deadlock where tasks cannot run to satisfy the sensor, because there are only sensors being scheduled.
+
+Either:
+
+- Run tasks that sensors are waiting for with a higher priority and run sensors with a low priority
+- Set up a pool for sensors and limit the number that can be active
+- Some other method of your choosing that works
+
+**Not all parameters in operators are templated**, so you cannot use *Jinja* templates everywhere. The Jinja templates 
+only work for those fields in operators where it's listed in the *template_fields* list inside the source file, like: 
+
+.. code-block:: python
+
+  template_fields = ('audit_key', 'cycle_dtm')
+
 **Additional info**: Check out the `Project page <https://airflow.incubator.apache.org/project.html>`_ 
-for additional info (see the **Resources & links** section at the bottom).
+for additional info (see the **Resources & links** section at the bottom of that page).
+
+Also: `The wiki <https://cwiki.apache.org/confluence/display/AIRFLOW/Common+Pitfalls>`_
+
 

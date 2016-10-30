@@ -49,7 +49,7 @@ AND EXISTS (
         INTERSECT
         SELECT target.customer_id, target.cust_name, target.street, target.city);
 
--- Now perform the inserts. These are new customers and records for customers
+-- Now perform the inserts. These are new products and records for products
 -- Where these may have changed.
 INSERT INTO dwh.dim_customer (customer_id, cust_name, street, city, start_dtm )
 SELECT
