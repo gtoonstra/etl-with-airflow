@@ -97,6 +97,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#run-it">Run it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-it-works">How it works</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#proof-of-principles-compliance">Proof of principles compliance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#issues">Issues</a></li>
 </ul>
 </li>
 </ul>
@@ -238,13 +239,20 @@ Type 2 logic and process_facts processes the fact tables.</p>
 and another database which is a simplistic Data WareHouse. The OLTP system only has a couple of rows for orders,
 orderlines and some customer and product info.</p>
 <p>The <a href="#id1"><span class="problematic" id="id2">*</span></a>_staging processes extract data from the OLTP database and ingest them into the staging tables in the staging
-schema, taking care to make this process repeatable.</p>
-<p>The <em>process_dimensions</em> DAG updates the customer and product dimensions in the data warehouse, prior to updating facts.
-It is set up with the <em>depends_on_past</em> parameter set to True, because dimensions should be updated in a specific
+schema, taking care to make this process repeatable. Repeatable means removing data for the date window of consideration
+first, then reinserting by issuing a select, only selecting the data that applies to the date window of interest.</p>
+<p>The first thing you&#8217;d do when staging data is present is to process your dimensions. The <em>process_dimensions</em> DAG
+updates the customer and product dimensions in the data warehouse. Dimensions should be present before fact tables,
+because there are foreign keys linking facts to dimensions and you need data to be there before you can link to it.</p>
+<p>It is set up with the <em>depends_on_past</em> parameter set to True, because dimensions should be updated in a specific
 sequence. This does have the effect that it can slow down the scheduling, because the task instances are now not
 parallelized.</p>
 <p>The <em>process_order_fact</em> processes the order+orderline data and associates them with the correct surrogate key in the
-dimension tables, based on the date/time the records were active.</p>
+dimension tables, based on the date and time the dimension records were active and usually the business key.</p>
+<p>Also notice how the dimension table update doesn&#8217;t delete data from a specific window. Because of existing facts and
+how they link together, this is very dangerous to do! Instead, running the dimension multiple times leads to <em>no-ops</em>
+later, unless some extra data was added, leading to new records. Deletion of records is not implemented in this scenario,
+which would lead to all versions for an entity having a specific end date.</p>
 </div>
 <div class="section" id="proof-of-principles-compliance">
 <h2>Proof of principles compliance<a class="headerlink" href="#proof-of-principles-compliance" title="Permalink to this headline">¶</a></h2>
@@ -288,6 +296,23 @@ checks whether today-execution_date is greather than 90 and prohibits execution 
 truncate a non-existing table. An alternative is to follow a different path in the DAG that uses DELETE FROM on the
 master table instead.</p>
 </div>
+</div>
+<div class="section" id="issues">
+<h2>Issues<a class="headerlink" href="#issues" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">There is currently an issue with <em>max_active_runs</em>, which only respects the setting in the first run.
+When backfill is run or tasks get cleared to be rerun, the setting is not respected:</p>
+<p><a class="reference external" href="https://issues.apache.org/jira/browse/AIRFLOW-137">https://issues.apache.org/jira/browse/AIRFLOW-137</a></p>
+</li>
+<li><p class="first">What is not demonstrated is a better strategy to process a large backfill if the desired
+regular schedule is 1 day. 2 years of data leads to 700+ days and thus 700+ runs. This will eventually consume
+a lot of time, because the scheduler is run with a particular interval, jobs need to start, etc. Usually source
+systems can handle larger date windows at week or month level. More about that in the other examples.</p>
+</li>
+<li><p class="first">When pooling is active, scheduling takes a lot more time. Even when the pool is 10 and the number
+of instances 7, it takes longer for the instances to actually run</p>
+</li>
+</ul>
 </div>
 </div>
 

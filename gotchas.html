@@ -166,8 +166,23 @@ historical information is also kept about the old version.</p>
 or know when they changed. The scheduler however instantiates the DAGs continuously if they are needed. In the UI
 you can therefore see outdated versions when you check out the code or see the execution diagram. This is why there&#8217;s
 a <em>refresh</em> button on the main DAG screen, which is where you can reload the DAGs manually.</p>
+<p><strong>Run ExternalTaskSensors wisely</strong>. If you simply run them without a good strategy, they can all get started by the
+scheduler and if you have many DAGs that use sensors, this could consume all available task slots in the scheduler.
+The result is a deadlock where tasks cannot run to satisfy the sensor, because there are only sensors being scheduled.</p>
+<p>Either:</p>
+<ul class="simple">
+<li>Run tasks that sensors are waiting for with a higher priority and run sensors with a low priority</li>
+<li>Set up a pool for sensors and limit the number that can be active</li>
+<li>Some other method of your choosing that works</li>
+</ul>
+<p><strong>Not all parameters in operators are templated</strong>, so you cannot use <em>Jinja</em> templates everywhere. The Jinja templates
+only work for those fields in operators where it&#8217;s listed in the <em>template_fields</em> list inside the source file, like:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">template_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;audit_key&#39;</span><span class="p">,</span> <span class="s1">&#39;cycle_dtm&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 <p><strong>Additional info</strong>: Check out the <a class="reference external" href="https://airflow.incubator.apache.org/project.html">Project page</a>
-for additional info (see the <strong>Resources &amp; links</strong> section at the bottom).</p>
+for additional info (see the <strong>Resources &amp; links</strong> section at the bottom of that page).</p>
+<p>Also: <a class="reference external" href="https://cwiki.apache.org/confluence/display/AIRFLOW/Common+Pitfalls">The wiki</a></p>
 </div>
 
 

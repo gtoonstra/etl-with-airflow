@@ -121,15 +121,24 @@ and another database which is a simplistic Data WareHouse. The OLTP system only 
 orderlines and some customer and product info. 
 
 The *_staging processes extract data from the OLTP database and ingest them into the staging tables in the staging
-schema, taking care to make this process repeatable. 
+schema, taking care to make this process repeatable. Repeatable means removing data for the date window of consideration
+first, then reinserting by issuing a select, only selecting the data that applies to the date window of interest.
 
-The *process_dimensions* DAG updates the customer and product dimensions in the data warehouse, prior to updating facts.
+The first thing you'd do when staging data is present is to process your dimensions. The *process_dimensions* DAG 
+updates the customer and product dimensions in the data warehouse. Dimensions should be present before fact tables,
+because there are foreign keys linking facts to dimensions and you need data to be there before you can link to it.
+
 It is set up with the *depends_on_past* parameter set to True, because dimensions should be updated in a specific
 sequence. This does have the effect that it can slow down the scheduling, because the task instances are now not
 parallelized.
 
 The *process_order_fact* processes the order+orderline data and associates them with the correct surrogate key in the
-dimension tables, based on the date/time the records were active.
+dimension tables, based on the date and time the dimension records were active and usually the business key.
+
+Also notice how the dimension table update doesn't delete data from a specific window. Because of existing facts and 
+how they link together, this is very dangerous to do! Instead, running the dimension multiple times leads to *no-ops* 
+later, unless some extra data was added, leading to new records. Deletion of records is not implemented in this scenario,
+which would lead to all versions for an entity having a specific end date.
 
 Proof of principles compliance
 ------------------------------
@@ -176,4 +185,19 @@ Satisfied principles (not listed are not applicable):
     checks whether today-execution_date is greather than 90 and prohibits execution if that's the case. Not doing that would
     truncate a non-existing table. An alternative is to follow a different path in the DAG that uses DELETE FROM on the 
     master table instead.
+
+Issues
+------
+
+- There is currently an issue with *max_active_runs*, which only respects the setting in the first run.
+  When backfill is run or tasks get cleared to be rerun, the setting is not respected:
+
+  `https://issues.apache.org/jira/browse/AIRFLOW-137 <https://issues.apache.org/jira/browse/AIRFLOW-137>`_
+
+- What is not demonstrated is a better strategy to process a large backfill if the desired 
+  regular schedule is 1 day. 2 years of data leads to 700+ days and thus 700+ runs. This will eventually consume
+  a lot of time, because the scheduler is run with a particular interval, jobs need to start, etc. Usually source 
+  systems can handle larger date windows at week or month level. More about that in the other examples.
+- When pooling is active, scheduling takes a lot more time. Even when the pool is 10 and the number
+  of instances 7, it takes longer for the instances to actually run
 
