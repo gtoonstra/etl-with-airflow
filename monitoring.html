@@ -91,6 +91,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Monitoring</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#data-quality-monitoring">Data quality monitoring</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#taking-it-a-step-further">Taking it a step further</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#beyond-detection">Beyond detection</a></li>
 </ul>
 </li>
 </ul>
@@ -192,6 +193,17 @@ boundaries. This works for daily ETL processes over a longer evaluation window, 
 <p>Essentially, it allows you to build almost real-time data validation into your data warehouse and if everyone has a login for datadog,
 you can set up dashboards and other means to communicate more useful information about potential data quality failures, speeding up the
 process of detecting the root cause.</p>
+</div>
+<div class="section" id="beyond-detection">
+<h2>Beyond detection<a class="headerlink" href="#beyond-detection" title="Permalink to this headline">¶</a></h2>
+<p>So Datadog is great at supporting you to detect data quality issues and visualizing your data trends on a dashboard of your choice,
+but how else can this be useful?  At my current company we are using post mortems to identify the true root cause of specific incidents.
+In the process of doing that, we document everything about the incident in a post mortem document, which is a great way to communicate the
+true impact of ETL failures, data quality issues and the likes. If you track data quality using datadog services, there&#8217;s a feature
+called &#8220;Notebooks&#8221;, which helps you to enrich these post mortem documents using these datadog notebooks. You can collect a set of metrics
+together and point out indicators, issues and trends using the metrics that were uploaded to datadog and surround that with additional
+rich text to tell a better story. The true benefit of that functionality is that it&#8217;s a whole lot faster than copying and pasting content
+that you collect through a clipboard and such.</p>
 </div>
 </div>
 

@@ -71,5 +71,16 @@ Essentially, it allows you to build almost real-time data validation into your d
 you can set up dashboards and other means to communicate more useful information about potential data quality failures, speeding up the 
 process of detecting the root cause.
 
+Beyond detection
+----------------
+
+So Datadog is great at supporting you to detect data quality issues and visualizing your data trends on a dashboard of your choice, 
+but how else can this be useful?  At my current company we are using post mortems to identify the true root cause of specific incidents.
+In the process of doing that, we document everything about the incident in a post mortem document, which is a great way to communicate the
+true impact of ETL failures, data quality issues and the likes. If you track data quality using datadog services, there's a feature 
+called "Notebooks", which helps you to enrich these post mortem documents using these datadog notebooks. You can collect a set of metrics
+together and point out indicators, issues and trends using the metrics that were uploaded to datadog and surround that with additional
+rich text to tell a better story. The true benefit of that functionality is that it's a whole lot faster than copying and pasting content
+that you collect through a clipboard and such.
 
 
