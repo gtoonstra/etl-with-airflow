@@ -1,0 +1,264 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Monitoring &mdash; ETL Best Practices with Airflow v1.8</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
+        <link rel="prev" title="Full example" href="fullexample.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fullexample.html">Full example</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Monitoring</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#data-quality-monitoring">Data quality monitoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#taking-it-a-step-further">Taking it a step further</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">ETL Best Practices with airflow 1.8</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Monitoring</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="monitoring">
+<h1>Monitoring<a class="headerlink" href="#monitoring" title="Permalink to this headline">¶</a></h1>
+<p>Monitoring the correctness and performance of your airflow jobs (dagruns) should be a core concern of a BI development team.
+Airflow has good support for basic monitoring of your jobs:</p>
+<ul class="simple">
+<li>SLA misses: airflow is able to send out an email bundling all SLA misses for a specific scheduling interval.</li>
+<li>EmailOperator: airflow can send out emails when a specific point in a DAG is reached</li>
+<li>Sending notifications to popular online services like Slack or HipChat.</li>
+<li>The airflow dashboard itself, which you can manually refresh to verify which jobs ran successfully or failed recently.</li>
+<li>A PythonOperator, which can track the output of a particular task and then make more informed decisions based on the
+context in which it is run and then branch to a specific branch of execution for notificiation purposes.</li>
+</ul>
+<p>This type of monitoring is very useful to track execution errors, but there are some cases where
+you need more sophisticated methods, for example in the case of data quality monitoring. This is where some
+great online services like Datadog come in.</p>
+<div class="section" id="data-quality-monitoring">
+<h2>Data quality monitoring<a class="headerlink" href="#data-quality-monitoring" title="Permalink to this headline">¶</a></h2>
+<p>In online retail, the number of orders that are closed within an interval is not constant across all intervals.
+There are usually some peaks between breakfast and people first get to work, then a slight decrease over
+lunchtime and a much bigger peak when people arrive home, when they decide to make purchases based on email brochures
+they received or from recommendations by colleagues at work.</p>
+<p>Let&#8217;s go with a hypothetical dataset and interval of 1 hour for ingesting the orders. We see large fluctuations of how many orders
+are actually ingested within each hour that could look like the following graph:</p>
+<img alt="_images/ingested-orders.jpg" src="_images/ingested-orders.jpg" />
+<p>If we now apply a very simple threshold rule with a minimum and a maximum threshold, then it&#8217;s easy to see that our allowed
+error band for any given day can be very wide; so wide in fact that it may entirely defeat the purpose of having one in the first place.</p>
+<p>What can we do to deal with highly variant data like the above example, but still want to apply a reasonably tight error boundary
+around our signal to detect potential data quality issues, for example when we didn&#8217;t ingest as much data from a source system
+as usual?</p>
+<p>Airflow as of version 1.8 will have an integration with an online service called DataDog in the DatadogHook, which is a useful
+service that is able to receive all kinds of metrics from whatever source system you choose, including an airflow system
+that is set up to perform ETL. You can simply create a python operator that calls a python function and then use the hook
+from there.</p>
+<p>Datadog has a lot of functionality built in with regards to alerting, muting, resolution and most importantly
+visualization of your metrics. A recent addition to Datadog, &#8220;Anomaly Alerts&#8221;, allow you to detect exactly the above scenario
+without having to implement this complicated sarima metric calculation (and verification of correctness).</p>
+<p>Anomaly Alerts allow you to simply send a single metric to the service and then monitor that metric for errors outside the
+the typical trend for a normal hour or day. This seasonal and daily behavior of the metric is learned in a short time by
+machine learning and when it built a model (which could take up to a week), it will start predicting its own values and
+applies a user-configured error band around these predictions.</p>
+</div>
+<div class="section" id="taking-it-a-step-further">
+<h2>Taking it a step further<a class="headerlink" href="#taking-it-a-step-further" title="Permalink to this headline">¶</a></h2>
+<p>The above example uses simple &#8216;rowcounts&#8217; as a metric; it answers the question &#8220;how many rows did I ingest from system A and was that the expected
+amount within a specific interval?&#8221;</p>
+<p>But you can take this a lot further. Data quality can also worry about the quality of the ingested metrics and whether these
+add up. I&#8217;ve seen many cases for example that data was ingested in full, but some other script failed processing, a settings table
+was incorrectly configured and the end result was not what it should have been.</p>
+<p>Before you start worrying about implementing a complex solution with accumulating snapshot tables and compare yesterday&#8217;s results vs.
+new results, consider applying the same approach to this problem.</p>
+<p>At coolblue for example, we identified that business analysts would regularly run a number of queries to check data validity before
+they started working with the data. They run those queries because they do not unconditionally trust the underlying data. Well, those
+queries can be executed in an automated fashion on airflow and datadog will advise users if new metric data points violate the error
+boundaries. This works for daily ETL processes over a longer evaluation window, but also for much shorter time intervals.</p>
+<p>Essentially, it allows you to build almost real-time data validation into your data warehouse and if everyone has a login for datadog,
+you can set up dashboards and other means to communicate more useful information about potential data quality failures, speeding up the
+process of detecting the root cause.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="fullexample.html" class="btn btn-neutral" title="Full example" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Gerard Toonstra.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.8',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -23,4 +23,5 @@ Content
     gotchas
     great
     fullexample
+    monitoring
 

@@ -34,6 +34,7 @@
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
+        <link rel="next" title="Monitoring" href="monitoring.html"/>
         <link rel="prev" title="What makes Airflow great?" href="great.html"/> 
 
   
@@ -100,6 +101,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#issues">Issues</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
 </ul>
 
             
@@ -269,7 +271,7 @@ is not demonstrated by default for that reason; see the comment below for more i
 <li><strong>Load data incrementally</strong> : extracts only the newly created orders of the day before, not the whole table.</li>
 <li><strong>Process historic data</strong> : it&#8217;s possible to rerun the extract processes, but downstream DAGs have to be started manually.</li>
 <li><strong>Enforce the idempotency constraint</strong> : every DAG cleans out data if required and possible. Rerunning the same DAG multiple
-times has no undesirable side effects like duplication with the data.</li>
+times has no undesirable side effects like duplication of the data.</li>
 <li><strong>Rest data between tasks</strong> : The data is in persistent storage before and after the operator.</li>
 <li><strong>Pool your resources</strong> : All task instances in the DAG use a pooled connection to the DWH by specifying the <em>pool</em> parameter.</li>
 <li><strong>Manage login details in one place</strong> : Connection settings are maintained in the Admin menu.</li>
@@ -322,6 +324,8 @@ of instances 7, it takes longer for the instances to actually run</p>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="monitoring.html" class="btn btn-neutral float-right" title="Monitoring" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="great.html" class="btn btn-neutral" title="What makes Airflow great?" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
