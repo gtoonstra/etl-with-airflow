@@ -22,5 +22,6 @@ Content
     principles
     gotchas
     great
-    fullexample
-
+    etlexample
+    monitoring
+    platform

@@ -1,7 +1,7 @@
-Full example
-============
+ETL example
+===========
 
-To demonstrate how the ETL principles come together with airflow, let's walk through a simple yet full
+To demonstrate how the ETL principles come together with airflow, let's walk through a simple
 example that implements a data flow pipeline adhering to these principles. I'm mostly assuming that
 people running airflow will have Linux (I use Ubuntu), but the examples should work for Mac OSX as
 well with a couple of simple changes.
@@ -91,10 +91,10 @@ but now we're going to drop in the lot straight into the DAG directory for simpl
 
 .. code-block:: bash
 
-    $ cd full-example/dags
+    $ cd etl-example/dags
     $ cp -R * $AIRFLOW_HOME/dags
     $ mkdir $AIRFLOW_HOME/sql
-    $ cd full-example/sql
+    $ cd etl-example/sql
     $ cp *.sql $AIRFLOW_HOME/sql
 
 Run it
@@ -158,7 +158,7 @@ Satisfied principles (not listed are not applicable):
 - **Load data incrementally** : extracts only the newly created orders of the day before, not the whole table.
 - **Process historic data** : it's possible to rerun the extract processes, but downstream DAGs have to be started manually.
 - **Enforce the idempotency constraint** : every DAG cleans out data if required and possible. Rerunning the same DAG multiple 
-  times has no undesirable side effects like duplication with the data.
+  times has no undesirable side effects like duplication of the data.
 - **Rest data between tasks** : The data is in persistent storage before and after the operator.
 - **Pool your resources** : All task instances in the DAG use a pooled connection to the DWH by specifying the *pool* parameter.
 - **Manage login details in one place** : Connection settings are maintained in the Admin menu.
