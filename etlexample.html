@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Full example &mdash; ETL Best Practices with Airflow v1.8</title>
+  <title>ETL example &mdash; ETL Best Practices with Airflow v1.8</title>
   
 
   
@@ -88,7 +88,7 @@
 <li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Full example</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ETL example</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#install-airflow">Install airflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#clone-example-project">Clone example project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install-postgres">Install postgres</a></li>
@@ -132,7 +132,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Full example</li>
+    <li>ETL example</li>
       <li class="wy-breadcrumbs-aside">
         
           
@@ -144,9 +144,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="full-example">
-<h1>Full example<a class="headerlink" href="#full-example" title="Permalink to this headline">¶</a></h1>
-<p>To demonstrate how the ETL principles come together with airflow, let&#8217;s walk through a simple yet full
+  <div class="section" id="etl-example">
+<h1>ETL example<a class="headerlink" href="#etl-example" title="Permalink to this headline">¶</a></h1>
+<p>To demonstrate how the ETL principles come together with airflow, let&#8217;s walk through a simple
 example that implements a data flow pipeline adhering to these principles. I&#8217;m mostly assuming that
 people running airflow will have Linux (I use Ubuntu), but the examples should work for Mac OSX as
 well with a couple of simple changes.</p>
@@ -212,10 +212,10 @@ from the example repository. Create a new variable &#8220;sql_path&#8221; and se
 <h2>Drop dags into airflow<a class="headerlink" href="#drop-dags-into-airflow" title="Permalink to this headline">¶</a></h2>
 <p>In a real setup you&#8217;d use continuous integration to update DAG&#8217;s and dependencies in airflow after changes,
 but now we&#8217;re going to drop in the lot straight into the DAG directory for simplicity.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> full-example/dags
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> etl-example/dags
 $ cp -R * <span class="nv">$AIRFLOW_HOME</span>/dags
 $ mkdir <span class="nv">$AIRFLOW_HOME</span>/sql
-$ <span class="nb">cd</span> full-example/sql
+$ <span class="nb">cd</span> etl-example/sql
 $ cp *.sql <span class="nv">$AIRFLOW_HOME</span>/sql
 </pre></div>
 </div>
