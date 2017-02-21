@@ -1,0 +1,249 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Building your own ETL platform &mdash; ETL Best Practices with Airflow v1.8</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
+        <link rel="prev" title="Monitoring" href="monitoring.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Building your own ETL platform</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#understanding-the-airflow-platform-design">Understanding the airflow platform design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#understanding-hooks-and-operators">Understanding hooks and operators</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">ETL Best Practices with airflow 1.8</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Building your own ETL platform</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="building-your-own-etl-platform">
+<h1>Building your own ETL platform<a class="headerlink" href="#building-your-own-etl-platform" title="Permalink to this headline">¶</a></h1>
+<p>By now you&#8217;ve discovered that airflow is great as a programmable platform with a powerful scheduler in the middle
+that decides when your tasks run. Let&#8217;s dive a bit deeper into the architecture of airflow to be able to understand
+the consequences of extending the platform for new capabilities and how to most effectively use them.</p>
+<div class="section" id="understanding-the-airflow-platform-design">
+<h2>Understanding the airflow platform design<a class="headerlink" href="#understanding-the-airflow-platform-design" title="Permalink to this headline">¶</a></h2>
+<p>When airflow runs tasks, they do not run in the same thread as the scheduler, but an entirely new python interpreter gets started
+that is given some parameters to load the DAG of interest and then another parameter to indicate the task of interest, along with
+some other parameters that belong to that task.</p>
+<p>This new python interpreter could run on the same machine as the scheduler, but it might as well run on a totally different worker
+machine. If you follow through the examples, you&#8217;ll also have noticed that the distribution of airflow across all those machines
+is 100% the same. The scheduler machine does not run different software from the webserver or any of the workers; you&#8217;d typically
+deploy the full airflow software distribution to any type of these machines, which can be good and bad, it certainly has the potential
+to simplify the setup. The only thing that determines the role that each process plays in the grand scale of things is the command
+that you use on each machine to start airflow with; <cite>airflow scheduler</cite>, <cite>airflow webserver</cite> or <cite>airflow worker</cite>. The workers are
+not started by users, but you allocate machines to a cluster through celery.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">The webserver, scheduler and worker all run exactly the same software, but are started with different commands.</p>
+</div>
+</div>
+<div class="section" id="understanding-hooks-and-operators">
+<h2>Understanding hooks and operators<a class="headerlink" href="#understanding-hooks-and-operators" title="Permalink to this headline">¶</a></h2>
+<p>Hooks and operators are the key to understanding how airflow can be extended with new capabilities and to keep your DAGs clean and simple.
+A DAG should be <em>readable</em> in the sense that it&#8217;s a description of workflow. Whatever the underlying technical or business principles are that
+you must follow, reading through a DAG should be like reading through a reading a business workflow document, describing what a particular
+business process is trying to achieve.</p>
+<p>A <strong>hook</strong> is an object that embodies a connection to a remote server, service or platform.</p>
+<p>An <strong>operator</strong> is an object that embodies an operation utilizing one or more hooks, typically to transfer data between one hook and the other
+or to send or receive data from that hook from/into the airflow platform, for example to _sense_ the state of that remote.</p>
+<p>As an example, when you see <em>MySqlOperator</em>, it typically identifies an operator that executes some action on a single hook that interfaces with,
+in this case, a MySQL database.</p>
+<p>When you see <em>MySqlToMySqlOperator</em>, it typically identifies an operator that interfaces two systems together, through the airflow worker,
+and transfers data between them.</p>
+<p>The default supplied operators in airflow are relatively simple. They embody some basic actions like data transfer.</p>
+<p>Do not take these operators as the prescribed way of doing things that absolutely has to be followed in order to be successful.
+Some clients have used the operators as the basis for their own platform framework, but significantly enriched the behavior. One such example
+is a company using airflow, which archives every data entity ingested from external sources onto some storage solution, according to a
+pre-defined URL scheme. The standard operators and hooks implement and abstract this specific behavior, so the DAGs do not get polluted by any
+of this additional processing. In a similar way you could add metric collection to operators or leave that in your DAGs, those are design choices.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="monitoring.html" class="btn btn-neutral" title="Monitoring" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Gerard Toonstra.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.8',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
