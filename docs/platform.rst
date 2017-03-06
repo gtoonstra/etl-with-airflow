@@ -51,4 +51,3 @@ is a company using airflow, which archives every data entity ingested from exter
 pre-defined URL scheme. The standard operators and hooks implement and abstract this specific behavior, so the DAGs do not get polluted by any
 of this additional processing. In a similar way you could add metric collection to operators or leave that in your DAGs, those are design choices.
 
-
