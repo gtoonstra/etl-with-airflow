@@ -12,7 +12,7 @@ What makes Airflow great?
 * built-in authentication details with encrypted passwords and extra details
 * Easy environment awareness through airflow variables
 * Resource pooling for shared resources
-* Common tasks already implemented and usable
+* The most common of tasks already implemented and usable
 * Accessibility of log files and other meta-data through the web GUI
 * Supporting documentation
 * Growing user base and contributions
@@ -29,4 +29,7 @@ What makes Airflow great?
 * Schedules are defined in code, not in a separate tool and database
 * Can run tasks based on whether the previous run succeeded or failed
 * Trigger rules for tasks
+* AJAX/Rest API for job manipulation
+* Jobs/tasks are run in a context, because the scheduler passes in the necessary details
+* Can verify what is running on airflow and see the actual code
 

@@ -10,6 +10,18 @@ you want to have data in a database. Airflow will run a job at *start_date + int
 interval has passed (because that's when data becomes available). You can read more about the rationale
 in the `Airflow FAQ <https://airflow.incubator.apache.org/faq.html/>`_
 
+**Execution date**: The *execution_date* specifies the lowest date+time of the interval under consideration.
+This date is available as a macro under a variety of formats (see _ds_, _ds_no_dash_, _ts_, etc). 
+
+As from airflow 1.8 there are additional macro's available to select one interval earlier or later than
+the execution date, available as python datetime.datetime objects.
+
+- {{ prev_execution_date }}	the previous execution date (if available) (datetime.datetime)
+- {{ next_execution_date }}	the next execution date (datetime.datetime)
+
+Airflow starts a worker when any interval on the scheduler has just passed. This means you'd typically
+use _execution_date_ together with _next_execution_date_ to indicate the full interval.
+
 **Don't forget to start a scheduler**: When you use airflow for the first time, the tutorial makes 
 you run a webserver, but doesn't specify how to start a scheduler. If you play around with the web UI,
 specifically the tasks interface, you'll notice that nothing gets rescheduled to be re-run. 
