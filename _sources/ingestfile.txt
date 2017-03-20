@@ -53,7 +53,8 @@ a **FileToGoogleCloudStorageOperator** in *file_to_gcs.py*. What you need to do 
     **Remember:** An operator in airflow moves data from A to B. In that sense, it's just an abstraction
     component over two (types of) hooks that need to cooperate together and achieve something in a sensible way.
     Operators are a great way to introduce these design choices and introduce more generic behavior at almost zero cost.
-    Beyond just moving data from A to B, your platform engineers should concern themselves about how to abstract these
-    behaviors from other engineers who otherwise make arbitrary choices.
 
-Also notice how many operators derive from the BaseOperator. 
+You'll probably have a lot of people who concern themselves with moving data from A to B. Make sure that you have
+some solid platform engineers who know how to generalize the existing solutions to build consistency in your daily routines,
+otherwise you'll find that people make arbitrary choices everywhere, which reduces the effectiveness of your overall platform.
+
