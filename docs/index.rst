@@ -25,5 +25,5 @@ Content
     etlexample
     monitoring
     platform
-    fileingest
+    ingestfile
 
