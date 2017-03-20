@@ -1,0 +1,256 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Ingesting files &mdash; ETL Best Practices with Airflow v1.8</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
+        <link rel="prev" title="Building your own ETL platform" href="platform.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="platform.html">Building your own ETL platform</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Ingesting files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#extending-from-the-example">Extending from the example</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">ETL Best Practices with airflow 1.8</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Ingesting files</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="ingesting-files">
+<h1>Ingesting files<a class="headerlink" href="#ingesting-files" title="Permalink to this headline">¶</a></h1>
+<p>It&#8217;s helpful to have an audit record of the data that you ingested from external systems. These external systems
+can already be in a file format (FTP), an HTTP/SOAP/API connection with json or xml output, or perhaps even
+by connecting to an external database directly.</p>
+<p>Storing the data that you ingested this way is helpful for troubleshooting. If you ingest the data and then immediately
+attempt to store that in an on-premises database, you need to rely on the workflow logs to be able to figure out what
+happened if a problem occurred. With a record of the file that you attempted to ingest, you achieve two things:</p>
+<ul class="simple">
+<li>You can easily debug why some source data could not be ingested by a target system.</li>
+<li>You can easily rerun parts of your workflow that start with picking up the file from an archive location.</li>
+<li>You can historically reprocess all data that you picked up from days, weeks and months before without having
+to go back to this source system. This is very important, because source systems do not always keep this archive,
+may not support parametrization to do this effectively (for example, only gives you data from &#8216;yesterday&#8217;) and other reasons.</li>
+</ul>
+<p>So, establishing that keeping a record of all ingested data is a good thing, let&#8217;s go about implementing this in airflow.
+FYI, I&#8217;m borrowing these ideas from a presentation given by IndustryDive, available from the <a class="reference external" href="https://cwiki.apache.org/confluence/display/AIRFLOW/Airflow+Links">Airflow links</a> page.</p>
+<p>Rather than hand-crafting file locations or passing files around, start with developing a predictable method for locating data files.
+Tasks that ingest data dump data files in those locations and tasks that read data dynamically determine these locations to read from.</p>
+<p>The example that I devised shows the development of two types of operators. The <strong>FileToPredictableLocationOperator</strong> shows you how to
+develop an operator that dumps a file to a predictable location. The <strong>PredictableLocationToFinalLocationOperator</strong> is the operator that
+consumes from this location and processes the file to its final location.</p>
+<p>Assuming that you still have the etl-with-airflow project cloned somewhere, I left a simple bash script to create some empty files
+in a particular sample structure so that you can see how this is supposed to work in general. Here&#8217;s how to do that:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> file-ingest
+$ ./create_files.sh
+$ cp -R * <span class="nv">$AIRFLOW_HOME</span>/dags
+</pre></div>
+</div>
+<p>Now simply run the airflow webserver and the airflow scheduler as before, activate the <strong>file_ingest</strong> dag and it should start processing the
+files you just created. Look into <em>file_ingest.py</em> and <em>acme/operators/file_operators.py</em> to see how the example works.</p>
+<div class="section" id="extending-from-the-example">
+<h2>Extending from the example<a class="headerlink" href="#extending-from-the-example" title="Permalink to this headline">¶</a></h2>
+<p>The above example uses a local filesystem to reduce the dependency on more complex connections and external environments like AWS, Google Cloud or
+whatever storage you may have available. This is to keep the example simple. In real world scenario&#8217;s, you&#8217;d probably write a bunch of operators to
+operate this way. The more incremental your process is, the more</p>
+<p>In the source code under <em>contrib</em>, you can see a number of example operators that move data from one system to another. The closest example is
+a <strong>FileToGoogleCloudStorageOperator</strong> in <em>file_to_gcs.py</em>. What you need to do yourself is determine for which these intermediate predictable
+&#8220;archive&#8221; locations apply.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last"><strong>Remember:</strong> An operator in airflow moves data from A to B. In that sense, it&#8217;s just an abstraction
+component over two (types of) hooks that need to cooperate together and achieve something in a sensible way.
+Operators are a great way to introduce these design choices and introduce more generic behavior at almost zero cost.
+Beyond just moving data from A to B, your platform engineers should concern themselves about how to abstract these
+behaviors from other engineers who otherwise make arbitrary choices.</p>
+</div>
+<p>Also notice how many operators derive from the BaseOperator.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="platform.html" class="btn btn-neutral" title="Building your own ETL platform" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Gerard Toonstra.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.8',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
