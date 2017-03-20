@@ -25,11 +25,12 @@ The example that I devised shows the development of two types of operators. The 
 develop an operator that dumps a file to a predictable location. The **PredictableLocationToFinalLocationOperator** is the operator that 
 consumes from this location and processes the file to its final location.
 
-Assuming that you still have the etl-with-airflow project cloned somewhere, I left a simple bash script to create some empty files
-in a particular sample structure so that you can see how this is supposed to work in general. Here's how to do that:
+Assuming that you still have the etl-with-airflow project cloned somewhere (see `Documentation Github Project <https://github.com/gtoonstra/etl-with-airflow/>`_), 
+I left a simple bash script to create some empty files in a particular sample structure so that you can see how this is supposed to work in general. Here's how to do that:
 
 .. code-block:: bash
 
+    $ cd examples
     $ cd file-ingest
     $ ./create_files.sh
     $ cp -R * $AIRFLOW_HOME/dags

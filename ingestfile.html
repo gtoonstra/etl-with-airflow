@@ -158,9 +158,10 @@ Tasks that ingest data dump data files in those locations and tasks that read da
 <p>The example that I devised shows the development of two types of operators. The <strong>FileToPredictableLocationOperator</strong> shows you how to
 develop an operator that dumps a file to a predictable location. The <strong>PredictableLocationToFinalLocationOperator</strong> is the operator that
 consumes from this location and processes the file to its final location.</p>
-<p>Assuming that you still have the etl-with-airflow project cloned somewhere, I left a simple bash script to create some empty files
-in a particular sample structure so that you can see how this is supposed to work in general. Here&#8217;s how to do that:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> file-ingest
+<p>Assuming that you still have the etl-with-airflow project cloned somewhere (see <a class="reference external" href="https://github.com/gtoonstra/etl-with-airflow/">Documentation Github Project</a>),
+I left a simple bash script to create some empty files in a particular sample structure so that you can see how this is supposed to work in general. Here&#8217;s how to do that:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> examples
+$ <span class="nb">cd</span> file-ingest
 $ ./create_files.sh
 $ cp -R * <span class="nv">$AIRFLOW_HOME</span>/dags
 </pre></div>
