@@ -59,3 +59,4 @@ You'll probably have a lot of people who concern themselves with moving data fro
 some solid platform engineers who know how to generalize the existing solutions to build consistency in your daily routines,
 otherwise you'll find that people make arbitrary choices everywhere, which reduces the effectiveness of your overall platform.
 
+

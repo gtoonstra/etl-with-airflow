@@ -46,8 +46,17 @@ and transfers data between them.
 The default supplied operators in airflow are relatively simple. They embody some basic actions like data transfer. 
 
 Do not take these operators as the prescribed way of doing things that absolutely has to be followed in order to be successful. 
-Some clients have used the operators as the basis for their own platform framework, but significantly enriched the behavior. One such example 
+Some users have used the operators as the basis for their own platform framework, but significantly enriched the behavior. One such example 
 is a company using airflow, which archives every data entity ingested from external sources onto some storage solution, according to a 
 pre-defined URL scheme. The standard operators and hooks implement and abstract this specific behavior, so the DAGs do not get polluted by any
 of this additional processing. In a similar way you could add metric collection to operators or leave that in your DAGs, those are design choices.
+
+Publish site-speific documentation
+----------------------------------
+
+After you finish building airflow, it's a good idea to build your own documentation site. The airflow site and this site are built using sphinx,
+which works great for python projects. You can document a part about your specific use of airflow, agreements and principles that you
+set up and include the documentation for each operator and hook that you develop as part of the platform. Release that documentation site 
+as part of your continuous integration pipeline and the documentation site will always be up to date.
+
 

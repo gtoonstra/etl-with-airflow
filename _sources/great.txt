@@ -30,6 +30,7 @@ What makes Airflow great?
 * Can run tasks based on whether the previous run succeeded or failed
 * Implement trigger rules for tasks
 * AJAX/Rest API for job manipulation
-* Jobs/tasks are run in a context, because the scheduler passes in the necessary details
+* Jobs/tasks are run in a context, the scheduler passes in the necessary details
 * Can verify what is running on airflow and see the actual code
+* Work gets distributed across your cluster at the task level, not at the DAG level
 
