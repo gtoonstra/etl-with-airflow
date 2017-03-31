@@ -68,11 +68,10 @@ Go to the connections screen in the UI (through Admin) and create a new postgres
 *postgres_oltp*. Then specify conntype=Postgres, Schema=orders, login=oltp_read (same password) and port 5432
 or whatever you're using.
 
-Then add another connection for Postgres, which connects to the data warehouse: conntype=Postgres, Schema=dwh,
-login=dwh_svc_account (same password) and port 5432.
+Then add another connection for Postgres, which connects to the data warehouse and call this *postgres_dwh*. Then specify conntype=Postgres, Schema=dwh, login=dwh_svc_account (same password) and port 5432.
 
 You can check if these connections are working for you in the *Ad-hoc query* section of the 
-*Data Profiling* menu and select the same connection string from there and doing a select on the order_info table:
+*Data Profiling* menu. If the connections are in the connection drop down, the connection is failing because of a dependency issue or typo. If the connections show up, select the *postgres_oltp* connection string from there and doing a select on the order_info table:
 
 ::
 
