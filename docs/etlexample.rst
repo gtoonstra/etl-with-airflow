@@ -17,6 +17,8 @@ get acquainted with the basic principles. After you start the webserver, also st
 follow the tutorial there, then get back to this tutorial to further contextualize your understanding
 of this platform.
 
+Note that in order to complete this tutorial you need to install the extra postgres package as specified `in the docs <https://airflow.incubator.apache.org/installation.html>`_.
+
 Clone example project
 ---------------------
 
