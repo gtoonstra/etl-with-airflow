@@ -24,6 +24,9 @@ get acquainted with the basic principles. After you start the webserver, also st
 follow the tutorial there, then get back to this tutorial to further contextualize your understanding
 of this platform.
 
+Note that in order to complete this tutorial you need to install the extra postgres package as specified 
+`in the docs <https://airflow.incubator.apache.org/installation.html>`_.
+
 **Clone example project**
 
 Go to the github project page of this documentation project, where you can download the example
@@ -141,7 +144,9 @@ Then add another connection for Postgres, which connects to the data warehouse a
 conntype=Postgres, Schema=dwh, login=dwh_svc_account, password=dwh_svc_account and port 5432.
 
 You can check if these connections are working for you in the *Ad-hoc query* section of the 
-*Data Profiling* menu and select the same connection string from there and doing a select on the order_info table:
+*Data Profiling* menu. If the connections are not in the connection drop down, the connection is failing 
+because of a dependency issue or typo. If they show up, select the *postgres_oltp* connection string and 
+do a select on the order_info table:
 
 ::
 
