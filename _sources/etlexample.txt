@@ -9,16 +9,22 @@ well with a couple of simple changes.
 First, let's set up a simple postgres database that has a little bit of data, so that the example
 can materialize in full and the processing becomes clear.
 
-Install airflow
----------------
+.. important::
+
+    There are two ways to run this particular example; either by installing airflow on your host environment,
+    which gives you an idea what is involved there, or running a docker container.
+
+Install airflow on host system
+------------------------------
+
+**Install airflow**
 
 Before we begin on this more elaborate example, `follow the tutorial <https://airflow.incubator.apache.org/start.html>`_ to
 get acquainted with the basic principles. After you start the webserver, also start the scheduler. Play around with it for while,
 follow the tutorial there, then get back to this tutorial to further contextualize your understanding
 of this platform.
 
-Clone example project
----------------------
+**Clone example project**
 
 Go to the github project page of this documentation project, where you can download the example
 source code, DAGs, SQL and scripts to generate the databases and load it with data:
@@ -27,8 +33,7 @@ source code, DAGs, SQL and scripts to generate the databases and load it with da
 
 Clone this project locally somewhere. 
 
-Install postgres
-----------------
+**Install postgres**
 
 Then first install postgres on your machine. For Ubuntu, this can be installed using apt: 
 
@@ -41,8 +46,7 @@ For Mac OSX, I highly recommend the `package installer <http://postgresapp.com/>
 it will be running and you can restart it after a reboot using the *app* in the launcher. You can log in
 through the postgresql menu top right.
 
-Set up database
----------------
+**Set up database**
 
 On Linux, go to the *do-this-first* directory in the examples directory of the cloned github project,
 then run the *create_everything.sh* script. For Mac OSX, you probably have to open the SQL scripts
@@ -59,8 +63,7 @@ Now, let's create some tables and populate it with some data.
 
     $ ./load_data.sh
 
-Configure airflow
------------------
+**Configure airflow**
 
 We need to declare two postgres connections in airflow. 
 
@@ -68,8 +71,8 @@ Go to the connections screen in the UI (through Admin) and create a new postgres
 *postgres_oltp*. Then specify conntype=Postgres, Schema=orders, login=oltp_read (same password) and port 5432
 or whatever you're using.
 
-Then add another connection for Postgres, which connects to the data warehouse: conntype=Postgres, Schema=dwh,
-login=dwh_svc_account (same password) and port 5432.
+Then add another connection for Postgres, which connects to the data warehouse and call this "postgres_dwh": 
+conntype=Postgres, Schema=dwh, login=dwh_svc_account (same password) and port 5432.
 
 You can check if these connections are working for you in the *Ad-hoc query* section of the 
 *Data Profiling* menu and select the same connection string from there and doing a select on the order_info table:
@@ -83,8 +86,7 @@ Then add a pool to airflow (also under Admin) which should be called *postgres_d
 Finally add a Variable in the Variables section where the sql templates are stored; these are the SQL files 
 from the example repository. Create a new variable "sql_path" and set the value to the directory.
 
-Drop dags into airflow
-----------------------
+**Drop dags into airflow**
 
 In a real setup you'd use continuous integration to update DAG's and dependencies in airflow after changes, 
 but now we're going to drop in the lot straight into the DAG directory for simplicity.
@@ -96,6 +98,59 @@ but now we're going to drop in the lot straight into the DAG directory for simpl
     $ mkdir $AIRFLOW_HOME/sql
     $ cd etl-example/sql
     $ cp *.sql $AIRFLOW_HOME/sql
+
+Run airflow from docker
+-----------------------
+
+There's a docker compose file in the main directory of the repository that does everything. 
+
+You may prefer to run the docker-compose process to become aware of issues that may pop up in the 
+installation process. The postgres database needs some initialization and this is only applied the 
+first time the container is initialized. This is how you start the containers the first time with
+the output to the console:
+
+::
+
+    docker-compose -f docker-compose-LocalExecutor.yml up --abort-on-container-exit
+
+This is how you can clear the containers, so that you can run the install again after resolving any issues:
+
+::
+
+    docker-compose -f docker-compose-LocalExecutor.yml down
+
+And this is how you'd typically run the container if everything is ready (as a daemon in the background):
+
+:: 
+
+    docker-compose -f docker-compose-LocalExecutor.yml up -d
+
+**Configure airflow**
+
+We need to declare two postgres connections in airflow, a pool resource and one variable.
+The easiest way to do this is to run the *init_docker_example* DAG that was created. It will
+apply these settings that you'd normally do by hand. Activate the DAG by setting it to 'on'.
+
+To do this by hand:
+
+Go to the connections screen in the UI (through Admin) and create a new postgres connection and call this
+*postgres_oltp*. Then specify conntype=Postgres, host=postgres, Schema=orders, login=oltp_read, password=oltp_read 
+and port 5432.
+
+Then add another connection for Postgres, which connects to the data warehouse and call this *postgres_dwh*: 
+conntype=Postgres, Schema=dwh, login=dwh_svc_account, password=dwh_svc_account and port 5432.
+
+You can check if these connections are working for you in the *Ad-hoc query* section of the 
+*Data Profiling* menu and select the same connection string from there and doing a select on the order_info table:
+
+::
+
+    SELECT * FROM order_info;
+
+Then add a pool to airflow (also under Admin) which should be called *postgres_dwh*. Let's give this a value of 10.
+
+Finally add a Variable in the Variables section where the sql templates are stored; these are the SQL files 
+from the example repository. Create a new variable "sql_path" and set the value to the directory.
 
 Run it
 ------

@@ -89,12 +89,8 @@
 <li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ETL example</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#install-airflow">Install airflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#clone-example-project">Clone example project</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#install-postgres">Install postgres</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#set-up-database">Set up database</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#configure-airflow">Configure airflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#drop-dags-into-airflow">Drop dags into airflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-airflow-on-host-system">Install airflow on host system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-airflow-from-docker">Run airflow from docker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#run-it">Run it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-it-works">How it works</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#proof-of-principles-compliance">Proof of principles compliance</a></li>
@@ -154,22 +150,24 @@ people running airflow will have Linux (I use Ubuntu), but the examples should w
 well with a couple of simple changes.</p>
 <p>First, let&#8217;s set up a simple postgres database that has a little bit of data, so that the example
 can materialize in full and the processing becomes clear.</p>
-<div class="section" id="install-airflow">
-<h2>Install airflow<a class="headerlink" href="#install-airflow" title="Permalink to this headline">¶</a></h2>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">There are two ways to run this particular example; either by installing airflow on your host environment,
+which gives you an idea what is involved there, or running a docker container.</p>
+</div>
+<div class="section" id="install-airflow-on-host-system">
+<h2>Install airflow on host system<a class="headerlink" href="#install-airflow-on-host-system" title="Permalink to this headline">¶</a></h2>
+<p><strong>Install airflow</strong></p>
 <p>Before we begin on this more elaborate example, <a class="reference external" href="https://airflow.incubator.apache.org/start.html">follow the tutorial</a> to
 get acquainted with the basic principles. After you start the webserver, also start the scheduler. Play around with it for while,
 follow the tutorial there, then get back to this tutorial to further contextualize your understanding
 of this platform.</p>
-</div>
-<div class="section" id="clone-example-project">
-<h2>Clone example project<a class="headerlink" href="#clone-example-project" title="Permalink to this headline">¶</a></h2>
+<p><strong>Clone example project</strong></p>
 <p>Go to the github project page of this documentation project, where you can download the example
 source code, DAGs, SQL and scripts to generate the databases and load it with data:</p>
 <p><a class="reference external" href="https://github.com/gtoonstra/etl-with-airflow/">Documentation Github Project</a></p>
 <p>Clone this project locally somewhere.</p>
-</div>
-<div class="section" id="install-postgres">
-<h2>Install postgres<a class="headerlink" href="#install-postgres" title="Permalink to this headline">¶</a></h2>
+<p><strong>Install postgres</strong></p>
 <p>Then first install postgres on your machine. For Ubuntu, this can be installed using apt:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ sudo apt-get install postgresql
 $ sudo service postgresql restart
@@ -178,9 +176,7 @@ $ sudo service postgresql restart
 <p>For Mac OSX, I highly recommend the <a class="reference external" href="http://postgresapp.com/">package installer</a>. After installation,
 it will be running and you can restart it after a reboot using the <em>app</em> in the launcher. You can log in
 through the postgresql menu top right.</p>
-</div>
-<div class="section" id="set-up-database">
-<h2>Set up database<a class="headerlink" href="#set-up-database" title="Permalink to this headline">¶</a></h2>
+<p><strong>Set up database</strong></p>
 <p>On Linux, go to the <em>do-this-first</em> directory in the examples directory of the cloned github project,
 then run the <em>create_everything.sh</em> script. For Mac OSX, you probably have to open the SQL scripts
 separately and run them in order from the command line.</p>
@@ -192,15 +188,13 @@ $ ./create_everything.sh
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./load_data.sh
 </pre></div>
 </div>
-</div>
-<div class="section" id="configure-airflow">
-<h2>Configure airflow<a class="headerlink" href="#configure-airflow" title="Permalink to this headline">¶</a></h2>
+<p><strong>Configure airflow</strong></p>
 <p>We need to declare two postgres connections in airflow.</p>
 <p>Go to the connections screen in the UI (through Admin) and create a new postgres connection and call this
 <em>postgres_oltp</em>. Then specify conntype=Postgres, Schema=orders, login=oltp_read (same password) and port 5432
 or whatever you&#8217;re using.</p>
-<p>Then add another connection for Postgres, which connects to the data warehouse: conntype=Postgres, Schema=dwh,
-login=dwh_svc_account (same password) and port 5432.</p>
+<p>Then add another connection for Postgres, which connects to the data warehouse and call this &#8220;postgres_dwh&#8221;:
+conntype=Postgres, Schema=dwh, login=dwh_svc_account (same password) and port 5432.</p>
 <p>You can check if these connections are working for you in the <em>Ad-hoc query</em> section of the
 <em>Data Profiling</em> menu and select the same connection string from there and doing a select on the order_info table:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="o">*</span> <span class="n">FROM</span> <span class="n">order_info</span><span class="p">;</span>
@@ -209,9 +203,7 @@ login=dwh_svc_account (same password) and port 5432.</p>
 <p>Then add a pool to airflow (also under Admin) which should be called <em>postgres_dwh</em>. Let&#8217;s give this a value of 10.</p>
 <p>Finally add a Variable in the Variables section where the sql templates are stored; these are the SQL files
 from the example repository. Create a new variable &#8220;sql_path&#8221; and set the value to the directory.</p>
-</div>
-<div class="section" id="drop-dags-into-airflow">
-<h2>Drop dags into airflow<a class="headerlink" href="#drop-dags-into-airflow" title="Permalink to this headline">¶</a></h2>
+<p><strong>Drop dags into airflow</strong></p>
 <p>In a real setup you&#8217;d use continuous integration to update DAG&#8217;s and dependencies in airflow after changes,
 but now we&#8217;re going to drop in the lot straight into the DAG directory for simplicity.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> etl-example/dags
@@ -221,6 +213,43 @@ $ <span class="nb">cd</span> etl-example/sql
 $ cp *.sql <span class="nv">$AIRFLOW_HOME</span>/sql
 </pre></div>
 </div>
+</div>
+<div class="section" id="run-airflow-from-docker">
+<h2>Run airflow from docker<a class="headerlink" href="#run-airflow-from-docker" title="Permalink to this headline">¶</a></h2>
+<p>There&#8217;s a docker compose file in the main directory of the repository that does everything.</p>
+<p>You may prefer to run the docker-compose process to become aware of issues that may pop up in the
+installation process. The postgres database needs some initialization and this is only applied the
+first time the container is initialized. This is how you start the containers the first time with
+the output to the console:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">LocalExecutor</span><span class="o">.</span><span class="n">yml</span> <span class="n">up</span> <span class="o">--</span><span class="n">abort</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">container</span><span class="o">-</span><span class="n">exit</span>
+</pre></div>
+</div>
+<p>This is how you can clear the containers, so that you can run the install again after resolving any issues:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">LocalExecutor</span><span class="o">.</span><span class="n">yml</span> <span class="n">down</span>
+</pre></div>
+</div>
+<p>And this is how you&#8217;d typically run the container if everything is ready (as a daemon in the background):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">LocalExecutor</span><span class="o">.</span><span class="n">yml</span> <span class="n">up</span> <span class="o">-</span><span class="n">d</span>
+</pre></div>
+</div>
+<p><strong>Configure airflow</strong></p>
+<p>We need to declare two postgres connections in airflow, a pool resource and one variable.
+The easiest way to do this is to run the <em>init_docker_example</em> DAG that was created. It will
+apply these settings that you&#8217;d normally do by hand. Activate the DAG by setting it to &#8216;on&#8217;.</p>
+<p>To do this by hand:</p>
+<p>Go to the connections screen in the UI (through Admin) and create a new postgres connection and call this
+<em>postgres_oltp</em>. Then specify conntype=Postgres, host=postgres, Schema=orders, login=oltp_read, password=oltp_read
+and port 5432.</p>
+<p>Then add another connection for Postgres, which connects to the data warehouse and call this <em>postgres_dwh</em>:
+conntype=Postgres, Schema=dwh, login=dwh_svc_account, password=dwh_svc_account and port 5432.</p>
+<p>You can check if these connections are working for you in the <em>Ad-hoc query</em> section of the
+<em>Data Profiling</em> menu and select the same connection string from there and doing a select on the order_info table:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="o">*</span> <span class="n">FROM</span> <span class="n">order_info</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Then add a pool to airflow (also under Admin) which should be called <em>postgres_dwh</em>. Let&#8217;s give this a value of 10.</p>
+<p>Finally add a Variable in the Variables section where the sql templates are stored; these are the SQL files
+from the example repository. Create a new variable &#8220;sql_path&#8221; and set the value to the directory.</p>
 </div>
 <div class="section" id="run-it">
 <h2>Run it<a class="headerlink" href="#run-it" title="Permalink to this headline">¶</a></h2>
