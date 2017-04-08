@@ -1,3 +1,5 @@
+\c dwh;
+
 DROP TABLE IF EXISTS staging.order_info;
 DROP TABLE IF EXISTS staging.orderline;
 DROP TABLE IF EXISTS staging.audit_runs;

@@ -1,3 +1,5 @@
+\c orders;
+
 DROP TABLE IF EXISTS order_info;
 DROP TABLE IF EXISTS orderline;
 DROP TABLE IF EXISTS customer;
