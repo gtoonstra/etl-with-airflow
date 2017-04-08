@@ -162,6 +162,8 @@ which gives you an idea what is involved there, or running a docker container.</
 get acquainted with the basic principles. After you start the webserver, also start the scheduler. Play around with it for while,
 follow the tutorial there, then get back to this tutorial to further contextualize your understanding
 of this platform.</p>
+<p>Note that in order to complete this tutorial you need to install the extra postgres package as specified
+<a class="reference external" href="https://airflow.incubator.apache.org/installation.html">in the docs</a>.</p>
 <p><strong>Clone example project</strong></p>
 <p>Go to the github project page of this documentation project, where you can download the example
 source code, DAGs, SQL and scripts to generate the databases and load it with data:</p>
@@ -243,7 +245,9 @@ and port 5432.</p>
 <p>Then add another connection for Postgres, which connects to the data warehouse and call this <em>postgres_dwh</em>:
 conntype=Postgres, Schema=dwh, login=dwh_svc_account, password=dwh_svc_account and port 5432.</p>
 <p>You can check if these connections are working for you in the <em>Ad-hoc query</em> section of the
-<em>Data Profiling</em> menu and select the same connection string from there and doing a select on the order_info table:</p>
+<em>Data Profiling</em> menu. If the connections are not in the connection drop down, the connection is failing
+because of a dependency issue or typo. If they show up, select the <em>postgres_oltp</em> connection string and
+do a select on the order_info table:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="o">*</span> <span class="n">FROM</span> <span class="n">order_info</span><span class="p">;</span>
 </pre></div>
 </div>
