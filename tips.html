@@ -1,0 +1,239 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Tips &mdash; ETL Best Practices with Airflow v1.8</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="platform.html">Building your own ETL platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ingestfile.html">Ingesting files</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">ETL Best Practices with airflow 1.8</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Tips</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="tips">
+<h1>Tips<a class="headerlink" href="#tips" title="Permalink to this headline">¶</a></h1>
+<p>This section gives you some tips for handling specific cases in the use of airflow</p>
+<div class="section" id="long-running-processes">
+<h2>Long running processes<a class="headerlink" href="#long-running-processes" title="Permalink to this headline">¶</a></h2>
+<p>The main ETL example uses a workflow with only short-running tasks. Extracting
+data and processing that should only take up to 5-10 minutes max at the most.</p>
+<p>There are some cases where you have long running jobs that take one to several hours.
+You&#8217;d typically check in one of two ways whether this job has completed:</p>
+<ul class="simple">
+<li>Check on an interface of some kind for job completion</li>
+<li>Check for availability of the output of that job</li>
+</ul>
+<p>For example, if you run a spark hadoop job that processes item-to-item recommendations and
+dumps the output into a data file on S3, you&#8217;d start the spark job in one task and keep
+checking for the availability of that file on S3 in another.</p>
+</div>
+<div class="section" id="quick-deployment">
+<h2>Quick deployment<a class="headerlink" href="#quick-deployment" title="Permalink to this headline">¶</a></h2>
+<p>Many organizations require a proof of concept to demonstrate the suitability of a software
+product to other engineers. In the root of this repository on github, you&#8217;ll find a file
+called _dockercompose-<a href="#id1"><span class="problematic" id="id2">LocalExecutor.yml_</span></a>. This file is used to demonstrate the ETL example
+and you should be able to edit and reuse that concept file to build your own PoC or
+simple deployment.</p>
+<p>Other uses for the docker deployment are for training or local development purposes.</p>
+<p>In the ETL example, there are files for:</p>
+<ul class="simple">
+<li>Setting up a sample database. You can override this with other databases of your choosing,
+or rewire that into another docker deployment for mssql (also on linux now) or mysql.</li>
+<li>A dag that sets up connections after you recreate your containers, which you need to run only once.</li>
+<li>Some dags that demonstrate the ETL example, which you can replace by your own
+functional dags of your choosing.</li>
+</ul>
+</div>
+<div class="section" id="connection-administration">
+<h2>Connection administration<a class="headerlink" href="#connection-administration" title="Permalink to this headline">¶</a></h2>
+<p>Airflow stores connection details in its own database, where the password and extra settings can be
+encrypted. For development setups, you may want to reinstall frequently to keep your environment clean
+or upgrade to different package versions for different reasons.</p>
+<p>The ETL example contains a DAG that you need to run only once that does this. You can change the source
+where this DAG gets the connection information from and then, after recreating the development environment,
+run that DAG once to import all the connection details from a remote system or a local file for example.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Gerard Toonstra.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.8',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
