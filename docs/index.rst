@@ -26,5 +26,5 @@ Content
     monitoring
     platform
     ingestfile
-    longrunning
+    tips
 
