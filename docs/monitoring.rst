@@ -55,15 +55,15 @@ Taking it a step further
 The above example uses simple 'rowcounts' as a metric; it answers the question "how many rows did I ingest from system A and was that the expected
 amount within a specific interval?"
 
-But you can take this a lot further. Data quality can also worry about the quality of the ingested metrics and whether these
+But you can take this a lot further. Data quality can also concern itself with the quality of the ingested metrics and whether these
 add up. I've seen many cases for example that data was ingested in full, but some other script failed processing, a settings table
 was incorrectly configured and the end result was not what it should have been.
 
-Before you start worrying about implementing a complex solution with accumulating snapshot tables and compare yesterday's results vs. 
+Before you start concerning yourself with a complex solution that accumulates snapshot tables and compare yesterday's results vs. 
 new results, consider applying the same approach to this problem. 
 
-At coolblue for example, we identified that business analysts would regularly run a number of queries to check data validity before
-they started working with the data. They run those queries because they do not unconditionally trust the underlying data. Well, those
+We identified that business analysts would regularly run a number of queries to check data validity before they started working with the data. 
+They run those queries because they do not unconditionally trust the underlying data. Well, those
 queries can be executed in an automated fashion on airflow and datadog will advise users if new metric data points violate the error
 boundaries. This works for daily ETL processes over a longer evaluation window, but also for much shorter time intervals. 
 
@@ -75,12 +75,12 @@ Beyond detection
 ----------------
 
 So Datadog is great at supporting you to detect data quality issues and visualizing your data trends on a dashboard of your choice, 
-but how else can this be useful?  At my current company we are using post mortems to identify the true root cause of specific incidents.
+but how else can datadog be useful?  We use post mortems to identify the true root cause of specific incidents.
 In the process of doing that, we document everything about the incident in a post mortem document, which is a great way to communicate the
 true impact of ETL failures, data quality issues and the likes. If you track data quality using datadog services, there's a feature 
 called "Notebooks", which helps you to enrich these post mortem documents using these datadog notebooks. You can collect a set of metrics
 together and point out indicators, issues and trends using the metrics that were uploaded to datadog and surround that with additional
 rich text to tell a better story. The true benefit of that functionality is that it's a whole lot faster than copying and pasting content
-that you collect through a clipboard and such.
+that you collect through a clipboard.
 
 

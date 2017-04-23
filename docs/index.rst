@@ -26,4 +26,5 @@ Content
     monitoring
     platform
     ingestfile
+    longrunning
 
