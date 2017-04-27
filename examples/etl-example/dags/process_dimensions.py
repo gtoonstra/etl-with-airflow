@@ -16,17 +16,13 @@ from __future__ import print_function
 import airflow
 from datetime import datetime, timedelta
 from acme.operators.dwh_operators import PostgresOperatorWithTemplatedParams
-from airflow.operators import ExternalTaskSensor
+from airflow.operators.sensors import ExternalTaskSensor
 from airflow.models import Variable
 
 
-seven_days_ago = datetime.combine(
-    datetime.today() - timedelta(7),
-    datetime.min.time())
-
 args = {
     'owner': 'airflow',
-    'start_date': seven_days_ago,
+    'start_date': airflow.utils.dates.days_ago(7),
     'provide_context': True,
     'depends_on_past': True
 }

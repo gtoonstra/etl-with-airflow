@@ -15,18 +15,15 @@
 from __future__ import print_function
 import airflow
 from datetime import datetime, timedelta
-from airflow.operators import PythonOperator
+from airflow.operators.python_operator import PythonOperator
 from airflow import models
 from airflow.settings import Session
 import logging
 
-seven_days_ago = datetime.combine(
-    datetime.today() - timedelta(7),
-    datetime.min.time())
 
 args = {
     'owner': 'airflow',
-    'start_date': seven_days_ago,
+    'start_date': airflow.utils.dates.days_ago(7),
     'provide_context': True
 }
 

@@ -19,13 +19,10 @@ from acme.operators.dwh_operators import PostgresToPostgresOperator
 from acme.operators.dwh_operators import AuditOperator
 from airflow.models import Variable
 
-seven_days_ago = datetime.combine(
-    datetime.today() - timedelta(7),
-    datetime.min.time())
 
 args = {
     'owner': 'airflow',
-    'start_date': seven_days_ago,
+    'start_date': airflow.utils.dates.days_ago(7),
     'provide_context': True
 }
 
