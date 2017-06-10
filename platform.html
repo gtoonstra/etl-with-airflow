@@ -94,6 +94,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#understanding-the-airflow-platform-design">Understanding the airflow platform design</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#understanding-hooks-and-operators">Understanding hooks and operators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#publish-site-speific-documentation">Publish site-speific documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#strategies-for-testing-the-platform">Strategies for testing the platform</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ingestfile.html">Ingesting files</a></li>
@@ -161,6 +162,24 @@ not started by users, but you allocate machines to a cluster through celery.</p>
 <p class="first admonition-title">Important</p>
 <p class="last">The webserver, scheduler and worker all run exactly the same software, but are started with different commands.</p>
 </div>
+<p>This is a depiction of how a data platform stack would look like using Apache Airflow:</p>
+<img alt="_images/airflow-stack.png" src="_images/airflow-stack.png" />
+<p>It shows who&#8217;s typically responsible for the different parts of the data platform and gives an intuition as to what kind of tests and control have to implemented to make the data platform sustainable and controlled.</p>
+<p>It is important to understand how these components map to your organization. There are cases where
+&#8220;anyone&#8221; could refer to business analysts, data engineers, data scientists and developers from other
+teams in your organization, or it could refer to only a number of data scientists that work with a
+constrained set of data in a very specific setting with high access controls because it involves financial data.</p>
+<p>Airflow runs on an operating system of a specific distribution that has pre-installs of particular libraries and other daemons that are defined by your organization. From there, the airflow package could be installed from either source or from the pip package. Although airflow contains a number of
+standard components, mostly the hooks and operators, you&#8217;ll probably want to write or extend them yourself, because organizations typically do certain things differently.</p>
+<p>Software is about abstractions and what the operators allow you to do is abstract and generalize on
+how you want to &#8220;do things with data&#8221; in your organization. For example, one rule could be that all
+data that you ingest from external sources (FTP, API, SOAP, etc.) get archived on the cloud in some
+specific and general way. You could enforce this as a rule when people build their workflows, but this
+would require someone to &#8220;police&#8221; that all workflow DAGs being constructed utilize that method and
+you&#8217;d have to spend time and effort to ensure that people get educated and trained on how that&#8217;s done
+as part of a workflow. Some of those choices can be generalized within an operator, so that it becomes
+transparent for people writing DAGs and workflows, another way to look at that is that you can update
+your data policies in a much easier way without a lot of rework, so you become more flexible.</p>
 </div>
 <div class="section" id="understanding-hooks-and-operators">
 <h2>Understanding hooks and operators<a class="headerlink" href="#understanding-hooks-and-operators" title="Permalink to this headline">¶</a></h2>
@@ -188,6 +207,33 @@ of this additional processing. In a similar way you could add metric collection 
 which works great for python projects. You can document a part about your specific use of airflow, agreements and principles that you
 set up and include the documentation for each operator and hook that you develop as part of the platform. Release that documentation site
 as part of your continuous integration pipeline and the documentation site will always be up to date.</p>
+</div>
+<div class="section" id="strategies-for-testing-the-platform">
+<h2>Strategies for testing the platform<a class="headerlink" href="#strategies-for-testing-the-platform" title="Permalink to this headline">¶</a></h2>
+<p>A good understanding of the entire stack also gives you insight as to where &#8220;testing&#8221; needs to happen.
+First, you want to ensure that the infrastructure and things at OS level are stable and working.
+You need to understand the quirks of the Apache Airflow core, the bugs it has, which areas and functionalities are best avoided for now, what are the choices you make with regards to authentication, etc.</p>
+<p>Once you understand the core platform, you move into the area of making sure that workflows don&#8217;t break because of code issues. So operators and hooks that are built need to be predictable with regards to their behavior and you&#8217;ll want to spend a good amount of time making sure that corner cases are handled correctly. The &#8220;happy path&#8221; for operators is quite easy to define, but what you need to really spend some time on is how potential failures with hooks, operator code, exceptions and data issues would impact the behavior of that operator. I.e., cases like:</p>
+<ul class="simple">
+<li>If data from this API comes back as empty, what&#8217;s the behavior of this operator and down-stream from there?</li>
+<li>If the data returned is corrupted (a half-written file), does this operator fail on that?</li>
+<li>If the external API cannot be contacted or times out, how does the operator react to that?  Does it return an empty record or does it fail with an exception?</li>
+<li>Are there cases in which I want to have workflow designers be able to influence these exceptional conditions by ignoring them?</li>
+</ul>
+<p>From the level of the workflow/DAG, you can start asking questions like this:</p>
+<img alt="_images/example-dag.png" src="_images/example-dag.png" />
+<p>Operators are great at implementing general policy and behavior, but they cannot inform a data engineer when bad data is being processed, because it doesn&#8217;t have that contextual information. Very often, data pipelines are built where the developer dumps the data in a temporary table when the pipeline gets constructed and when the data outcome is as expected, the pipeline gets productionized without implementing a continuous data quality check.</p>
+<p>This leads to situations where you cannot make statements about the final quality of data. By chance, some analyst looking at the
+margins or sold quantities from yesterday might see some anomalies, after which an alert is raised and an investigation is started as to how the data got that way. The only real way to deal with that is to integrate data quality checks into each and every run of a DAG which confirms that the results are as expected. Every time an anomaly is observed, it&#8217;s important to keep extending the DAG to trap such cases at the time when the potential corruption is about to happen, so as early as possible. When a table is half transferred, you don&#8217;t want to raise an alert that the calculated margin is wrong, but you raise this at the time it is observed that that table is only half there and block downstream processes from further processing.</p>
+<p>So, it is important to ask questions when and where tests are happening, what you rely on and assume and what the scope of those tests are. We had a discussion on the dev mailing list about testing strategies for airflow and this discussion is ongoing at the moment.</p>
+<p>So far, my view on that is the following:</p>
+<ul class="simple">
+<li>At the lowest level, the OS + libs, use tools like chef/puppet to ensure a stable installation. (those tools &#8220;test&#8221; the environment against what you declared it to be and make adjustments where necessary)</li>
+<li>Pin the version of airflow you want to use for a specific environment and make sure you have ways to do major upgrades. One way there is to have a complete &#8220;UAT&#8221; environment where you can run all workflows from production.</li>
+<li>Set up a separate project that extends the airflow core (your operators and hooks for your organization) and make sure that those operators are fully unit-tested in terms of how they react to empty datasets, connection failures and other generic faults.</li>
+<li>The workflows themselves are tested in UAT; here it&#8217;s only considering that the workflow runs as expected and completes successfully.</li>
+<li>Each workflow DAG contains data quality checks: &#8220;Is data complete?&#8221;, &#8220;After this operation, is the margin within x % of previous days?&#8221;</li>
+</ul>
 </div>
 </div>
 

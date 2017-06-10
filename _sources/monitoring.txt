@@ -26,7 +26,7 @@ they received or from recommendations by colleagues at work.
 Let's go with a hypothetical dataset and interval of 1 hour for ingesting the orders. We see large fluctuations of how many orders
 are actually ingested within each hour that could look like the following graph: 
 
-.. image:: img/ingested-orders.jpg
+.. image:: img/ingested-orders.png
 
 If we now apply a very simple threshold rule with a minimum and a maximum threshold, then it's easy to see that our allowed
 error band for any given day can be very wide; so wide in fact that it may entirely defeat the purpose of having one in the first place.
