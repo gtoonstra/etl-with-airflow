@@ -99,7 +99,7 @@ Once you understand the core platform, you move into the area of making sure tha
 
 From the level of the workflow/DAG, you can start asking questions like this:
 
-.. image:: img/example-dag.png
+.. image:: img/testing.jpg
 
 Operators are great at implementing general policy and behavior, but they cannot inform a data engineer when bad data is being processed, because it doesn't have that contextual information. Very often, data pipelines are built where the developer dumps the data in a temporary table when the pipeline gets constructed and when the data outcome is as expected, the pipeline gets productionized without implementing a continuous data quality check. 
 
