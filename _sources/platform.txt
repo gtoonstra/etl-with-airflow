@@ -75,13 +75,13 @@ is a company using airflow, which archives every data entity ingested from exter
 pre-defined URL scheme. The standard operators and hooks implement and abstract this specific behavior, so the DAGs do not get polluted by any
 of this additional processing. In a similar way you could add metric collection to operators or leave that in your DAGs, those are design choices.
 
-Publish site-speific documentation
-----------------------------------
+Publish documentation
+---------------------
 
 After you finish building airflow, it's a good idea to build your own documentation site. The airflow site and this site are built using sphinx,
 which works great for python projects. You can document a part about your specific use of airflow, agreements and principles that you
 set up and include the documentation for each operator and hook that you develop as part of the platform. Release that documentation site 
-as part of your continuous integration pipeline and the documentation site will always be up to date.
+as part of your continuous integration pipeline and the documentation, explaining how to use operators and what they do will always be up to date.
 
 Strategies for testing the platform
 -----------------------------------
