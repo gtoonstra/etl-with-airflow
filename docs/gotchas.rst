@@ -8,7 +8,7 @@ the system behaves differently than what you expect.
 **Start_date and interval confusion**: The *start_date* specifies the first date and time for which 
 you want to have data in a database. Airflow will run a job at *start_date + interval*, so after the 
 interval has passed (because that's when data becomes available). You can read more about the rationale
-in the `Airflow FAQ <https://airflow.incubator.apache.org/faq.html/>`_
+in the `Airflow FAQ <https://airflow.incubator.apache.org/faq.html>`_
 
 **Execution date**: The *execution_date* specifies the lowest date+time of the interval under consideration.
 This date is available as a macro under a variety of formats (see *ds*, *ds_no_dash*, *ts*, etc). 
