@@ -21,18 +21,21 @@ INSERT INTO dwh.fact_orderline(
     , quantity
     , price ) 
 SELECT
-      (SELECT date_pk FROM dwh.dim_date d WHERE d.date_pk = o.create_dtm::date)
-    , (SELECT time_pk FROM dwh.dim_time t WHERE t.time_pk = date_trunc('minute', o.create_dtm::time))
-    , (SELECT product_key FROM dwh.dim_product p WHERE p.product_id = ol.product_id AND ol.partition_dtm >= p.start_dtm AND ol.partition_dtm < p.end_dtm)
-    , (SELECT customer_key FROM dwh.dim_customer c WHERE c.customer_id = o.customer_id AND ol.partition_dtm >= c.start_dtm AND ol.partition_dtm < c.end_dtm)
+      d.date_pk
+    , t.time_pk
+    , p.product_key
+    , c.customer_key
     , o.order_id
     , ol.orderline_id
     , ol.quantity
     , ol.price
 FROM
-    staging.order_info o INNER JOIN
-    staging.orderline ol ON o.order_id = ol.order_id
+           staging.order_info o 
+INNER JOIN staging.orderline ol ON o.order_id = ol.order_id
+INNER JOIN dwh.dim_date d ON d.date_pk = o.create_dtm::date
+INNER JOIN dwh.dim_time t ON t.time_pk = date_trunc('minute', o.create_dtm::time)
+INNER JOIN dwh.dim_product p ON p.product_id = ol.product_id AND ol.partition_dtm >= p.start_dtm AND ol.partition_dtm < p.end_dtm
+INNER JOIN dwh.dim_customer c ON c.customer_id = o.customer_id AND ol.partition_dtm >= c.start_dtm AND ol.partition_dtm < c.end_dtm
 WHERE
     ol.partition_dtm >= %(window_start_date)s 
 AND ol.partition_dtm < %(window_end_date)s;
-
