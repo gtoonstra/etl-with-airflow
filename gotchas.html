@@ -89,6 +89,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Gotcha&#8217;s</a></li>
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hiveexample.html">Hive example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
 <li class="toctree-l1"><a class="reference internal" href="platform.html">Building your own ETL platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ingestfile.html">Ingesting files</a></li>
@@ -143,7 +144,7 @@ the system behaves differently than what you expect.</p>
 <p><strong>Start_date and interval confusion</strong>: The <em>start_date</em> specifies the first date and time for which
 you want to have data in a database. Airflow will run a job at <em>start_date + interval</em>, so after the
 interval has passed (because that&#8217;s when data becomes available). You can read more about the rationale
-in the <a class="reference external" href="https://airflow.incubator.apache.org/faq.html/">Airflow FAQ</a></p>
+in the <a class="reference external" href="https://airflow.incubator.apache.org/faq.html">Airflow FAQ</a></p>
 <p><strong>Execution date</strong>: The <em>execution_date</em> specifies the lowest date+time of the interval under consideration.
 This date is available as a macro under a variety of formats (see <em>ds</em>, <em>ds_no_dash</em>, <em>ts</em>, etc).</p>
 <p>As from airflow 1.8 there are additional macro&#8217;s available to select one interval earlier or later than

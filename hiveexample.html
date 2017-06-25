@@ -1,0 +1,256 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Hive example &mdash; ETL Best Practices with Airflow v1.8</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
+        <link rel="next" title="Monitoring" href="monitoring.html"/>
+        <link rel="prev" title="ETL example" href="etlexample.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Hive example</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-run-it">How to run it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#strategy-and-issues">Strategy and issues</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="platform.html">Building your own ETL platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ingestfile.html">Ingesting files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tips.html">Tips</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">ETL Best Practices with airflow 1.8</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Hive example</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="hive-example">
+<h1>Hive example<a class="headerlink" href="#hive-example" title="Permalink to this headline">¶</a></h1>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">!This example is in progress!</p>
+</div>
+<p>The ETL example demonstrates how airflow can be applied for straightforward
+database interactions. One of the powers of airflow is the orchestration of
+bigdata jobs, where the processing is offloaded from a limited cluster of
+workers onto a larger platform like Hadoop (or one of its implementors).</p>
+<p>This example uses exactly the same dataset as the regular ETL example, but all
+data is staged into Hadoop, loaded into Hive and then post-processed using
+parallel Hive queries. This provides insight in how BigData DWH processing is
+different from normal database processing and it gives some insight into the
+use of the Hive hooks and operators that airflow offers.</p>
+<p>For successful BigData processing, you typically try to process everything in
+parallel as much as possible. The DAGs are therefore larger and show parallel
+paths of execution for the different dimensions and facts.</p>
+<p>The code is located (as usual) in the repository indicated before under the &#8220;hive-example&#8221;
+directory. What is supplied is a docker compose script (docker-compose-hive.yml),
+which starts a docker container, installs client hadoop+hive into airflow and other
+things to make it work. You may need a beefy machine with 32GB to get things to run though.</p>
+<p>If that doesn&#8217;t work, you can always use the source code to connect to a development
+instance of hive somewhere.</p>
+<div class="section" id="how-to-run-it">
+<h2>How to run it<a class="headerlink" href="#how-to-run-it" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">hive</span><span class="o">.</span><span class="n">yml</span> <span class="n">up</span> <span class="o">--</span><span class="n">abort</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">container</span><span class="o">-</span><span class="n">exit</span>
+</pre></div>
+</div>
+<p>This will download and create the docker containers to run everything. This is how you can clear the containers, so that you can run the install again after resolving any issues:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">hive</span><span class="o">.</span><span class="n">yml</span> <span class="n">down</span>
+</pre></div>
+</div>
+<p>Then run the &#8220;init_hive_example&#8221; dag once to get the connections and variables set up.</p>
+</div>
+<div class="section" id="strategy-and-issues">
+<h2>Strategy and issues<a class="headerlink" href="#strategy-and-issues" title="Permalink to this headline">¶</a></h2>
+<p>The main strategy here is to parallellize the way how data is drawn from the database.
+What I&#8217;ve maintained in this example is a regular star-schema (Kimball like) as you&#8217;d
+see one in a regular data mart or DWH, but the dimensions are somewhat simplified and use
+a mix of SCD type 1 and type 2 dimensions. (SCD = Slowly Changing Dimension). Similar to the
+ETL example, the dimensions are processed first, then per fact you&#8217;d tie the data to the dimensions.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="monitoring.html" class="btn btn-neutral float-right" title="Monitoring" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="etlexample.html" class="btn btn-neutral" title="ETL example" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Gerard Toonstra.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.8',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

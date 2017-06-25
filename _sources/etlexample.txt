@@ -7,7 +7,10 @@ people running airflow will have Linux (I use Ubuntu), but the examples should w
 well with a couple of simple changes.
 
 First, let's set up a simple postgres database that has a little bit of data, so that the example
-can materialize in full and the processing becomes clear.
+can materialize in full and the processing becomes clear. You'll see that the OLTP product and customer
+tables do not have a primary key; this is intentional to simplify how data is ingested into the target
+environment... You'd have to modify the OLTP database inbetween the runs of airflow DWH processing
+runs to get some nice dimensions in your data. This structure simulates updates over time.
 
 .. important::
 

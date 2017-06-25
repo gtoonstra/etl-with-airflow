@@ -34,7 +34,7 @@
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
-        <link rel="next" title="Monitoring" href="monitoring.html"/>
+        <link rel="next" title="Hive example" href="hiveexample.html"/>
         <link rel="prev" title="What makes Airflow great?" href="great.html"/> 
 
   
@@ -97,6 +97,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#issues">Issues</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="hiveexample.html">Hive example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
 <li class="toctree-l1"><a class="reference internal" href="platform.html">Building your own ETL platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ingestfile.html">Ingesting files</a></li>
@@ -150,7 +151,10 @@ example that implements a data flow pipeline adhering to these principles. I&#82
 people running airflow will have Linux (I use Ubuntu), but the examples should work for Mac OSX as
 well with a couple of simple changes.</p>
 <p>First, let&#8217;s set up a simple postgres database that has a little bit of data, so that the example
-can materialize in full and the processing becomes clear.</p>
+can materialize in full and the processing becomes clear. You&#8217;ll see that the OLTP product and customer
+tables do not have a primary key; this is intentional to simplify how data is ingested into the target
+environment... You&#8217;d have to modify the OLTP database inbetween the runs of airflow DWH processing
+runs to get some nice dimensions in your data. This structure simulates updates over time.</p>
 <div class="admonition important">
 <p class="first admonition-title">Important</p>
 <p class="last">There are two ways to run this particular example; either by installing airflow on your host environment,
@@ -361,7 +365,7 @@ of instances 7, it takes longer for the instances to actually run</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="monitoring.html" class="btn btn-neutral float-right" title="Monitoring" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="hiveexample.html" class="btn btn-neutral float-right" title="Hive example" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="great.html" class="btn btn-neutral" title="What makes Airflow great?" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
