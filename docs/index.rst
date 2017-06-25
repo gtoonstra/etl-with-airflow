@@ -23,6 +23,7 @@ Content
     gotchas
     great
     etlexample
+    hiveexample
     monitoring
     platform
     ingestfile
