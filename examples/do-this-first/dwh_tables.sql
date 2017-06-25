@@ -32,7 +32,7 @@ CREATE TABLE staging.orderline (
 );
 
 CREATE TABLE staging.customer (
-    customer_id    VARCHAR(16) PRIMARY KEY NOT NULL,
+    customer_id    VARCHAR(16) NOT NULL,
     cust_name      VARCHAR(20) NOT NULL,
     street         VARCHAR(50),
     city           VARCHAR(30),
@@ -41,9 +41,10 @@ CREATE TABLE staging.customer (
 );
 
 CREATE TABLE staging.product (
-    product_id     INTEGER PRIMARY KEY NOT NULL,
+    product_id     INTEGER NOT NULL,
     product_name   VARCHAR(50) NOT NULL,
     supplier_id    INTEGER NOT NULL,
+    producttype_id INTEGER NOT NULL,
     audit_id       INTEGER NOT NULL,
     partition_dtm  TIMESTAMP NOT NULL
 );
@@ -83,6 +84,7 @@ CREATE TABLE dwh.dim_product (
     product_id   INTEGER NOT NULL,
     product_name VARCHAR(50) NOT NULL,
     supplier_id  INTEGER NOT NULL,
+    producttype_id INTEGER NOT NULL,
     start_dtm    TIMESTAMP NOT NULL,
     end_dtm      TIMESTAMP NOT NULL DEFAULT TIMESTAMP '9999-01-01'
 );

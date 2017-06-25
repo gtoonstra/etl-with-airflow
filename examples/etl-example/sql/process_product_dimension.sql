@@ -5,7 +5,7 @@ CREATE TEMP TABLE merge_product (LIKE dwh.dim_product);
 -- The staging table should only have at most one record per customer
 INSERT INTO merge_product
 SELECT 
-    0, p.product_id, p.product_name, p.supplier_id, p.partition_dtm, TIMESTAMP '9999-01-01'
+    0, p.product_id, p.product_name, p.supplier_id, p.producttype_id, p.partition_dtm, TIMESTAMP '9999-01-01'
 FROM
     staging.product p
 WHERE 
@@ -27,9 +27,9 @@ WHERE
 AND     target.end_dtm     >= TIMESTAMP '9999-01-01'
 AND     target.start_dtm   < source.start_dtm
 AND EXISTS (
-        SELECT source.product_id, source.product_name, source.supplier_id
+        SELECT source.product_id, source.product_name, source.supplier_id, source.producttype_id
         EXCEPT
-        SELECT target.product_id, target.product_name, target.supplier_id);
+        SELECT target.product_id, target.product_name, target.supplier_id, target.producttype_id);
 
 -- Remove records that we do not want to insert.
 -- What we do want to insert are all new records (nothing in target),
@@ -45,17 +45,18 @@ WHERE
 AND target.end_dtm    >= TIMESTAMP '9999-01-01'
 AND target.start_dtm  <= source.start_dtm
 AND EXISTS (
-        SELECT source.product_id, source.product_name, source.supplier_id
+        SELECT source.product_id, source.product_name, source.supplier_id, source.producttype_id
         INTERSECT
-        SELECT target.product_id, target.product_name, target.supplier_id);
+        SELECT target.product_id, target.product_name, target.supplier_id, target.producttype_id);
 
 -- Now perform the inserts. These are new customers and records for customers
 -- Where these may have changed.
-INSERT INTO dwh.dim_product (product_id, product_name, supplier_id, start_dtm )
+INSERT INTO dwh.dim_product (product_id, product_name, supplier_id, producttype_id, start_dtm )
 SELECT
       source.product_id
     , source.product_name
     , source.supplier_id
+    , source.producttype_id
     , source.start_dtm
 FROM
     merge_product source;
