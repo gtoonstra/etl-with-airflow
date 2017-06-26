@@ -16,7 +16,7 @@ from __future__ import print_function
 import airflow
 from datetime import datetime, timedelta
 from airflow.operators.hive_operator import HiveOperator
-from airflow.operators.dummy_operator import DummyOperator
+from airflow.operators.latest_only_operator import LatestOnlyOperator
 from airflow.models import Variable
 
 
@@ -24,7 +24,7 @@ args = {
     'owner': 'airflow',
     'start_date': airflow.utils.dates.days_ago(7),
     'provide_context': True,
-    'depends_on_past': True
+    'depends_on_past': False
 }
 
 tmpl_search_path = Variable.get("hive_sql_path")
@@ -47,7 +47,7 @@ dag = airflow.DAG(
     dagrun_timeout=timedelta(minutes=60),
     template_searchpath=tmpl_search_path,
     default_args=args,
-    max_active_runs=1)
+    max_active_runs=10)
 
 customer_step_1 = HiveOperator(
     hql='customer/step_1.hql',
@@ -63,62 +63,6 @@ customer_step_2 = HiveOperator(
     schema='default',
     hiveconf_jinja_translate=True,
     task_id='customer_step_2',
-    dag=dag)
-
-customer_step_3 = HiveOperator(
-    hql='customer/step_3.hql',
-    hive_cli_conn_id='hive_staging',
-    schema='default',
-    hiveconf_jinja_translate=True,
-    task_id='customer_step_3',
-    dag=dag)
-
-customer_step_4 = HiveOperator(
-    hql='customer/step_4.hql',
-    hive_cli_conn_id='hive_staging',
-    schema='default',
-    hiveconf_jinja_translate=True,
-    task_id='customer_step_4',
-    dag=dag)
-
-customer_step_5 = HiveOperator(
-    hql='customer/step_5.hql',
-    hive_cli_conn_id='hive_staging',
-    schema='default',
-    hiveconf_jinja_translate=True,
-    task_id='customer_step_5',
-    dag=dag)
-
-customer_step_6 = HiveOperator(
-    hql='customer/step_6.hql',
-    hive_cli_conn_id='hive_staging',
-    schema='default',
-    hiveconf_jinja_translate=True,
-    task_id='customer_step_6',
-    dag=dag)
-
-customer_step_7 = HiveOperator(
-    hql='customer/step_7.hql',
-    hive_cli_conn_id='hive_staging',
-    schema='default',
-    hiveconf_jinja_translate=True,
-    task_id='customer_step_7',
-    dag=dag)
-
-customer_step_8 = HiveOperator(
-    hql='customer/step_8.hql',
-    hive_cli_conn_id='hive_staging',
-    schema='default',
-    hiveconf_jinja_translate=True,
-    task_id='customer_step_8',
-    dag=dag)
-
-customer_step_9 = HiveOperator(
-    hql='customer/step_9.hql',
-    hive_cli_conn_id='hive_staging',
-    schema='default',
-    hiveconf_jinja_translate=True,
-    task_id='customer_step_9',
     dag=dag)
 
 
@@ -138,76 +82,36 @@ product_step_2 = HiveOperator(
     task_id='product_step_2',
     dag=dag)
 
-product_step_3 = HiveOperator(
-    hql='product/step_3.hql',
+latest_only = LatestOnlyOperator(
+    task_id='latest_only',
+    dag=dag)
+
+fact_order_step_1 = HiveOperator(
+    hql='order/step_1.hql',
     hive_cli_conn_id='hive_staging',
     schema='default',
     hiveconf_jinja_translate=True,
-    task_id='product_step_3',
+    task_id='fact_order_step_1',
     dag=dag)
 
-product_step_4 = HiveOperator(
-    hql='product/step_4.hql',
+fact_order_step_2 = HiveOperator(
+    hql='order/step_2.hql',
     hive_cli_conn_id='hive_staging',
     schema='default',
     hiveconf_jinja_translate=True,
-    task_id='product_step_4',
+    task_id='fact_order_step_2',
     dag=dag)
 
-product_step_5 = HiveOperator(
-    hql='product/step_5.hql',
-    hive_cli_conn_id='hive_staging',
-    schema='default',
-    hiveconf_jinja_translate=True,
-    task_id='product_step_5',
-    dag=dag)
+latest_only >> customer_step_1
+latest_only >> product_step_1
 
-product_step_6 = HiveOperator(
-    hql='product/step_6.hql',
-    hive_cli_conn_id='hive_staging',
-    schema='default',
-    hiveconf_jinja_translate=True,
-    task_id='product_step_6',
-    dag=dag)
+customer_step_1 >> customer_step_2
+product_step_1 >> product_step_2
 
-product_step_7 = HiveOperator(
-    hql='product/step_7.hql',
-    hive_cli_conn_id='hive_staging',
-    schema='default',
-    hiveconf_jinja_translate=True,
-    task_id='product_step_7',
-    dag=dag)
+customer_step_2 >> fact_order_step_1
+product_step_2 >> fact_order_step_1
 
-product_step_8 = HiveOperator(
-    hql='product/step_8.hql',
-    hive_cli_conn_id='hive_staging',
-    schema='default',
-    hiveconf_jinja_translate=True,
-    task_id='product_step_8',
-    dag=dag)
-
-product_step_9 = HiveOperator(
-    hql='product/step_9.hql',
-    hive_cli_conn_id='hive_staging',
-    schema='default',
-    hiveconf_jinja_translate=True,
-    task_id='product_step_9',
-    dag=dag)
-
-dummy = DummyOperator(
-    task_id='dummy',
-    dag=dag)
-
-customer_step_1 >> customer_step_2 >> customer_step_3 >> customer_step_4
-customer_step_4 >> customer_step_5 >> customer_step_6 >> customer_step_7 
-customer_step_7 >> customer_step_8 >> customer_step_9
-
-product_step_1 >> product_step_2 >> product_step_3 >> product_step_4
-product_step_4 >> product_step_5 >> product_step_6 >> product_step_7 
-product_step_7 >> product_step_8 >> product_step_9
-
-customer_step_9 >> dummy
-product_step_9 >> dummy
+fact_order_step_1 >> fact_order_step_2
 
 
 if __name__ == "__main__":
