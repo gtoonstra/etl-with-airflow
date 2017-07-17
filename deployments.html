@@ -1,0 +1,279 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Deployments &mdash; ETL Best Practices with Airflow v1.8</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
+        <link rel="prev" title="Tips" href="tips.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hiveexample.html">Hive example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="platform.html">Building your own ETL platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ingestfile.html">Ingesting files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tips.html">Tips</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Deployments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#template-and-deploy-managed-services">Template and deploy managed services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#continuous-integration">Continuous integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#log-files">Log files</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">ETL Best Practices with airflow 1.8</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Deployments</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="deployments">
+<h1>Deployments<a class="headerlink" href="#deployments" title="Permalink to this headline">¶</a></h1>
+<p>Beyond deploying airflow on bare metal hardware or a VM you can also run airflow on container-based infrastructure
+like docker swarm, Amazon ECS, Kubernetes or Minikube.</p>
+<p>This section details some of the approaches you can take to deploy it on some of these infrastructures and it highlights
+some concerns you&#8217;ll have to worry about to achieve success.</p>
+<div class="section" id="template-and-deploy-managed-services">
+<h2>Template and deploy managed services<a class="headerlink" href="#template-and-deploy-managed-services" title="Permalink to this headline">¶</a></h2>
+<p>My take is that managed services are preferred over kubernetes based deployments because they give you
+better control over high-availability configurations, backups and some other concerns.</p>
+<p>This section documents some ideas on which and how to provision managed services that serve as the
+backbone infrastructure for an airflow deployment:</p>
+<ul class="simple">
+<li><strong>Managed database</strong>: A database that has frequent backups. The database is used by airflow to keep track of
+the tasks that ran from the dags. It also serves as a distributed lock service for some exotic use cases in airflow.</li>
+<li><strong>Distributed MQ</strong>: Because kubernetes or ECS builds assumes pods or containers that run in a managed environment,
+there needs to be a way to send tasks to workers. This means that the CeleryExecutor is the most viable option. Airflow
+distributes tasks through the Celery interface only, so you&#8217;re free to use any supported messaging backend for Celery <a href="#id1"><span class="problematic" id="id2">*</span></a>.
+Most people choose RabbitMQ or Redis as the backend.</li>
+<li><strong>Shared filesystem</strong>: The docker images contain what I consider the &#8216;core&#8217; part of airflow, which is the Apache Airflow
+distribution, any hooks and operators that you develop yourself, client installations of database drivers, etc.
+The reason to use a shared file system is that if you were to include the DAG workflows inside the image, you&#8217;d have to
+make sure that all workers get updated with the new image. This means you&#8217;re almost forced to stop all the worker instances
+and then synchronize scheduling a DAG you updated until after the DAG is available everywhere on every worker. Using a shared
+filesystem like EFS on AWS or a PersistentDisk that is mapped multiple times in read-only mode gives you a very easy way to
+manage this, because there will be a very limited time that updated dags are not necessarily synchronized everywhere.</li>
+</ul>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<ul class="simple">
+<li>Some backends have certain drawbacks that might make them less suitable for airflow; for example the AWS SQS</li>
+</ul>
+<p class="last">managed service sounds like the most logical backend to use on AWS, but you need to configure the visibility timeout to
+the delay of the longest running task. If you&#8217;re running tasks that take up to 8 hours to run, you&#8217;ll be running with a
+visibility timeout of 8+ hours!</p>
+</div>
+<p>It makes a lot of sense to template this work, because you may have to deploy airflow multiple times for different reasons:</p>
+<ul class="simple">
+<li>Separation between dev, acceptance and production environments</li>
+<li>Separation of code and/or executors inbetween teams, to guarantee that workers and workflows from one team do not negatively impact another</li>
+<li>Disaster Recovery</li>
+</ul>
+</div>
+<div class="section" id="continuous-integration">
+<h2>Continuous integration<a class="headerlink" href="#continuous-integration" title="Permalink to this headline">¶</a></h2>
+<p>The suggested CI model requires at least two pipelines to be set up:</p>
+<ul class="simple">
+<li>A pipline that compiles and deploys the &#8216;core&#8217; platform with all the hooks, operators and generic function of your airflow installation.
+This pipeline would draw code from a code repository, build a docker image from the code and make that typically available from a registry
+somewhere. You&#8217;d probably develop and test the hooks on a local development machine somewhere (as per the other tips on keeping your
+development infrastructure small). Then you could have a setup where certain branches are merged to compile an &#8220;acceptance image&#8221; that is
+deployed and used on the acceptance environment and a final &#8220;master&#8221; branch image build that is only deployed on production.</li>
+<li>Another pipeline to manage DAG deployments (on the shared file system) that might use branches or combinations of branches to test the impact
+of changing queries, DAGS and other code.</li>
+</ul>
+<p>If you still prefer to have separation/isolation between your repositories, for example you don&#8217;t want everyone to see the code that data scientists
+are using or other teams, you can specify multiple source directories from which dags are read. This way, you can deploy the github repo&#8217;s to each
+corresponding subdirectory and maintain complete separation per repository. You can take this a step further by configuring workers to read from
+specific directories only and then use the <em>queue</em> mechanism to direct tasks to those specific workers, although it will complicate your setup.</p>
+</div>
+<div class="section" id="log-files">
+<h2>Log files<a class="headerlink" href="#log-files" title="Permalink to this headline">¶</a></h2>
+<p>If you set up airflow this way then you&#8217;re forced to push your log files to s3 or gcs because the lifetime of a pod is not guaranteed, they can
+be very volatile. The good news is that workers can now survive failures quite easily, but log files are no longer persisted on the workers themselves.
+Besides s3 and gcs there are other options on some systems which include redirecting all stdout/stderr and log files to a logging service
+that is either native to the system or licensed (like splunk).</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="tips.html" class="btn btn-neutral" title="Tips" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Gerard Toonstra.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.8',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

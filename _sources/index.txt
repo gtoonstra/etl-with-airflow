@@ -28,4 +28,4 @@ Content
     platform
     ingestfile
     tips
-
+    deployments
