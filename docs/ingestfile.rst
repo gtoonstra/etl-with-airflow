@@ -43,7 +43,7 @@ Extending from the example
 
 The above example uses a local filesystem to reduce the dependency on more complex connections and external environments like AWS, Google Cloud or 
 whatever storage you may have available. This is to keep the example simple. In real world scenario's, you'd probably write a bunch of operators to
-operate this way. The more incremental your process is, the more 
+operate this way. The more incremental your process is, the more operators you should expect to have.
 
 In the source code under *contrib*, you can see a number of example operators that move data from one system to another. The closest example is 
 a **FileToGoogleCloudStorageOperator** in *file_to_gcs.py*. What you need to do yourself is determine for which these intermediate predictable 
