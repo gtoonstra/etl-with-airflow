@@ -53,7 +53,7 @@ Understanding hooks and operators
 
 Hooks and operators are the key to understanding how airflow can be extended with new capabilities and to keep your DAGs clean and simple.
 A DAG should be *readable* in the sense that it's a description of workflow. Whatever the underlying technical or business principles are that
-you must follow, reading through a DAG should be like reading through a reading a business workflow document, describing what a particular
+you must follow, reading through a DAG should be like reading through a business workflow document, describing what a particular
 business process is trying to achieve.
 
 A **hook** is an object that embodies a connection to a remote server, service or platform.
