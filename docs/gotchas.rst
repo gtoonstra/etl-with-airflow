@@ -76,5 +76,3 @@ only work for those fields in operators where it's listed in the *template_field
 for additional info (see the **Resources & links** section at the bottom of that page).
 
 Also: `The wiki <https://cwiki.apache.org/confluence/display/AIRFLOW/Common+Pitfalls>`_
-
-

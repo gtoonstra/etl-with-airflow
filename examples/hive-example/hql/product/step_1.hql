@@ -1,5 +1,7 @@
 -- Make sure a dimension table exists of the right type
 
+DROP TABLE IF EXISTS dim_product;
+
 CREATE TABLE IF NOT EXISTS dim_product (
       dim_product_key BIGINT
     , product_id STRING

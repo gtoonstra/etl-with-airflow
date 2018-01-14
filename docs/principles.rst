@@ -45,7 +45,18 @@ not end up with multiple copies of the same data in your environment or other un
 only valid when the processing itself has not been modified. If business rules change within the process, then the target
 data will be different. It's a good idea here to be aware of auditors or other business requirements on reprocessing historic
 data, because it's not always allowed. Also, some processes require anonimization of data after a certain number of days,
-because it's not always allowed to keep historical customer data on record *forever*. 
+because it's not always allowed to keep historical customer data on record *forever*.
+
+**Enforce deterministic properties**: A function is said to be deterministic if for a given input, the output produced is
+always exactly the same. Examples of cases where behavior of a function can be non-deterministic:
+    
+    * Using external state within the function, like global variables, random values, stored disk data, hardware timers.
+    * Operating in time-sensitive ways, like multi-threaded programs that are incorrectly sequenced or mutexed.
+    * Relying on order of input variables and not explicitly ordering the input variables, but relying on accidental ordering
+      (this can happen when you write results to a database in order and select without explicit ORDER BY statements)
+    * Implementation issues with structures inside the function (implicitly relying on order in python dicts for example)
+    * Improper exception handling and post-exception behavior
+    * Intermediate commits and unexpected conditions
   
 **Execute conditionally**:  Airflow has some options to control how tasks within DAGs are run based on the success of the 
 instance that came before it. For example, the *depends_on_past* parameter specifies that all task instances before the 
@@ -110,5 +121,3 @@ which reduces the amount of overhead on people to collect this metadata in order
 **Develop your own workflow framework**: Code as a workflow also allows you to reuse parts of DAG’s if you need to, reducing code duplication
 and making things simpler in the long run. This reduces the complexity of the overall system and frees up developer time to work on more
 important and impactful tasks. 
- 
-

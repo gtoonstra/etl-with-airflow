@@ -1,0 +1,29 @@
+version: '2'
+services:
+  postgres:
+      image: postgres:9.6
+      environment:
+          - POSTGRES_USER=airflow
+          - POSTGRES_PASSWORD=airflow
+          - POSTGRES_DB=airflow
+      ports:
+          - 5432:5432
+      volumes:
+          - ./examples/do-this-first/database_user.sql:/docker-entrypoint-initdb.d/database_user.sql
+          - ./examples/do-this-first/dwh_tables.sql:/docker-entrypoint-initdb.d/dwh_tables.sql
+          - ./examples/do-this-first/populate_tables.sql:/docker-entrypoint-initdb.d/populate_tables.sql
+          - ./examples/funcetl-example/setup/datavault.sql:/docker-entrypoint-initdb.d/datavault.sql
+  webserver:
+      image: puckel/docker-airflow:1.8.0
+      restart: always
+      depends_on:
+          - postgres
+      environment:
+          - LOAD_EX=n
+          - EXECUTOR=Local
+      volumes:
+          - ./examples/funcetl-example/dags:/usr/local/airflow/dags
+          - ./examples/funcetl-example/sql:/usr/local/airflow/sql
+      ports:
+          - 8080:8080
+      command: webserver
