@@ -90,6 +90,7 @@
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hiveexample.html">Hive example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="funcetl.html">Functional ETL</a></li>
 <li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
 <li class="toctree-l1"><a class="reference internal" href="platform.html">Building your own ETL platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ingestfile.html">Ingesting files</a></li>
@@ -177,6 +178,19 @@ only valid when the processing itself has not been modified. If business rules c
 data will be different. It&#8217;s a good idea here to be aware of auditors or other business requirements on reprocessing historic
 data, because it&#8217;s not always allowed. Also, some processes require anonimization of data after a certain number of days,
 because it&#8217;s not always allowed to keep historical customer data on record <em>forever</em>.</p>
+<p><strong>Enforce deterministic properties</strong>: A function is said to be deterministic if for a given input, the output produced is
+always exactly the same. Examples of cases where behavior of a function can be non-deterministic:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Using external state within the function, like global variables, random values, stored disk data, hardware timers.</li>
+<li>Operating in time-sensitive ways, like multi-threaded programs that are incorrectly sequenced or mutexed.</li>
+<li>Relying on order of input variables and not explicitly ordering the input variables, but relying on accidental ordering
+(this can happen when you write results to a database in order and select without explicit ORDER BY statements)</li>
+<li>Implementation issues with structures inside the function (implicitly relying on order in python dicts for example)</li>
+<li>Improper exception handling and post-exception behavior</li>
+<li>Intermediate commits and unexpected conditions</li>
+</ul>
+</div></blockquote>
 <p><strong>Execute conditionally</strong>:  Airflow has some options to control how tasks within DAGs are run based on the success of the
 instance that came before it. For example, the <em>depends_on_past</em> parameter specifies that all task instances before the
 one being executed must have succeeded before it executes the current one. The recently introduced <em>LatestOnlyOperator</em>

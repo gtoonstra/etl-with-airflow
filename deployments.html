@@ -89,6 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hiveexample.html">Hive example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="funcetl.html">Functional ETL</a></li>
 <li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
 <li class="toctree-l1"><a class="reference internal" href="platform.html">Building your own ETL platform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ingestfile.html">Ingesting files</a></li>
@@ -188,7 +189,7 @@ visibility timeout of 8+ hours!</p>
 <h2>Continuous integration<a class="headerlink" href="#continuous-integration" title="Permalink to this headline">¶</a></h2>
 <p>The suggested CI model requires at least two pipelines to be set up:</p>
 <ul class="simple">
-<li>A pipline that compiles and deploys the &#8216;core&#8217; platform with all the hooks, operators and generic function of your airflow installation.
+<li>A pipeline that compiles and deploys the &#8216;core&#8217; platform with all the hooks, operators and generic function of your airflow installation.
 This pipeline would draw code from a code repository, build a docker image from the code and make that typically available from a registry
 somewhere. You&#8217;d probably develop and test the hooks on a local development machine somewhere (as per the other tips on keeping your
 development infrastructure small). Then you could have a setup where certain branches are merged to compile an &#8220;acceptance image&#8221; that is

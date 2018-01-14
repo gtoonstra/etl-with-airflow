@@ -50,7 +50,7 @@ Continuous integration
 
 The suggested CI model requires at least two pipelines to be set up:
 
-- A pipline that compiles and deploys the 'core' platform with all the hooks, operators and generic function of your airflow installation.
+- A pipeline that compiles and deploys the 'core' platform with all the hooks, operators and generic function of your airflow installation.
   This pipeline would draw code from a code repository, build a docker image from the code and make that typically available from a registry
   somewhere. You'd probably develop and test the hooks on a local development machine somewhere (as per the other tips on keeping your
   development infrastructure small). Then you could have a setup where certain branches are merged to compile an "acceptance image" that is 
@@ -71,4 +71,3 @@ If you set up airflow this way then you're forced to push your log files to s3 o
 be very volatile. The good news is that workers can now survive failures quite easily, but log files are no longer persisted on the workers themselves.
 Besides s3 and gcs there are other options on some systems which include redirecting all stdout/stderr and log files to a logging service
 that is either native to the system or licensed (like splunk).
-
