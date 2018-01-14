@@ -39,8 +39,28 @@ What we're going to try to build in this example is a data warehouse that has th
 * DAGs that change business rules and apply the correct rule based on the partitioning data
 * Implement a data vault approach for source data; its design gives us more flexibility to change business rules
 
-How to start 
-------------
+In Data Vault modeling, the objective is to create a data model that is future proof, so it's mostly an attempt
+to mitigate changes in data sources so that already loaded data is not impacted and the output of the data vault
+model can still be equal. Think for example how a change in a 1:1 to a 1:n relationship in a source system can
+have a significant impact on the design of a data warehouse. 
+
+Data Vault thus uses an intermediary, flexible representation of the data, which is organized in three main elements:
+
+* Hubs: These contain the main business entities: customers, products, orders, invoices, shipments.
+* Links: These provide the relationships between entities: a shipment made on behalf of an order of a customer
+* Satellites: These are sub-tables providing more details about the relationship or hub:
+    * customer details 
+    * order details
+    * product details, quantity, price, vat and other details in a product shipment
+
+For more information on data vault modeling, see these links:
+
+* https://en.wikipedia.org/wiki/Data_vault_modeling
+* http://tdan.com/data-vault-series-1-data-vault-overview/5054
+* https://www.youtube.com/channel/UCFN-i5nthZgdR0xj3UYYqVw
+
+How to start the example
+------------------------
 
 Run the following script on the console
 
@@ -53,3 +73,4 @@ To bring the entire structure down:
 ::
 
     docker-compose -f docker-compose-func.yml down
+
