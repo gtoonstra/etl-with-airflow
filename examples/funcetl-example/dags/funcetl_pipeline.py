@@ -16,6 +16,7 @@ from __future__ import print_function
 import airflow
 from datetime import datetime, timedelta
 from acme.operators.funcetl_operators import PostgresToPostgresOperator
+from acme.operators.funcetl_operators import PostgresOperatorWithTemplatedParams
 from acme.operators.funcetl_operators import AuditOperator
 from airflow.models import Variable
 import logging
@@ -23,8 +24,10 @@ import logging
 
 args = {
     'owner': 'airflow',
+    'depends_on_past': True,
     'start_date': airflow.utils.dates.days_ago(7),
-    'provide_context': True
+    'provide_context': True,
+    'max_active_runs': 1
 }
 
 tmpl_search_path = Variable.get("sql_path")
@@ -39,24 +42,86 @@ dag = airflow.DAG(
 
 audit_id = AuditOperator(
     task_id='audit_id',
-    postgres_conn_id='dwh',
+    postgres_conn_id='datavault',
     audit_key="funcetl",
     cycle_dtm="{{ ts }}",
     dag=dag)
 
-hub_customers = PostgresToPostgresOperator(
-    sql='hub_customer.sql',
-    pg_table='datavault.hub_customer',
+extract_customers = PostgresToPostgresOperator(
+    sql='staging/stage_customer.sql',
+    pg_table='staging.customer',
     src_postgres_conn_id='oltp',
     dest_postgress_conn_id='datavault',
-    pg_preoperator="DELETE FROM datavault.hub_customer WHERE "
-        "partition_dtm >= DATE '{{ ds }}' AND partition_dtm < DATE '{{ tomorrow_ds }}'",
+    pg_preoperator="TRUNCATE staging.customer",
     parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}",
-                "audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}"},
+                "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
+    task_id='extract_customers',
+    dag=dag)
+
+extract_order_info = PostgresToPostgresOperator(
+    sql='staging/stage_order_info.sql',
+    pg_table='staging.order_info',
+    src_postgres_conn_id='oltp',
+    dest_postgress_conn_id='datavault',
+    pg_preoperator="TRUNCATE staging.order_info",
+    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}",
+                "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
+    task_id='extract_order_info',
+    dag=dag)
+
+extract_orderline = PostgresToPostgresOperator(
+    sql='staging/stage_orderline.sql',
+    pg_table='staging.orderline',
+    src_postgres_conn_id='oltp',
+    dest_postgress_conn_id='datavault',
+    pg_preoperator="TRUNCATE staging.orderline",
+    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}",
+                "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
+    task_id='extract_orderline',
+    dag=dag)
+
+extract_product = PostgresToPostgresOperator(
+    sql='staging/stage_product.sql',
+    pg_table='staging.product',
+    src_postgres_conn_id='oltp',
+    dest_postgress_conn_id='datavault',
+    pg_preoperator="TRUNCATE staging.product",
+    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}",
+                "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
+    task_id='extract_product',
+    dag=dag)
+
+hub_customers = PostgresOperatorWithTemplatedParams(
+    sql='datavault/hub_customer.sql',
+    postgres_conn_id='datavault',
+    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+                "r_src": "oltp"},
     task_id='hub_customers',
     dag=dag)
 
-audit_id >> hub_customers
+hub_order = PostgresOperatorWithTemplatedParams(
+    sql='datavault/hub_order.sql',
+    postgres_conn_id='datavault',
+    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+                "r_src": "oltp"},
+    task_id='hub_order',
+    dag=dag)
+
+hub_product = PostgresOperatorWithTemplatedParams(
+    sql='datavault/hub_product.sql',
+    postgres_conn_id='datavault',
+    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+                "r_src": "oltp"},
+    task_id='hub_product',
+    dag=dag)
+
+audit_id >> extract_customers
+audit_id >> extract_order_info
+audit_id >> extract_product
+audit_id >> extract_orderline
+extract_customers >> hub_customers
+extract_order_info >> hub_order
+extract_product >> hub_product
 
 
 if __name__ == "__main__":

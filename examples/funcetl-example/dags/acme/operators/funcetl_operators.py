@@ -78,6 +78,8 @@ class PostgresToPostgresOperator(BaseOperator):
 
         dest_pg.insert_rows(table=self.pg_table, rows=cursor)
 
+        logging.info("Inserted {0} rows".format(cursor.rowcount))
+
         if self.pg_postoperator:
             logging.info("Running Postgres postoperator")
             dest_pg.run(self.pg_postoperator)
@@ -104,7 +106,8 @@ class PostgresOperatorWithTemplatedParams(BaseOperator):
     @apply_defaults
     def __init__(
             self, sql,
-            postgres_conn_id='postgres_default', autocommit=False,
+            postgres_conn_id='postgres_default', 
+            autocommit=True,
             parameters=None,
             *args, **kwargs):
         super(PostgresOperatorWithTemplatedParams, self).__init__(*args, **kwargs)

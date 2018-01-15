@@ -70,8 +70,8 @@ def initialize_funcetl_example():
                      "host": "postgres",
                      "port": 5432,
                      "schema": "datavault",
-                     "login": "datavault_read",
-                     "password": "datavault_read"})
+                     "login": "datavault_rw",
+                     "password": "datavault_rw"})
 
     new_var = models.Variable()
     new_var.key = "sql_path"
