@@ -127,7 +127,7 @@ GRANT USAGE, SELECT ON SEQUENCE seq_link_orderline TO datavault_rw;
 CREATE TABLE datavault.link_orderline (
     l_orderline_id INTEGER PRIMARY KEY NOT NULL DEFAULT nextval('seq_link_orderline'),
     -----
-    l_order_id INTEGER NOT NULL,
+    h_order_id INTEGER NOT NULL,
     h_product_id INTEGER NOT NULL,
     -----
     h_rsrc VARCHAR(20) NOT NULL,

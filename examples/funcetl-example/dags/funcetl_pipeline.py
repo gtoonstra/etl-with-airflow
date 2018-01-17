@@ -91,12 +91,12 @@ extract_product = PostgresToPostgresOperator(
     task_id='extract_product',
     dag=dag)
 
-hub_customers = PostgresOperatorWithTemplatedParams(
+hub_customer = PostgresOperatorWithTemplatedParams(
     sql='datavault/hub_customer.sql',
     postgres_conn_id='datavault',
     parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
                 "r_src": "oltp"},
-    task_id='hub_customers',
+    task_id='hub_customer',
     dag=dag)
 
 hub_order = PostgresOperatorWithTemplatedParams(
@@ -115,13 +115,32 @@ hub_product = PostgresOperatorWithTemplatedParams(
     task_id='hub_product',
     dag=dag)
 
+link_order = PostgresOperatorWithTemplatedParams(
+    sql='datavault/link_order.sql',
+    postgres_conn_id='datavault',
+    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+                "r_src": "oltp"},
+    task_id='link_order',
+    dag=dag)
+
+link_orderline = PostgresOperatorWithTemplatedParams(
+    sql='datavault/link_orderline.sql',
+    postgres_conn_id='datavault',
+    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+                "r_src": "oltp"},
+    task_id='link_orderline',
+    dag=dag)
+
 audit_id >> extract_customers
 audit_id >> extract_order_info
 audit_id >> extract_product
 audit_id >> extract_orderline
-extract_customers >> hub_customers
+extract_customers >> hub_customer
 extract_order_info >> hub_order
 extract_product >> hub_product
+hub_order >> link_order
+hub_customer >> link_order
+link_order >> link_orderline
 
 
 if __name__ == "__main__":
