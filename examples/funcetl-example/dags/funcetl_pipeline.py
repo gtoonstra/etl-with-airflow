@@ -131,6 +131,38 @@ link_orderline = PostgresOperatorWithTemplatedParams(
     task_id='link_orderline',
     dag=dag)
 
+sat_customer = PostgresOperatorWithTemplatedParams(
+    sql='datavault/sat_customer.sql',
+    postgres_conn_id='datavault',
+    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+                "r_src": "oltp"},
+    task_id='sat_customer',
+    dag=dag)
+
+sat_order = PostgresOperatorWithTemplatedParams(
+    sql='datavault/sat_order.sql',
+    postgres_conn_id='datavault',
+    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+                "r_src": "oltp"},
+    task_id='sat_order',
+    dag=dag)
+
+sat_product = PostgresOperatorWithTemplatedParams(
+    sql='datavault/sat_product.sql',
+    postgres_conn_id='datavault',
+    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+                "r_src": "oltp"},
+    task_id='sat_product',
+    dag=dag)
+
+sat_orderline = PostgresOperatorWithTemplatedParams(
+    sql='datavault/sat_orderline.sql',
+    postgres_conn_id='datavault',
+    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+                "r_src": "oltp"},
+    task_id='sat_orderline',
+    dag=dag)
+
 audit_id >> extract_customers
 audit_id >> extract_order_info
 audit_id >> extract_product
@@ -141,6 +173,10 @@ extract_product >> hub_product
 hub_order >> link_order
 hub_customer >> link_order
 link_order >> link_orderline
+link_orderline >> sat_orderline
+hub_product >> sat_product
+hub_order >> sat_order
+hub_customer >> sat_customer
 
 
 if __name__ == "__main__":

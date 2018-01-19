@@ -138,20 +138,19 @@ CREATE SEQUENCE seq_sat_orderline START 1;
 GRANT USAGE, SELECT ON SEQUENCE seq_sat_orderline TO datavault_rw;
 
 CREATE TABLE datavault.sat_orderline (
-    sat_orderline_id INTEGER PRIMARY KEY NOT NULL DEFAULT nextval('seq_sat_orderline'),
-    sat_load_dts    TIMESTAMP NOT NULL,
+    l_orderline_id INTEGER PRIMARY KEY NOT NULL,
+    load_dts       TIMESTAMP NOT NULL,
     -----
-    orderline_id INTEGER NOT NULL,    
-    quantity      INTEGER NOT NULL,
-    price         REAL NOT NULL
+    quantity       INTEGER NOT NULL,
+    price          REAL NOT NULL
 );
 
 CREATE SEQUENCE seq_sat_customer START 1;
 GRANT USAGE, SELECT ON SEQUENCE seq_sat_customer TO datavault_rw;
 
 CREATE TABLE datavault.sat_customer (
-    sat_customer_id INTEGER PRIMARY KEY NOT NULL DEFAULT nextval('seq_sat_customer'),
-    sat_load_dts    TIMESTAMP NOT NULL,
+    h_customer_id  INTEGER PRIMARY KEY NOT NULL,
+    load_dts       TIMESTAMP NOT NULL,
     -----
     cust_name      VARCHAR(20) NOT NULL,
     street         VARCHAR(50),
@@ -162,8 +161,8 @@ CREATE SEQUENCE seq_sat_order START 1;
 GRANT USAGE, SELECT ON SEQUENCE seq_sat_order TO datavault_rw;
 
 CREATE TABLE datavault.sat_order (
-    sat_order_id  INTEGER PRIMARY KEY NOT NULL DEFAULT nextval('seq_sat_order'),
-    sat_load_dts  TIMESTAMP NOT NULL,
+    h_order_id    INTEGER PRIMARY KEY NOT NULL,
+    load_dts      TIMESTAMP NOT NULL,
     -----
     create_dtm    TIMESTAMP NOT NULL
 );
@@ -172,8 +171,8 @@ CREATE SEQUENCE seq_sat_product START 1;
 GRANT USAGE, SELECT ON SEQUENCE seq_sat_product TO datavault_rw;
 
 CREATE TABLE datavault.sat_product (
-    sat_product_id INTEGER PRIMARY KEY NOT NULL DEFAULT nextval('seq_sat_product'),
-    sat_load_dts   TIMESTAMP NOT NULL,
+    h_product_id   INTEGER PRIMARY KEY NOT NULL,
+    load_dts       TIMESTAMP NOT NULL,
     -----
     product_name   VARCHAR(50) NOT NULL,
     supplier_id    INTEGER NOT NULL,
