@@ -11,8 +11,8 @@ services:
       volumes:
           - ./examples/do-this-first/database_user.sql:/docker-entrypoint-initdb.d/database_user.sql
           - ./examples/do-this-first/populate_tables.sql:/docker-entrypoint-initdb.d/populate_tables.sql
-          - ./examples/funcetl-example/setup/datavault.sql:/docker-entrypoint-initdb.d/datavault.sql
-          - ./examples/funcetl-example/setup/dwh_tables.sql:/docker-entrypoint-initdb.d/dwh_tables.sql
+          - ./examples/datavault-example/setup/datavault.sql:/docker-entrypoint-initdb.d/datavault.sql
+          - ./examples/datavault-example/setup/dwh_tables.sql:/docker-entrypoint-initdb.d/dwh_tables.sql
   webserver:
       image: puckel/docker-airflow:1.8.0
       restart: always
@@ -22,8 +22,8 @@ services:
           - LOAD_EX=n
           - EXECUTOR=Local
       volumes:
-          - ./examples/funcetl-example/dags:/usr/local/airflow/dags
-          - ./examples/funcetl-example/sql:/usr/local/airflow/sql
+          - ./examples/datavault-example/dags:/usr/local/airflow/dags
+          - ./examples/datavault-example/sql:/usr/local/airflow/sql
       ports:
           - 8080:8080
       command: webserver
