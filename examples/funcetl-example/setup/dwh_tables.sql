@@ -56,6 +56,16 @@ CREATE TABLE staging.audit_runs (
     cycle_dtm      TIMESTAMP NOT NULL
 );
 
+CREATE TABLE staging.order_facts (
+    create_dtm     TIMESTAMP NOT NULL,
+    product_id     INTEGER NOT NULL,
+    customer_id    VARCHAR(16) NOT NULL,
+    order_id       INTEGER NOT NULL,
+    orderline_id   INTEGER NOT NULL,
+    quantity       INTEGER NOT NULL,
+    price          REAL NOT NULL
+);
+
 GRANT USAGE ON SCHEMA staging TO dwh_svc_account;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA staging TO dwh_svc_account;
 

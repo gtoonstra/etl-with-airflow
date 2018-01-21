@@ -23,4 +23,4 @@ FROM
 INNER JOIN dwh.dim_date d        ON d.date_pk = s.create_dtm::date
 INNER JOIN dwh.dim_time t        ON t.time_pk = date_trunc('minute', s.create_dtm::time)
 INNER JOIN dwh.dim_product p     ON p.product_id = s.product_id
-INNER JOIN dwh.dim_customer c    ON c.customer_id = o.customer_id AND s.create_dtm >= c.start_dtm AND s.create_dtm < c.end_dtm
+INNER JOIN dwh.dim_customer c    ON c.customer_id = s.customer_id AND s.create_dtm >= c.start_dtm AND s.create_dtm < c.end_dtm

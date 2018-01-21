@@ -56,8 +56,8 @@ load_customer_dim = PostgresToPostgresOperator(
     src_postgres_conn_id='datavault',
     dest_postgress_conn_id='dwh',
     pg_preoperator="TRUNCATE dwh.dim_customer CASCADE",
-    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}",
-                "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
+    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
+    target_fields=['customer_id', 'cust_name', 'street', 'city', 'start_dtm', 'end_dtm'],
     task_id='load_customer_dim',
     dag=dag)
 
@@ -67,33 +67,26 @@ load_product_dim = PostgresToPostgresOperator(
     src_postgres_conn_id='datavault',
     dest_postgress_conn_id='dwh',
     pg_preoperator="TRUNCATE dwh.dim_product CASCADE",
-    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}",
-                "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
+    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
+    target_fields=['product_id', 'product_name', 'supplier_id', 'producttype_id', 'start_dtm', 'end_dtm'],
     task_id='load_product_dim',
     dag=dag)
 
 load_fact_orderline = PostgresToPostgresOperator(
     sql='starschema/load_fact_orderline.sql',
-    pg_table='dwh.dim_product',
+    pg_table='staging.order_facts',
     src_postgres_conn_id='datavault',
     dest_postgress_conn_id='dwh',
     pg_preoperator="TRUNCATE staging.order_facts",
-    parameters={"window_start_date": "{{ ds }}", "window_end_date": "{{ tomorrow_ds }}",
-                "audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
+    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='get_audit_id', key='audit_id') }}"},
     task_id='load_fact_orderline',
-    dag=dag)
-
-truncate_orderline = PostgresOperatorWithTemplatedParams(
-    sql='TRUNCATE dwh.fact_orderline',
-    postgres_conn_id='dwh',
-    parameters={},
-    task_id='truncate_orderline',
     dag=dag)
 
 process_order_fact = PostgresOperatorWithTemplatedParams(
     sql='starschema/process_order_fact.sql',
     postgres_conn_id='dwh',
     parameters={},
+    pg_preoperator="TRUNCATE dwh.fact_orderline",   
     task_id='process_order_fact',
     dag=dag)
 
@@ -101,10 +94,9 @@ latest_only >> audit_id
 audit_id >> load_customer_dim
 audit_id >> load_product_dim
 audit_id >> load_fact_orderline
-load_customer_dim >> truncate_orderline
-load_product_dim >> truncate_orderline
-load_fact_orderline >> truncate_orderline
-truncate_orderline >> process_order_fact
+load_customer_dim >> process_order_fact
+load_product_dim >> process_order_fact
+load_fact_orderline >> process_order_fact
 
 
 if __name__ == "__main__":

@@ -50,6 +50,7 @@ class PostgresToPostgresOperator(BaseOperator):
             pg_preoperator=None,
             pg_postoperator=None,
             parameters=None,
+            target_fields=None,
             *args, **kwargs):
         super(PostgresToPostgresOperator, self).__init__(*args, **kwargs)
         self.sql = sql
@@ -59,6 +60,7 @@ class PostgresToPostgresOperator(BaseOperator):
         self.pg_preoperator = pg_preoperator
         self.pg_postoperator = pg_postoperator
         self.parameters = parameters
+        self.target_fields = target_fields
 
     def execute(self, context):
         logging.info('Executing: ' + str(self.sql))
@@ -76,7 +78,7 @@ class PostgresToPostgresOperator(BaseOperator):
 
         logging.info("Inserting rows into Postgres")
 
-        dest_pg.insert_rows(table=self.pg_table, rows=cursor)
+        dest_pg.insert_rows(table=self.pg_table, rows=cursor, target_fields=self.target_fields)
 
         logging.info("Inserted {0} rows".format(cursor.rowcount))
 
@@ -109,17 +111,30 @@ class PostgresOperatorWithTemplatedParams(BaseOperator):
             postgres_conn_id='postgres_default', 
             autocommit=True,
             parameters=None,
+            pg_preoperator=None,
+            pg_postoperator=None,
             *args, **kwargs):
         super(PostgresOperatorWithTemplatedParams, self).__init__(*args, **kwargs)
         self.sql = sql
         self.postgres_conn_id = postgres_conn_id
         self.autocommit = autocommit
         self.parameters = parameters
+        self.pg_preoperator = pg_preoperator
+        self.pg_postoperator = pg_postoperator
 
     def execute(self, context):
+        hook = PostgresHook(postgres_conn_id=self.postgres_conn_id)
+
+        if self.pg_preoperator:
+            logging.info("Running Postgres preoperator")
+            hook.run(self.pg_preoperator)
+
         logging.info('Executing: ' + str(self.sql))
-        self.hook = PostgresHook(postgres_conn_id=self.postgres_conn_id)
-        self.hook.run(self.sql, self.autocommit, parameters=self.parameters)
+        hook.run(self.sql, self.autocommit, parameters=self.parameters)
+
+        if self.pg_postoperator:
+            logging.info("Running Postgres postoperator")
+            hook.run(self.pg_postoperator)
 
 
 class AuditOperator(BaseOperator):
