@@ -33,7 +33,7 @@ args = {
 tmpl_search_path = Variable.get("sql_path")
 
 dag = airflow.DAG(
-    'funcetl',
+    'populate_datavault',
     schedule_interval="@daily",
     dagrun_timeout=timedelta(minutes=60),
     template_searchpath=tmpl_search_path,
@@ -94,7 +94,8 @@ extract_product = PostgresToPostgresOperator(
 hub_customer = PostgresOperatorWithTemplatedParams(
     sql='datavault/hub_customer.sql',
     postgres_conn_id='datavault',
-    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+    parameters={"load_dts": "{{ ds }}",
+                "audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
                 "r_src": "oltp"},
     task_id='hub_customer',
     dag=dag)
@@ -102,7 +103,8 @@ hub_customer = PostgresOperatorWithTemplatedParams(
 hub_order = PostgresOperatorWithTemplatedParams(
     sql='datavault/hub_order.sql',
     postgres_conn_id='datavault',
-    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+    parameters={"load_dts": "{{ ds }}",
+                "audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
                 "r_src": "oltp"},
     task_id='hub_order',
     dag=dag)
@@ -110,7 +112,8 @@ hub_order = PostgresOperatorWithTemplatedParams(
 hub_product = PostgresOperatorWithTemplatedParams(
     sql='datavault/hub_product.sql',
     postgres_conn_id='datavault',
-    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+    parameters={"load_dts": "{{ ds }}",
+                "audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
                 "r_src": "oltp"},
     task_id='hub_product',
     dag=dag)
@@ -118,7 +121,8 @@ hub_product = PostgresOperatorWithTemplatedParams(
 link_order = PostgresOperatorWithTemplatedParams(
     sql='datavault/link_order.sql',
     postgres_conn_id='datavault',
-    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+    parameters={"load_dts": "{{ ds }}",
+                "audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
                 "r_src": "oltp"},
     task_id='link_order',
     dag=dag)
@@ -126,7 +130,8 @@ link_order = PostgresOperatorWithTemplatedParams(
 link_orderline = PostgresOperatorWithTemplatedParams(
     sql='datavault/link_orderline.sql',
     postgres_conn_id='datavault',
-    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+    parameters={"load_dts": "{{ ds }}",
+                "audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
                 "r_src": "oltp"},
     task_id='link_orderline',
     dag=dag)
@@ -134,7 +139,8 @@ link_orderline = PostgresOperatorWithTemplatedParams(
 sat_customer = PostgresOperatorWithTemplatedParams(
     sql='datavault/sat_customer.sql',
     postgres_conn_id='datavault',
-    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+    parameters={"load_dts": "{{ ds }}",
+                "audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
                 "r_src": "oltp"},
     task_id='sat_customer',
     dag=dag)
@@ -142,7 +148,8 @@ sat_customer = PostgresOperatorWithTemplatedParams(
 sat_order = PostgresOperatorWithTemplatedParams(
     sql='datavault/sat_order.sql',
     postgres_conn_id='datavault',
-    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+    parameters={"load_dts": "{{ ds }}",
+                "audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
                 "r_src": "oltp"},
     task_id='sat_order',
     dag=dag)
@@ -150,7 +157,8 @@ sat_order = PostgresOperatorWithTemplatedParams(
 sat_product = PostgresOperatorWithTemplatedParams(
     sql='datavault/sat_product.sql',
     postgres_conn_id='datavault',
-    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+    parameters={"load_dts": "{{ ds }}",
+                "audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
                 "r_src": "oltp"},
     task_id='sat_product',
     dag=dag)
@@ -158,7 +166,8 @@ sat_product = PostgresOperatorWithTemplatedParams(
 sat_orderline = PostgresOperatorWithTemplatedParams(
     sql='datavault/sat_orderline.sql',
     postgres_conn_id='datavault',
-    parameters={"audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
+    parameters={"load_dts": "{{ ds }}",
+                "audit_id": "{{ ti.xcom_pull(task_ids='audit_id', key='audit_id') }}",
                 "r_src": "oltp"},
     task_id='sat_orderline',
     dag=dag)

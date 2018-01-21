@@ -62,5 +62,3 @@ FROM
     merge_customer source;
 
 -- The temp table is automatically removed at the end of the session...
-
-

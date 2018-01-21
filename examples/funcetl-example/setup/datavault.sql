@@ -138,48 +138,60 @@ CREATE SEQUENCE seq_sat_orderline START 1;
 GRANT USAGE, SELECT ON SEQUENCE seq_sat_orderline TO datavault_rw;
 
 CREATE TABLE datavault.sat_orderline (
-    l_orderline_id INTEGER PRIMARY KEY NOT NULL,
+    l_orderline_id INTEGER NOT NULL,
     load_dts       TIMESTAMP NOT NULL,
+    is_current     BOOLEAN NOT NULL,
     -----
     quantity       INTEGER NOT NULL,
-    price          REAL NOT NULL
+    price          REAL NOT NULL,
+    -----
+    PRIMARY KEY    (l_orderline_id, load_dts)
 );
 
 CREATE SEQUENCE seq_sat_customer START 1;
 GRANT USAGE, SELECT ON SEQUENCE seq_sat_customer TO datavault_rw;
 
 CREATE TABLE datavault.sat_customer (
-    h_customer_id  INTEGER PRIMARY KEY NOT NULL,
+    h_customer_id  INTEGER NOT NULL,
     load_dts       TIMESTAMP NOT NULL,
+    is_current     BOOLEAN NOT NULL,
     -----
     cust_name      VARCHAR(20) NOT NULL,
     street         VARCHAR(50),
-    city           VARCHAR(30)
+    city           VARCHAR(30),
+    -----
+    PRIMARY KEY    (h_customer_id, load_dts)
 );
 
 CREATE SEQUENCE seq_sat_order START 1;
 GRANT USAGE, SELECT ON SEQUENCE seq_sat_order TO datavault_rw;
 
 CREATE TABLE datavault.sat_order (
-    h_order_id    INTEGER PRIMARY KEY NOT NULL,
+    h_order_id    INTEGER NOT NULL,
     load_dts      TIMESTAMP NOT NULL,
+    is_current     BOOLEAN NOT NULL,
     -----
-    create_dtm    TIMESTAMP NOT NULL
+    create_dtm    TIMESTAMP NOT NULL,
+    -----
+    PRIMARY KEY    (h_order_id, load_dts)
 );
 
 CREATE SEQUENCE seq_sat_product START 1;
 GRANT USAGE, SELECT ON SEQUENCE seq_sat_product TO datavault_rw;
 
 CREATE TABLE datavault.sat_product (
-    h_product_id   INTEGER PRIMARY KEY NOT NULL,
+    h_product_id   INTEGER NOT NULL,
     load_dts       TIMESTAMP NOT NULL,
+    is_current     BOOLEAN NOT NULL,
     -----
     product_name   VARCHAR(50) NOT NULL,
     supplier_id    INTEGER NOT NULL,
-    producttype_id INTEGER NOT NULL
+    producttype_id INTEGER NOT NULL,
+    -----
+    PRIMARY KEY    (h_product_id, load_dts)
 );
 
 GRANT USAGE ON SCHEMA public TO datavault_rw;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO datavault_rw;
 GRANT USAGE ON SCHEMA datavault TO datavault_rw;
-GRANT SELECT, INSERT, DELETE ON ALL TABLES IN SCHEMA datavault TO datavault_rw;
+GRANT SELECT, INSERT, DELETE, UPDATE ON ALL TABLES IN SCHEMA datavault TO datavault_rw;
