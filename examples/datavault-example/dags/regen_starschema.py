@@ -15,9 +15,9 @@
 from __future__ import print_function
 import airflow
 from datetime import datetime, timedelta
-from acme.operators.funcetl_operators import PostgresToPostgresOperator
-from acme.operators.funcetl_operators import PostgresOperatorWithTemplatedParams
-from acme.operators.funcetl_operators import AuditOperator
+from acme.operators.datavault_operators import PostgresToPostgresOperator
+from acme.operators.datavault_operators import PostgresOperatorWithTemplatedParams
+from acme.operators.datavault_operators import AuditOperator
 from airflow.operators.latest_only_operator import LatestOnlyOperator
 from airflow.models import Variable
 import logging

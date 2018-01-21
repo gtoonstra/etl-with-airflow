@@ -28,7 +28,7 @@ args = {
 }
 
 
-def initialize_funcetl_example():
+def init_datavault_example():
     logging.info('Creating connections, pool and sql path')
 
     session = Session()
@@ -82,12 +82,12 @@ def initialize_funcetl_example():
     session.close()
 
 dag = airflow.DAG(
-    'init_funcetl_example',
+    'init_datavault_example',
     schedule_interval="@once",
     default_args=args,
     max_active_runs=1)
 
-t1 = PythonOperator(task_id='init_funcetl_example',
-                    python_callable=initialize_funcetl_example,
+t1 = PythonOperator(task_id='init_datavault_example',
+                    python_callable=init_datavault_example,
                     provide_context=False,
                     dag=dag)

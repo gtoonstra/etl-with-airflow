@@ -24,7 +24,7 @@ Content
     great
     etlexample
     hiveexample
-    funcetl
+    datavault
     monitoring
     platform
     ingestfile

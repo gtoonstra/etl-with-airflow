@@ -15,9 +15,9 @@
 from __future__ import print_function
 import airflow
 from datetime import datetime, timedelta
-from acme.operators.funcetl_operators import PostgresToPostgresOperator
-from acme.operators.funcetl_operators import PostgresOperatorWithTemplatedParams
-from acme.operators.funcetl_operators import AuditOperator
+from acme.operators.datavault_operators import PostgresToPostgresOperator
+from acme.operators.datavault_operators import PostgresOperatorWithTemplatedParams
+from acme.operators.datavault_operators import AuditOperator
 from airflow.models import Variable
 import logging
 
@@ -43,7 +43,7 @@ dag = airflow.DAG(
 audit_id = AuditOperator(
     task_id='audit_id',
     postgres_conn_id='datavault',
-    audit_key="funcetl",
+    audit_key="dv_staging",
     cycle_dtm="{{ ts }}",
     dag=dag)
 
