@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Functional ETL &mdash; ETL Best Practices with Airflow v1.8</title>
+  <title>Data vault &mdash; ETL Best Practices with Airflow v1.8</title>
   
 
   
@@ -90,9 +90,10 @@
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hiveexample.html">Hive example</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Functional ETL</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#objective">Objective</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data vault</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#methodology">Methodology</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-start-the-example">How to start the example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#limitations">Limitations</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
@@ -130,7 +131,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Functional ETL</li>
+    <li>Data vault</li>
       <li class="wy-breadcrumbs-aside">
         
           
@@ -142,8 +143,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="functional-etl">
-<h1>Functional ETL<a class="headerlink" href="#functional-etl" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="data-vault">
+<h1>Data vault<a class="headerlink" href="#data-vault" title="Permalink to this headline">¶</a></h1>
 <p>The ETL example on postgres gives us some insights what&#8217;s possible with airflow and to get acquainted
 with the UI and task dependencies.</p>
 <p>The Hive example showed how an interaction between an RDBMS and Hadoop/Hive could look like.</p>
@@ -161,30 +162,26 @@ reality becomes very difficult.</p>
 <p>In the Hive example I worked around that by regenerating the DWH from scratch every day, which allows you
 to change destination structures and business rules that get applied to them, but this may be very costly to
 do over time.</p>
-<p>The following URL points to a very interesting article that aims to remove chronological data dependencies and
-attempts to &#8220;isolate&#8221; your entire data pipeline into &#8220;intervals&#8221; that are individually reprocessable. Please take
-some time to read it and understand the implications:</p>
-<blockquote>
-<div><a class="reference external" href="https://medium.com/&#64;maximebeauchemin/functional-data-engineering-a-modern-paradigm-for-batch-data-processing-2327ec32c42a">https://medium.com/&#64;maximebeauchemin/functional-data-engineering-a-modern-paradigm-for-batch-data-processing-2327ec32c42a</a></div></blockquote>
-<div class="section" id="objective">
-<h2>Objective<a class="headerlink" href="#objective" title="Permalink to this headline">¶</a></h2>
-<p>What we&#8217;re going to try to build in this example is a data warehouse that has the following properties:</p>
+<p>The datavault example demonstrates the use of the datavault methodology of data warehousing using airflow
+as the ETL processing platform.</p>
+<div class="section" id="methodology">
+<h2>Methodology<a class="headerlink" href="#methodology" title="Permalink to this headline">¶</a></h2>
+<p>The Data Vault modeling approach has various benefits:</p>
 <ul class="simple">
-<li>Immutable persistent staging area, capturing the state of the data at the point in time it was captured</li>
-<li>Work with table partitions and processing pipelines in a way that they can be individually reprocessed</li>
-<li>DAGs that change business rules and apply the correct rule based on the partitioning data</li>
-<li>Implement a data vault approach for source data; its design gives us more flexibility to change business rules</li>
+<li>Simple data ingestion process</li>
+<li>Design of the data query model (star schema?) no longer fixed forever and can be modified</li>
+<li>Auditability for various regulatory requirements</li>
+<li>Can add or switch data sources without disrupting existing query schema</li>
+<li>Reduces complexity in ETL at the cost of slightly more code</li>
+<li>Simplifies design stage because it can be changed</li>
+<li>Reorganizes data model from the source into a more flexible intermediate data model</li>
 </ul>
-<p>In Data Vault modeling, the objective is to create a data model that is future proof, so it&#8217;s mostly an attempt
-to mitigate changes in data sources so that already loaded data is not impacted and the output of the data vault
-model can still be equal. Think for example how a change in a 1:1 to a 1:n relationship in a source system can
-have a significant impact on the design of a data warehouse.</p>
-<p>Data Vault thus uses an intermediary, flexible representation of the data, which is organized in three main elements:</p>
+<p>Data Vault uses a more flexible representation of the data, which is organized in three main elements:</p>
 <ul class="simple">
 <li>Hubs: These contain the main business entities: customers, products, orders, invoices, shipments.</li>
-<li>Links: These provide the relationships between entities: a shipment made on behalf of an order of a customer</li>
+<li>Links: These provide the relationships between hubs: e.g. a shipment made on behalf of an order of a customer</li>
 <li><dl class="first docutils">
-<dt>Satellites: These are sub-tables providing more details about the relationship or hub:</dt>
+<dt>Satellites: These are versioned sub-tables providing the details about the relationship or hub, for example:</dt>
 <dd><ul class="first last">
 <li>customer details</li>
 <li>order details</li>
@@ -204,13 +201,27 @@ have a significant impact on the design of a data warehouse.</p>
 <div class="section" id="how-to-start-the-example">
 <h2>How to start the example<a class="headerlink" href="#how-to-start-the-example" title="Permalink to this headline">¶</a></h2>
 <p>Run the following script on the console</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">func</span><span class="o">.</span><span class="n">yml</span> <span class="n">up</span> <span class="o">--</span><span class="n">abort</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">container</span><span class="o">-</span><span class="n">exit</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">dv</span><span class="o">.</span><span class="n">yml</span> <span class="n">up</span> <span class="o">--</span><span class="n">abort</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">container</span><span class="o">-</span><span class="n">exit</span>
 </pre></div>
 </div>
 <p>To bring the entire structure down:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">func</span><span class="o">.</span><span class="n">yml</span> <span class="n">down</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">dv</span><span class="o">.</span><span class="n">yml</span> <span class="n">down</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h2>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">There are limitations and things missing in this implementation</p>
+</div>
+<ul class="simple">
+<li>Multiple records per time window are not managed. This implementation can only process one change record per day</li>
+<li>In order to correctly process entity changes, you need either a mature Change Data Capture solution that stamps the date/time of the change and shows the updates/inserts or the source system has to version them in the application. If you do not use CDC and records have been updated, you cannot &#8220;date&#8221; those records at the time of the change and the system must make assumptions when the change really took place.</li>
+<li>This example uses the DataVault 1.0 methodology that does not depend on hash keys.</li>
+<li>The resulting star schema is rebuilt from scratch daily in this implementation. You probably want to incrementally build that, but it shows what is possible with the data vault.</li>
+<li>Data must be staged in chronological order and not be rerun. You cannot reload existing data into the data vault or run yesterday&#8217;s data over today&#8217;s data.</li>
+</ul>
 </div>
 </div>
 

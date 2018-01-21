@@ -49,3 +49,25 @@ The ETL example contains a DAG that you need to run only once that does this. Yo
 where this DAG gets the connection information from and then, after recreating the development environment,
 run that DAG once to import all the connection details from a remote system or a local file for example.
 
+Implement a "Functional ETL" approach
+-------------------------------------
+
+The following URL points to a very interesting article that aims to remove chronological data dependencies and
+attempts to "isolate" your entire data pipeline into "intervals" that are individually reprocessable:
+
+    https://medium.com/@maximebeauchemin/functional-data-engineering-a-modern-paradigm-for-batch-data-processing-2327ec32c42a
+
+This approach helps you to make your platform more scalable and easier to manage/maintain.
+
+Datavault
+---------
+
+Look into data lakes and data vault and develop a strategy to rebuild your data warehouse from scratch on demand.
+If all of your data is there in a lake or vault and you develop this capability, the discussions and friction you have
+with people on the subject of data warehousing become simpler, because you can simply regenerate everything on the fly
+when business requirements change. I.e. instead of fighting over important design decisions that become fixed in time 
+because it's really expensive to change them, you can change on a daily basis. 
+
+Data vault is also really interesting to generate different versions of the truth. If you work closely together with
+the business and the outcome of projected changes isn't necessarily clear, you can just generate a DWH version of both
+using the same source data, which makes comparing version A to B a lot cheaper. 
