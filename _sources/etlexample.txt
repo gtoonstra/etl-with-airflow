@@ -35,7 +35,11 @@ Note that in order to complete this tutorial you need to install the extra postg
 Go to the github project page of this documentation project, where you can download the example
 source code, DAGs, SQL and scripts to generate the databases and load it with data:
 
+.. image:: img/GitHub-Mark-32px.png
+
 `Documentation Github Project <https://github.com/gtoonstra/etl-with-airflow/>`_
+
+.. image:: img/GitHub-Mark-Light-32px.png
 
 Clone this project locally somewhere. 
 
