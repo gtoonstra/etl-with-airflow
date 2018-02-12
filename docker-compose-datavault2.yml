@@ -1,0 +1,51 @@
+version: '2'
+services:
+  postgres:
+      image: postgres:9.6
+      environment:
+          - POSTGRES_USER=airflow
+          - POSTGRES_PASSWORD=airflow
+          - POSTGRES_DB=airflow
+      ports:
+          - 5432:5432
+      volumes:
+          - ./examples/datavault2-example/setup/100_create_database.sql:/docker-entrypoint-initdb.d/100_create_database.sql
+          - ./examples/datavault2-example/setup/200_create_tables.sql:/docker-entrypoint-initdb.d/200_create_tables.sql
+          - ./examples/datavault2-example/setup/300_permissions.sql:/docker-entrypoint-initdb.d/300_permissions.sql
+          - ./examples/datavault2-example/setup/data:/docker-entrypoint-initdb.d/data
+  hive:
+      image: cloudera/quickstart:latest
+      container_name: hive-docker
+      restart: always
+      depends_on:
+          - postgres
+      ports:
+          - 8888:8888
+          - 10000:10000
+          - 7180:7180
+          - 8020:8020
+      hostname: quickstart.cloudera
+      privileged: true
+      tty: true
+      command: /usr/bin/docker-quickstart
+  webserver:
+      image: gtoonstra/docker-airflow:1.8.0
+      container_name: airflow
+      restart: always
+      depends_on:
+          - postgres
+          - hive
+      environment:
+          - LOAD_EX=n
+          - EXECUTOR=Local
+          - INSTALL_HIVE=y
+      volumes:
+          - ./examples/datavault2-example/dags:/usr/local/airflow/dags
+          - ./examples/datavault2-example/sql:/usr/local/airflow/sql
+          - ./examples/datavault2-example/hql:/usr/local/airflow/hql
+          - ./examples/datavault2-example/core-site.xml:/core-site.xml
+          - ./examples/datavault2-example/hdfs-site.xml:/hdfs-site.xml
+          - ./examples/datavault2-example/mapred-site.xml:/mapred-site.xml
+      ports:
+          - 8080:8080
+      command: webserver

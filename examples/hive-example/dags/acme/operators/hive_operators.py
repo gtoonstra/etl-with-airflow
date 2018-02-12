@@ -54,8 +54,8 @@ class PostgresToHiveOperator(BaseOperator):
     :type partition: dict
     :param delimiter: field delimiter in the file
     :type delimiter: str
-    :param mysql_conn_id: source mysql connection
-    :type mysql_conn_id: str
+    :param postgres_conn_id: source postgres connection
+    :type postgres_conn_id: str
     :param hive_conn_id: destination hive connection
     :type hive_conn_id: str
     """
