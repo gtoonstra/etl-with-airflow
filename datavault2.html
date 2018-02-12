@@ -1,0 +1,295 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Data Vault 2 &mdash; ETL Best Practices with Airflow v1.8</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
+        <link rel="prev" title="Deployments" href="deployments.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+    
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hiveexample.html">Hive example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datavault.html">Data vault</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="platform.html">Building your own ETL platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ingestfile.html">Ingesting files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deployments.html">Deployments</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Vault 2</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#about-datavault">About Datavault</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overall-flow">Overall flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#staging-flow">Staging flow</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+    <br/>
+    <br/>
+    <a href="https://github.com/gtoonstra/etl-with-airflow"><img src="_images/GitHub-Mark-Light-32px.png">&nbsp;Go to Github</a>
+  
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">ETL Best Practices with airflow 1.8</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Data Vault 2</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="data-vault-2">
+<h1>Data Vault 2<a class="headerlink" href="#data-vault-2" title="Permalink to this headline">¶</a></h1>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">This example is work in progress...</p>
+</div>
+<p>This is probably the final and most elaborate example of how to use ETL with Apache Airflow.
+As part of this exercise, let&#8217;s build a data warehouse on Google BigQuery with a DataVault
+built on top of Hive. So... this example may request a bit of memory from your machine.
+We&#8217;re going to start a postgres instance that contains the airflow database and another
+database for the adventureworks database (yeah, the one from Microsoft).</p>
+<p>Then the data will be transferred to a Hive instance and from there, if you have an account
+you&#8217;d like to try out, we&#8217;ll transfer the facts + dimensions as a single large table
+to a BigQuery instance for further analysis.</p>
+<p>Note that similar to the Hive example, I&#8217;m using a special build of the puckel docker airflow
+container that contains the jar files for Hadoop, HDFS and Hive.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">The default login for &#8220;Hue&#8221;, the interface for the Cloudera quickstart container running Hive
+is cloudera/cloudera.</p>
+</div>
+<p>We are also going to attempt to output some CSV files that are to be imported into databook.
+What is databook?  It&#8217;s an opensource project I&#8217;m running that attempts to replicate what Airbnb
+made in their &#8220;DataPortal&#8221; description. You can read more about databook here:</p>
+<p><cite>Databook &lt;https://github.com/gtoonstra/databook&gt;</cite></p>
+<div class="section" id="about-datavault">
+<h2>About Datavault<a class="headerlink" href="#about-datavault" title="Permalink to this headline">¶</a></h2>
+<p>In the <a class="reference internal" href="datavault.html"><span class="doc">Data vault</span></a> example, we explained some of the benefits of using a datavaulting methodology
+to build your data warehouse and other rationales. Go there for some of the core reasons why data vaulting
+is such a nice methodology to use in the middle.</p>
+<p>This example uses some other techniques and attempts to implement all the best practices associated with
+data vaulting. The &#8220;2.0&#8221; refers to some improvements that have been made since the first version of the
+methodology came out.</p>
+</div>
+<div class="section" id="overall-flow">
+<h2>Overall flow<a class="headerlink" href="#overall-flow" title="Permalink to this headline">¶</a></h2>
+<p>This is the general flow to get data from the OLTP system into (eventually) the information mart.
+Here you can see how the Data Vault essentially fulfills the role of the Enterprise Data Warehouse
+as described by Ralph Inmon, years ago.</p>
+<img alt="_images/dataflow.jpeg" src="_images/dataflow.jpeg" />
+</div>
+<div class="section" id="staging-flow">
+<h2>Staging flow<a class="headerlink" href="#staging-flow" title="Permalink to this headline">¶</a></h2>
+<p>Staging is the process where you pick up data from a source system and load it into a &#8216;staging&#8217; area
+maintaining as much as possible of the source data as possible. The &#8220;hard business rules&#8221; may be executed,
+for example changing the data type of an item from a string into a datetime, but you should avoid
+splitting, combining or otherwise modifying the incoming data elements and leave that to a following step.
+I.e... operations where you may lose information should be avoided.</p>
+<p>There are some operations that we can execute to enrich the incoming information. In Data Vault 2.0,
+hashing was added as a means to improve performance.</p>
+<p>Our staging approach for all tables in the adventureworks dataset will be:</p>
+<ol class="arabic simple">
+<li>Truncate staging table</li>
+<li>(optional) disable indexes. As we use Hive, this is not important for us.</li>
+<li>Bulk Read source data in order. In this example we bulk read &#8220;everything&#8221; and then apply the rules, but in a real setting you&#8217;d have daily extracts for each staging table through a Change Data Capture system.</li>
+<li>Compute and apply system values:
+* Load date
+* Record source
+* A sequence number
+* Hash based on the business key identifying the record
+* (optionally) a hash diff compiled from certain attributes through a controlled mechanism (never changes or gets reapplied)</li>
+<li>Remove true duplicates</li>
+<li>Insert records into staging table</li>
+<li>(optional) rebuild indexes</li>
+</ol>
+<p>Given the above operations, we see that we should be able to apply a very common pattern to each
+source table that we need to ingest, which suggests we should be able to create parameterizable operators
+and use a set of functions with table names, strings and reflection to move forward.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">This technique shouldn&#8217;t work too bad for delta loads where the number of records is rather limited.
+If you can only work with full loads from a source system, you may have to set up a Persistent Staging Area (PSA),
+which you use to identify the new, changed and deleted records to generate your own delta records and then
+run it through the above pipeline.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="deployments.html" class="btn btn-neutral" title="Deployments" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Gerard Toonstra.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.8',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
