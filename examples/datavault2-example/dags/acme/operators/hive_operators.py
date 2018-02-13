@@ -95,12 +95,13 @@ class StagePostgresToHiveOperator(BaseOperator):
         self.parameters = parameters
 
     @classmethod
-    def type_map(cls, postgres_type):
+    def type_map(cls, field_name, postgres_type):
         d = {
             16: 'STRING', # BOOL
             20: 'INT',
             21: 'INT',
             23: 'INT',
+            25: 'STRING',
             700: 'DOUBLE',
             701: 'DOUBLE',
             1114: 'TIMESTAMP',
@@ -110,7 +111,7 @@ class StagePostgresToHiveOperator(BaseOperator):
             1700: 'DOUBLE'
         }
         if postgres_type not in d:
-            raise Exception('Unrecognized data type {0}'.format(postgres_type))
+            raise Exception('Unrecognized data type {0} for field {1}'.format(postgres_type, field_name))
 
         return d[postgres_type]
 
@@ -125,30 +126,32 @@ class StagePostgresToHiveOperator(BaseOperator):
         with NamedTemporaryFile("wb") as f:
             csv_writer = csv.writer(f, delimiter=self.delimiter, encoding="utf-8")
             field_dict = OrderedDict()
-            found = False
+            fields_to_hash = set([])
+            ctr = 0
             for field in cursor.description:
-                if field[0] != 'hash_input':
-                    field_dict[field[0]] = self.type_map(field[1])
-                else:
-                    found = True
-
-            if not found:
-                raise Exception("No field for hash input found")
+                field_dict[field[0]] = self.type_map(field[0], field[1])
+                if field[0].startswith('hash_key'):
+                    fields_to_hash.add(ctr)
+                ctr += 1
 
             field_dict['rec_src'] = 'STRING'
             field_dict['load_dtm'] = 'TIMESTAMP'
             field_dict['seq_num'] = 'BIGINT'
-            field_dict['hash_key'] = 'STRING'
 
             seq = long(1)
             for row in cursor:
-                m = hashlib.sha1()
-                data = list(row)[:-1]
-                m.update(list(row)[-1].encode())
-                csv_writer.writerow(data + [self.record_source, self.load_dtm, seq, m.hexdigest().upper()])
+                new_row = []
+                for idx, val in enumerate(list(row)):
+                    if idx in fields_to_hash:
+                        m = hashlib.sha1()
+                        m.update(val)
+                        new_row.append(m.hexdigest().upper())
+                    else:
+                        new_row.append(val)
+
+                csv_writer.writerow(new_row + [self.record_source, self.load_dtm, seq])
                 seq += long(1)
 
-            # csv_writer.writerows(cursor)
             f.flush()
             cursor.close()
             conn.close()
