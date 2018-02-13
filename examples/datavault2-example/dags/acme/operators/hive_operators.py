@@ -17,6 +17,7 @@ from tempfile import NamedTemporaryFile
 import unicodecsv as csv
 from collections import OrderedDict
 import time
+import hashlib
 
 from airflow.hooks.postgres_hook import PostgresHook
 from acme.hooks.hive_hooks import HiveCliHook
@@ -42,6 +43,10 @@ class StagePostgresToHiveOperator(BaseOperator):
     :param hive_table: target Hive table, use dot notation to target a
         specific database
     :type hive_table: str
+    :param record_source: specifies the system source
+    :type record_source: str
+    :param load_dtm: specifies the system source
+    :type load_dtm: datetime
     :param create: whether to create the table if it doesn't exist
     :type create: bool
     :param recreate: whether to drop and recreate the table at every
@@ -53,13 +58,11 @@ class StagePostgresToHiveOperator(BaseOperator):
     :type postgres_conn_id: str
     :param hive_conn_id: destination hive connection
     :type hive_conn_id: str
-    :param include_cols: columns to include in query
-    :type include_cols: list
-    :param exclude_cols: columns to exclude from query
-    :type exclude_cols: list
+    :param parameters: Parameters for the sql query
+    :type parameters: dict
     """
 
-    template_fields = ('sql', 'parameters', 'partition', 'hive_table')
+    template_fields = ('sql', 'parameters', 'partition', 'hive_table', 'load_dtm')
     template_ext = ('.sql',)
     ui_color = '#ededed'
 
@@ -68,6 +71,8 @@ class StagePostgresToHiveOperator(BaseOperator):
             self,
             sql,
             hive_table,
+            record_source,
+            load_dtm,
             create=True,
             recreate=False,
             partition=None,
@@ -75,11 +80,12 @@ class StagePostgresToHiveOperator(BaseOperator):
             postgres_conn_id='postgres_default',
             hive_cli_conn_id='hive_cli_default',
             parameters=None,
-            include_cols=None,
-            exclude_cols=None,
             *args, **kwargs):
         super(StagePostgresToHiveOperator, self).__init__(*args, **kwargs)
+        self.sql = sql
         self.hive_table = hive_table
+        self.record_source = record_source
+        self.load_dtm = load_dtm
         self.create = create
         self.recreate = recreate
         self.delimiter = str(delimiter)
@@ -87,9 +93,6 @@ class StagePostgresToHiveOperator(BaseOperator):
         self.hive_cli_conn_id = hive_cli_conn_id
         self.partition = partition
         self.parameters = parameters
-        self.include_cols = include_cols
-        self.exclude_cols = exclude_cols
-        self.sql = sql
 
     @classmethod
     def type_map(cls, postgres_type):
@@ -112,9 +115,6 @@ class StagePostgresToHiveOperator(BaseOperator):
         return d[postgres_type]
 
     def execute(self, context):
-        if self.include_cols and self.exclude_cols:
-            raise Exception("Cannot both supply include and exclude cols")
-
         hive = HiveCliHook(hive_cli_conn_id=self.hive_cli_conn_id)
         pg = PostgresHook(postgres_conn_id=self.postgres_conn_id)
 
@@ -125,15 +125,34 @@ class StagePostgresToHiveOperator(BaseOperator):
         with NamedTemporaryFile("wb") as f:
             csv_writer = csv.writer(f, delimiter=self.delimiter, encoding="utf-8")
             field_dict = OrderedDict()
+            found = False
             for field in cursor.description:
-                field_dict[field[0]] = self.type_map(field[1])
-            csv_writer.writerows(cursor)
+                if field[0] != 'hash_input':
+                    field_dict[field[0]] = self.type_map(field[1])
+                else:
+                    found = True
+
+            if not found:
+                raise Exception("No field for hash input found")
+
+            field_dict['rec_src'] = 'STRING'
+            field_dict['load_dtm'] = 'TIMESTAMP'
+            field_dict['seq_num'] = 'BIGINT'
+            field_dict['hash_key'] = 'STRING'
+
+            seq = long(1)
+            for row in cursor:
+                m = hashlib.sha1()
+                data = list(row)[:-1]
+                m.update(list(row)[-1].encode())
+                csv_writer.writerow(data + [self.record_source, self.load_dtm, seq, m.hexdigest().upper()])
+                seq += long(1)
+
+            # csv_writer.writerows(cursor)
             f.flush()
             cursor.close()
             conn.close()
             logging.info("Loading file into Hive")
-
-            print(field_dict)
 
             hive.load_file(
                 f.name,

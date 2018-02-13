@@ -30,6 +30,9 @@ args = {
 }
 
 
+ADVWORKS_STAGING = 'advworks_staging'
+
+
 def init_datavault2_example():
     logging.info('Creating connections, pool and sql path')
 
@@ -72,10 +75,10 @@ def init_datavault2_example():
                          "use_beeline": "true"})})
 
     create_new_conn(session,
-                    {"conn_id": "hive_staging",
+                    {"conn_id": "hive_advworks_staging",
                      "conn_type": "hive_cli",
                      "host": "hive",
-                     "schema": "staging",
+                     "schema": ADVWORKS_STAGING,
                      "port": 10000,
                      "login": "cloudera",
                      "password": "cloudera",
@@ -110,5 +113,5 @@ t1 = PythonOperator(task_id='init_datavault2_example',
 t2 = HiveOperator(task_id='create_database',
                   hive_cli_conn_id='hive_default',
                   schema='default',
-                  hql='CREATE DATABASE staging',
+                  hql='CREATE DATABASE IF NOT EXISTS {0}'.format(ADVWORKS_STAGING),
                   dag=dag)

@@ -21,5 +21,6 @@ SELECT
         , taxamt
         , freight
         , totaldue
+        , LTRIM(RTRIM(COALESCE(CAST(salesorderid as char(40)), ''))) as hash_input
 FROM
         sales.salesorderheader

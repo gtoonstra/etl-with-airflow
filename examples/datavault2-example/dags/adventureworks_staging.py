@@ -29,28 +29,29 @@ args = {
 tmpl_search_path = Variable.get("sql_path")
 
 dag = airflow.DAG(
-    'datavault_staging',
+    'adventureworks_staging',
     schedule_interval="@daily",
     dagrun_timeout=timedelta(minutes=60),
     template_searchpath=tmpl_search_path,
     default_args=args,
     max_active_runs=1)
 
+RECORD_SOURCE = 'adventureworks'
+
 staging_done = DummyOperator(
     task_id='staging_done',
     dag=dag)
 
-
-def create_staging_operator(sql, hive_table, include_cols=None, exclude_cols=None):
+def create_staging_operator(sql, hive_table, record_source):
     t1 = StagePostgresToHiveOperator(
         sql=sql,
         hive_table=hive_table,
         postgres_conn_id='adventureworks',
-        hive_cli_conn_id='hive_staging',
-        include_cols=include_cols,
-        exclude_cols=exclude_cols,
+        hive_cli_conn_id='hive_advworks_staging',
         create=True,
         recreate=True,
+        record_source=record_source,
+        load_dtm='{{execution_date}}',
         task_id='stg_{0}'.format(hive_table),
         dag=dag)
     
@@ -58,7 +59,10 @@ def create_staging_operator(sql, hive_table, include_cols=None, exclude_cols=Non
     return t1
 
 
-create_staging_operator('salesorderheader.sql', 'salesorderheader', exclude_cols=['comment', 'rowguid', 'modifieddate'])
+create_staging_operator(
+    'salesorderheader.sql',
+    'salesorderheader',
+    RECORD_SOURCE)
 
 if __name__ == "__main__":
     dag.cli()
