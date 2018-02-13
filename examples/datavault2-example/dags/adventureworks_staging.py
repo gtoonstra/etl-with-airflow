@@ -54,7 +54,7 @@ def create_staging_operator(sql, hive_table, record_source):
         load_dtm='{{execution_date}}',
         task_id='stg_{0}'.format(hive_table),
         dag=dag)
-    
+
     t1 >> staging_done
     return t1
 
@@ -63,6 +63,19 @@ create_staging_operator(
     'salesorderheader.sql',
     'salesorderheader',
     RECORD_SOURCE)
+create_staging_operator(
+    'salesreason.sql',
+    'salesreason',
+    RECORD_SOURCE)
+create_staging_operator(
+    'salesorderheadersalesreason.sql',
+    'salesorderheadersalesreason',
+    RECORD_SOURCE)
+create_staging_operator(
+    'salesorderdetail.sql',
+    'salesorderdetail',
+    RECORD_SOURCE)
+
 
 if __name__ == "__main__":
     dag.cli()

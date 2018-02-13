@@ -21,7 +21,7 @@ SELECT
         , soh.taxamt
         , soh.freight
         , soh.totaldue
-        , LTRIM(RTRIM(COALESCE(CAST(salesorderid as char(40)), ''))) as hash_key
+        , LTRIM(RTRIM(COALESCE(CAST(salesorderid as char(40)), ''))) as hash_key_salesorderheader
         , LTRIM(RTRIM(COALESCE(CAST(customerid as char(40)), ''))) as hash_key_customer
         , LTRIM(RTRIM(COALESCE(CAST(sp.businessentityid as char(40)), ''))) as hash_key_salesperson
         , LTRIM(RTRIM(COALESCE(st.name, ''))) as hash_key_salesterritory
@@ -29,12 +29,12 @@ SELECT
             LTRIM(RTRIM(COALESCE(bta.addressline1, ''))), ';',
             LTRIM(RTRIM(COALESCE(bta.addressline2, ''))), ';',
             LTRIM(RTRIM(COALESCE(bta.postalcode, '')))
-          ) as hash_key_billtoaddress
+          ) as hash_key_address_billtoaddressid
         , CONCAT(
             LTRIM(RTRIM(COALESCE(sta.addressline1, ''))), ';',
             LTRIM(RTRIM(COALESCE(sta.addressline2, ''))), ';',
             LTRIM(RTRIM(COALESCE(sta.postalcode, '')))
-          ) as hash_key_shiptoaddress
+          ) as hash_key_address_shiptoaddressid
         , LTRIM(RTRIM(COALESCE(sm.name, ''))) as hash_key_shipmethod
         , LTRIM(RTRIM(COALESCE(cc.cardnumber, ''))) as hash_key_creditcard
         , CONCAT(
