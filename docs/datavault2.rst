@@ -7,13 +7,15 @@ Data Vault 2
 
 This is probably the final and most elaborate example of how to use ETL with Apache Airflow.
 As part of this exercise, let's build a data warehouse on Google BigQuery with a DataVault
-built on top of Hive. So... this example may request a bit of memory from your machine.
+built on top of Hive. (Potentially, this example requires quite a lot of memory).
 We're going to start a postgres instance that contains the airflow database and another 
-database for the adventureworks database (yeah, the one from Microsoft).
+database for the adventureworks database created by Microsoft. We'll use a Postgres port
+of that.
 
-Then the data will be transferred to a Hive instance and from there, if you have an account
-you'd like to try out, we'll transfer the facts + dimensions as a single large table 
-to a BigQuery instance for further analysis.
+The data will be loaded into a Hive instance from there and in Hive we'll set up the Data Vault
+structures. Optionally, if you have a Google account you'd like to try out, you can set up a 
+connection later on and load some flat tables into BigQuery out of the Data Vault as a final 
+part of this exercise. Alternatively, let's look into building a Kimball model out of it.
 
 Note that similar to the Hive example, I'm using a special build of the puckel docker airflow
 container that contains the jar files for Hadoop, HDFS and Hive.
@@ -27,7 +29,10 @@ We are also going to attempt to output some CSV files that are to be imported in
 What is databook?  It's an opensource project I'm running that attempts to replicate what Airbnb
 made in their "DataPortal" description. You can read more about databook here:
 
-`Databook <https://github.com/gtoonstra/databook>`
+`Databook <https://github.com/gtoonstra/databook>`_
+
+Finally, let's re-test all the work we did against the ETL principles that I wrote about to see
+if all principles are covered and identify what are open topics to cover for a full-circle solution.
 
 About Datavault
 ---------------
@@ -38,7 +43,8 @@ is such a nice methodology to use in the middle.
 
 This example uses some other techniques and attempts to implement all the best practices associated with
 data vaulting. The "2.0" refers to some improvements that have been made since the first version of the 
-methodology came out.
+methodology came out. One of the primary changes is the use of hashes as a means to improve the parallel
+forward flow of the data going into the final information marts and intermediate processing.
 
 Overall flow
 ------------
