@@ -31,6 +31,7 @@ args = {
 
 
 ADVWORKS_STAGING = 'advworks_staging'
+DATAVAULT = 'dv_raw'
 
 
 def init_datavault2_example():
@@ -87,6 +88,19 @@ def init_datavault2_example():
                          "auth": "none",
                          "use_beeline": "true"})})
 
+    create_new_conn(session,
+                    {"conn_id": "hive_datavault_raw",
+                     "conn_type": "hive_cli",
+                     "host": "hive",
+                     "schema": DATAVAULT,
+                     "port": 10000,
+                     "login": "cloudera",
+                     "password": "cloudera",
+                     "extra": json.dumps(
+                        {"hive_cli_params": "",
+                         "auth": "none",
+                         "use_beeline": "true"})})
+
     new_var = models.Variable()
     new_var.key = "sql_path"
     new_var.set_val("/usr/local/airflow/sql")
@@ -110,8 +124,14 @@ t1 = PythonOperator(task_id='init_datavault2_example',
                     provide_context=False,
                     dag=dag)
 
-t2 = HiveOperator(task_id='create_database',
+t2 = HiveOperator(task_id='create_stg_database',
                   hive_cli_conn_id='hive_default',
                   schema='default',
                   hql='CREATE DATABASE IF NOT EXISTS {0}'.format(ADVWORKS_STAGING),
+                  dag=dag)
+
+t2 = HiveOperator(task_id='create_dv_database',
+                  hive_cli_conn_id='hive_default',
+                  schema='default',
+                  hql='CREATE DATABASE IF NOT EXISTS {0}'.format(DATAVAULT),
                   dag=dag)

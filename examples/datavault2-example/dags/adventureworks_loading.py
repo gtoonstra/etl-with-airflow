@@ -15,7 +15,7 @@
 from __future__ import print_function
 import airflow
 from datetime import datetime, timedelta
-from acme.operators.hive_operators import StagePostgresToHiveOperator
+from airflow.operators.hive_operator import HiveOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.models import Variable
 
@@ -29,51 +29,32 @@ args = {
 tmpl_search_path = Variable.get("sql_path")
 
 dag = airflow.DAG(
-    'adventureworks_staging',
+    'adventureworks_loading',
     schedule_interval="@daily",
     dagrun_timeout=timedelta(minutes=60),
     template_searchpath=tmpl_search_path,
     default_args=args,
     max_active_runs=1)
 
-RECORD_SOURCE = 'adventureworks'
 
-staging_done = DummyOperator(
-    task_id='staging_done',
+loading_done = DummyOperator(
+    task_id='loading_done',
     dag=dag)
 
-def create_staging_operator(sql, hive_table, record_source=RECORD_SOURCE):
-    t1 = StagePostgresToHiveOperator(
-        sql=sql,
-        hive_table=hive_table + '_{{ds_nodash}}',
-        postgres_conn_id='adventureworks',
-        hive_cli_conn_id='hive_advworks_staging',
-        create=True,
-        recreate=True,
-        record_source=record_source,
-        load_dtm='{{execution_date}}',
-        task_id='stg_{0}'.format(hive_table),
+
+def create_loading_operator(hql, hive_table):
+    t1 = HiveOperator(
+        hql=hql,
+        hive_cli_conn_id='hive_datavault_raw',
+        schema='dv_raw',
+        task_id=hive_table,
         dag=dag)
 
-    t1 >> staging_done
+    t1 >> loading_done
     return t1
 
 
-create_staging_operator(
-    sql='staging/salesorderheader.sql',
-    hive_table='salesorderheader')
-create_staging_operator(
-    sql='staging/salesreason.sql',
-    hive_table='salesreason')
-create_staging_operator(
-    sql='staging/salesorderheadersalesreason.sql',
-    hive_table='salesorderheadersalesreason')
-create_staging_operator(
-    sql='staging/salesorderdetail.sql',
-    hive_table='salesorderdetail')
-create_staging_operator(
-    sql='staging/product.sql',
-    hive_table='product')
+create_loading_operator('loading/salesorderheader_hub.hql', 'salesorderheader_hub')
 
 
 if __name__ == "__main__":

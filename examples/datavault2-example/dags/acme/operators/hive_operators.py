@@ -106,6 +106,7 @@ class StagePostgresToHiveOperator(BaseOperator):
             701: 'DOUBLE',
             1114: 'TIMESTAMP',
             1082: 'DATE',
+            1042: 'STRING',
             1043: 'STRING',
             705: 'STRING',
             1700: 'DOUBLE'
