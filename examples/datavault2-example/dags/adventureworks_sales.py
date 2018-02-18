@@ -25,6 +25,7 @@ args = {
     'owner': 'airflow',
     'start_date': airflow.utils.dates.days_ago(7),
     'provide_context': True,
+    # We want to maintain chronological order when loading the datavault
     'depends_on_past': True
 }
 
@@ -47,7 +48,11 @@ hubs_done = DummyOperator(
 links_done = DummyOperator(
     task_id='links_done',
     dag=dag)
+sats_done =  DummyOperator(
+    task_id='sats_done',
+    dag=dag)
 
+# A function helps to generalize the parameters
 def create_staging_operator(sql, hive_table, record_source=RECORD_SOURCE):
     t1 = StagePostgresToHiveOperator(
         sql=sql,
