@@ -17,8 +17,10 @@ import airflow
 from datetime import datetime, timedelta
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.hive_operator import HiveOperator
+from airflow.operators.dummy_operator import DummyOperator
 from airflow import models
 from airflow.settings import Session
+from airflow.models import Variable
 import logging
 import json
 
@@ -101,22 +103,13 @@ def init_datavault2_example():
                          "auth": "none",
                          "use_beeline": "true"})})
 
-    new_var = models.Variable()
-    new_var.key = "sql_path"
-    new_var.set_val("/usr/local/airflow/sql")
-    session.add(new_var)
-    new_var = models.Variable()
-    new_var.key = "hql_path"
-    new_var.set_val("/usr/local/airflow/hql")
-    session.add(new_var)
-    session.commit()
-
     session.close()
 
 dag = airflow.DAG(
     'init_datavault2_example',
     schedule_interval="@once",
     default_args=args,
+    template_searchpath='/usr/local/airflow/sql',
     max_active_runs=1)
 
 t1 = PythonOperator(task_id='init_datavault2_example',
@@ -130,8 +123,65 @@ t2 = HiveOperator(task_id='create_stg_database',
                   hql='CREATE DATABASE IF NOT EXISTS {0}'.format(ADVWORKS_STAGING),
                   dag=dag)
 
-t2 = HiveOperator(task_id='create_dv_database',
+t3 = HiveOperator(task_id='create_dv_database',
                   hive_cli_conn_id='hive_default',
                   schema='default',
                   hql='CREATE DATABASE IF NOT EXISTS {0}'.format(DATAVAULT),
                   dag=dag)
+
+hubs_done = DummyOperator(
+    task_id='hubs_done',
+    dag=dag)
+links_done = DummyOperator(
+    task_id='links_done',
+    dag=dag)
+all_done = DummyOperator(
+    task_id='all_done',
+    dag=dag)
+
+def create_table(hql, tablename, upstream, downstream):
+    t3 = HiveOperator(task_id='table_{0}'.format(tablename),
+                      hive_cli_conn_id='hive_datavault_raw',
+                      schema=DATAVAULT,
+                      hql=hql,
+                      dag=dag)
+    upstream >> t3
+
+
+t1 >> t2 >> t3
+
+# hubs
+create_table(
+    hql='ddl/hub_salesorder.hql',
+    tablename='hub_salesorder',
+    upstream=t3,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_specialoffer.hql',
+    tablename='hub_specialoffer',
+    upstream=t3,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_product.hql',
+    tablename='hub_product',
+    upstream=t3,
+    downstream=hubs_done)
+
+# links
+create_table(
+    hql='ddl/link_salesorderdetail.hql',
+    tablename='link_salesorderdetail',
+    upstream=hubs_done,
+    downstream=links_done)
+
+# satellites
+create_table(
+    hql='ddl/sat_salesorderdetail.hql',
+    tablename='sat_salesorderdetail',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_salesorder.hql',
+    tablename='sat_salesorder',
+    upstream=links_done,
+    downstream=all_done)

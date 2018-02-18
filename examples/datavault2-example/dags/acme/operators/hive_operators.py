@@ -131,11 +131,11 @@ class StagePostgresToHiveOperator(BaseOperator):
             ctr = 0
             for field in cursor.description:
                 field_dict[field[0]] = self.type_map(field[0], field[1])
-                if field[0].startswith('hash_key'):
+                if field[0].startswith('hkey_'):
                     fields_to_hash.add(ctr)
                 ctr += 1
 
-            field_dict['rec_src'] = 'STRING'
+            field_dict['record_source'] = 'STRING'
             field_dict['load_dtm'] = 'TIMESTAMP'
             field_dict['seq_num'] = 'BIGINT'
 

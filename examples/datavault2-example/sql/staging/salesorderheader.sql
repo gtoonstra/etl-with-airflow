@@ -21,6 +21,6 @@ SELECT
         , soh.taxamt
         , soh.freight
         , soh.totaldue
-        , LTRIM(RTRIM(COALESCE(CAST(soh.salesorderid as varchar), ''))) as hash_key_salesorderheader
+        , LTRIM(RTRIM(COALESCE(CAST(soh.salesorderid as varchar), ''))) as hkey_salesorder
 FROM
                 sales.salesorderheader soh

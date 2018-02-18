@@ -22,6 +22,6 @@ SELECT
     , sellstartdate
     , sellenddate
     , discontinueddate
-    , LTRIM(RTRIM(COALESCE(CAST(p.productnumber as varchar), ''))) as hash_key_product
+    , LTRIM(RTRIM(COALESCE(CAST(p.productnumber as varchar), ''))) as hkey_product
 FROM
     production.product p

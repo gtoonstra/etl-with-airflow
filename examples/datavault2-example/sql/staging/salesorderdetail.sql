@@ -7,6 +7,6 @@ SELECT
     , sod.specialofferid
     , sod.unitprice
     , sod.unitpricediscount
-    , LTRIM(RTRIM(COALESCE(CAST(sod.salesorderdetailid as varchar), ''))) as hash_key_salesorderdetail
+    , LTRIM(RTRIM(COALESCE(CAST(sod.salesorderdetailid as varchar), ''))) as hkey_salesorderdetail
 FROM
-            sales.salesorderdetail sod
+    sales.salesorderdetail sod
