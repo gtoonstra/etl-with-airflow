@@ -140,12 +140,13 @@ all_done = DummyOperator(
     dag=dag)
 
 def create_table(hql, tablename, upstream, downstream):
-    t3 = HiveOperator(task_id='table_{0}'.format(tablename),
+    t = HiveOperator(task_id='table_{0}'.format(tablename),
                       hive_cli_conn_id='hive_datavault_raw',
                       schema=DATAVAULT,
                       hql=hql,
                       dag=dag)
-    upstream >> t3
+    upstream >> t
+    t >> downstream
 
 
 t1 >> t2 >> t3
