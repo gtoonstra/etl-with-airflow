@@ -100,6 +100,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#about-datavault">About Datavault</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#overall-flow">Overall flow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#staging-flow">Staging flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-vault-loading-flow">Data vault loading flow</a></li>
 </ul>
 </li>
 </ul>
@@ -156,14 +157,15 @@
 </div>
 <p>This is probably the final and most elaborate example of how to use ETL with Apache Airflow.
 As part of this exercise, let&#8217;s build a data warehouse on Google BigQuery with a DataVault
-built on top of Hive. (Potentially, this example requires quite a lot of memory).
+built on top of Hive. (Consequently, this example requires a bit more memory and may not fit in a simple machine).
 We&#8217;re going to start a postgres instance that contains the airflow database and another
 database for the adventureworks database created by Microsoft. We&#8217;ll use a Postgres port
 of that.</p>
 <p>The data will be loaded into a Hive instance from there and in Hive we&#8217;ll set up the Data Vault
 structures. Optionally, if you have a Google account you&#8217;d like to try out, you can set up a
 connection later on and load some flat tables into BigQuery out of the Data Vault as a final
-part of this exercise. Alternatively, let&#8217;s look into building a Kimball model out of it.</p>
+part of this exercise; that will basically become our information mart.
+Alternatively, let&#8217;s look into building a Kimball model out of it.</p>
 <p>Note that similar to the Hive example, I&#8217;m using a special build of the puckel docker airflow
 container that contains the jar files for Hadoop, HDFS and Hive.</p>
 <div class="admonition important">
@@ -185,7 +187,8 @@ is such a nice methodology to use in the middle.</p>
 <p>This example uses some other techniques and attempts to implement all the best practices associated with
 data vaulting. The &#8220;2.0&#8221; refers to some improvements that have been made since the first version of the
 methodology came out. One of the primary changes is the use of hashes as a means to improve the parallel
-forward flow of the data going into the final information marts and intermediate processing.</p>
+forward flow of the data going into the final information marts and intermediate processing. I&#8217;ll point out
+where hashing is somewhat problematic.</p>
 </div>
 <div class="section" id="overall-flow">
 <h2>Overall flow<a class="headerlink" href="#overall-flow" title="Permalink to this headline">¶</a></h2>
@@ -197,26 +200,26 @@ as described by Ralph Inmon, years ago.</p>
 <div class="section" id="staging-flow">
 <h2>Staging flow<a class="headerlink" href="#staging-flow" title="Permalink to this headline">¶</a></h2>
 <p>Staging is the process where you pick up data from a source system and load it into a &#8216;staging&#8217; area
-maintaining as much as possible of the source data as possible. The &#8220;hard business rules&#8221; may be executed,
+keeping as much as possible of the source data intact. &#8220;Hard&#8221; business rules may be applied,
 for example changing the data type of an item from a string into a datetime, but you should avoid
 splitting, combining or otherwise modifying the incoming data elements and leave that to a following step.
-In short: operations where you may lose information should be avoided.</p>
+The latter are called &#8220;soft&#8221; business rules and are usually transformations related to interpretation
+of the data. In short: operations where you may lose information should be avoided.</p>
 <p>The staging area is temporary and I&#8217;m assuming delta loads are possible from the source system because of
 a cdc solution being in place. If delta loads cannot be implemented due to a lack of proper CDC, then
-a persistent staging area (PSA) should be set up before that and delta loads be generated from there.</p>
-<p>There are some operations that we can execute to enrich the incoming information. In Data Vault 2.0,
-hashing was added as a means to improve performance.</p>
+a persistent staging area (PSA) should be set up, so you can generate delta loads from there and
+identify the deletes. Both the latter and the CDC solution should be capable to detect deletes.</p>
 <p>Our staging approach for all tables in the adventureworks dataset will be:</p>
 <ol class="arabic simple">
-<li>Truncate staging table</li>
+<li>Clear out staging table (truncate or drop). In the case of Hive, we use a temporary table with a date and time tag at the end. This means that each particular staging table can only reference data from the current data load.</li>
 <li>(optional) disable indexes. As we use Hive, this is not relevant, there are no indexes set.</li>
-<li>Bulk Read source data in order. In this example we bulk read &#8220;everything&#8221; and then apply the rules, but in a real setting you&#8217;d have daily extracts for each staging table through a Change Data Capture system.</li>
+<li>Bulk Read source data in order. In this example we bulk read &#8220;everything&#8221; from the entire source system because there are no useful change date/times in the source data. In a real application, you&#8217;d divide the data through the &#8220;updated_dtm&#8221; field that the CDC system is setting.</li>
 <li>Compute and apply system values:
 * Load date
 * Record source
-* A sequence number
-* Hash for all business keys in a record. This is the record of the current table, but also business keys for all foreign keys into that table.
-* (optionally) a hash diff compiled from certain attributes through a controlled mechanism (never changes or gets reapplied)</li>
+* A sequence number, which requires you to think about ordering.
+* Hash for all business keys in a record. This is the record of the current table, but also business keys for all foreign keys into that table. The reason why this is important is because all surrogate sequences and primary keys that the source system may have should not have any significance in the data warehouse, unless they are also business keys for that table. This is the reason why I force the staging area to apply the hashes prior to loading it in the raw data vault.
+* (optionally) a hash diff compiled from all or certain attributes in the source data that is used to perform change comparisons to identify duplicates, so we don&#8217;t load records twice.</li>
 <li>Remove true duplicates</li>
 <li>Insert records into staging table</li>
 <li>(optional) rebuild indexes. Again, not relevant for this setup.</li>
@@ -228,8 +231,10 @@ hash key assigned at the very least (even if that resolves to just a surrogate p
 all foreign keys result in inner joins to other tables, so that we can generate the hash key for
 the business keys in there. This is because the foreign keys will eventually convert to a link
 of some sort and having the hash key ready in staging allows us to parallellize the following stages
-as well. It avoids potentially more expensive lookups further down the line, but unfortunately
-has a higher performance impact on the source system.</p>
+as well. As a matter of fact, it feels wrong to resolve the hashes later. These lookups may have a higher
+impact on the source system because of the extra joins for each table, but these lookups have to be made
+&#8216;somewhere&#8217; and because I believe the source system is where the surrogate keys are relevant, it should be
+resolved from there.</p>
 <p>In the current implementation I&#8217;m using python code to apply the hashing, because it demonstrates that
 hashing is possible even if the database engine doesn&#8217;t implement your hash of interest.</p>
 <div class="admonition important">
@@ -237,19 +242,184 @@ hashing is possible even if the database engine doesn&#8217;t implement your has
 <p class="last">The adventureworks database has some serious design flaws and doesn&#8217;t expose a lot of useful
 &#8220;natural&#8221; business keys that are so important in data vaulting. Because businesses have people that
 talk about the data a lot, you should find a lot more references, identifiers and natural business keys
-in a true database setup that is actually used by and for people. The main staging setup is done in
-&#8220;adventureworks_staging.py&#8221;, which references SQL files in the &#8216;sql&#8217; folder. In the SQL, you&#8217;ll see the
-construction of the natural business keys at that stage.</p>
+in a true database setup that is actually used by and for people. The main staging setup is done in the
+&#8220;adventureworks_*.py&#8221; files, which reference the SQL files in the &#8216;sql&#8217; folder. In the SQL, you&#8217;ll see the
+construction of the natural business keys at that stage. The python operator picks up the generated string and
+converts that into a hash using a hash function. The reason to do this per record is because a source database
+system doesn&#8217;t necessarily have the right capabilities to do this.</p>
 </div>
 <p>There&#8217;s an important remark to make about &#8220;pre-hashing&#8221; business keys in the staging area. It means that the
 decisions on what and how to hash are made in the staging area and there may be further issues downstream where
 these design decisions can come into play. As the objective is to follow the methodology, we go along with
-that and see where this takes us...</p>
+that and see where this takes us. If you feel unhappy about this, look into setting up a PSA, which will give you
+the ability to reload the whole DV at a later stage because all the staging data is preserved.</p>
 <p>Another important note: notice how we don&#8217;t specify what hive staging tables should look like. We&#8217;re simply
 specifying what we want to see in the Hive table. Because Hive is &#8220;Schema On Read&#8221;, you can&#8217;t enforce nullability
 either, so there&#8217;s no reason to set up a structured destination schema because nothing can be enforced about
-it anyway. (which also means that malformed/corrupted files can have disastrous consequences, so it&#8217;s extra
-important to introduce integrity checks)</p>
+it anyway.</p>
+<p>Let&#8217;s look at the flow in more detail:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="o">....</span>
+    <span class="c1"># We want to maintain chronological order when loading the datavault</span>
+    <span class="s1">&#39;depends_on_past&#39;</span><span class="p">:</span> <span class="bp">True</span>
+<span class="p">}</span>
+<span class="o">...</span>
+
+<span class="c1"># specify the purpose for each dag</span>
+<span class="n">RECORD_SOURCE</span> <span class="o">=</span> <span class="s1">&#39;adventureworks.sales&#39;</span>
+
+<span class="c1"># Use a dummy operator as a &quot;knot&quot; to synchronize staging loads</span>
+<span class="n">staging_done</span> <span class="o">=</span> <span class="n">DummyOperator</span><span class="p">(</span>
+    <span class="n">task_id</span><span class="o">=</span><span class="s1">&#39;staging_done&#39;</span><span class="p">,</span>
+    <span class="n">dag</span><span class="o">=</span><span class="n">dag</span><span class="p">)</span>
+
+<span class="c1"># A function helps to generalize the parameters,</span>
+<span class="c1"># so we can just write 2-3 lines of code to get a</span>
+<span class="c1"># table staged into our datavault</span>
+<span class="k">def</span> <span class="nf">create_staging_operator</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">hive_table</span><span class="p">,</span> <span class="n">record_source</span><span class="o">=</span><span class="n">RECORD_SOURCE</span><span class="p">):</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">StagePostgresToHiveOperator</span><span class="p">(</span>
+        <span class="c1"># The SQL running on postgres</span>
+        <span class="n">sql</span><span class="o">=</span><span class="n">sql</span><span class="p">,</span>
+        <span class="c1"># Create and recreate a hive table with the &lt;name&gt;_yyyymmddthhmmss pattern</span>
+        <span class="n">hive_table</span><span class="o">=</span><span class="n">hive_table</span> <span class="o">+</span> <span class="s1">&#39;_{{ts_nodash}}&#39;</span><span class="p">,</span>
+        <span class="n">postgres_conn_id</span><span class="o">=</span><span class="s1">&#39;adventureworks&#39;</span><span class="p">,</span>
+        <span class="n">hive_cli_conn_id</span><span class="o">=</span><span class="s1">&#39;hive_advworks_staging&#39;</span><span class="p">,</span>
+        <span class="c1"># Create a destination table, drop and recreate it every run.</span>
+        <span class="c1"># Because of the pattern above, we don&#39;t need truncates.</span>
+        <span class="n">create</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">recreate</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">record_source</span><span class="o">=</span><span class="n">record_source</span><span class="p">,</span>
+        <span class="c1"># Specifying the &quot;load_dtm&quot; for this run</span>
+        <span class="n">load_dtm</span><span class="o">=</span><span class="s1">&#39;{{execution_date}}&#39;</span><span class="p">,</span>
+        <span class="c1"># A generalized name</span>
+        <span class="n">task_id</span><span class="o">=</span><span class="s1">&#39;stg_{0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hive_table</span><span class="p">),</span>
+        <span class="n">dag</span><span class="o">=</span><span class="n">dag</span><span class="p">)</span>
+
+    <span class="c1"># Putting it in the flow...</span>
+    <span class="n">t1</span> <span class="o">&gt;&gt;</span> <span class="n">staging_done</span>
+    <span class="k">return</span> <span class="n">t1</span>
+
+<span class="c1"># Example of the effort of staging a new table</span>
+<span class="n">create_staging_operator</span><span class="p">(</span>
+    <span class="n">sql</span><span class="o">=</span><span class="s1">&#39;staging/salesorderheader.sql&#39;</span><span class="p">,</span>
+    <span class="n">hive_table</span><span class="o">=</span><span class="s1">&#39;salesorderheader&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Important design principles to focus on:</p>
+<ul class="simple">
+<li>Each staging table is tied to a processing run in airflow and is marked by its own YYYYMMDDTHHMMSS partition. The reason to include a time structure is to think ahead and ingest data in the data warehouse more frequently than once per day. Because we keep staging data separately this way, we don&#8217;t need to worry about multiple staging cycles in the same table and filter by load_dtm, except for getting the name of the table right. Doing it this allows us to continue to load data in staging even though we can&#8217;t perhaps (for some reason) load it into the DV yet.</li>
+<li>&#8220;depends_on_past&#8221; is set to True because we want to force loading data into the datavault in chronological order. The data into staging isn&#8217;t a critical step, but since each sub pipeline also contains operators for loading the datavault, the whole dag by default is set to the same principle.</li>
+<li>When everything was loaded, we can drop the temp staging table or decide to copy it to a partitioned PSA table.</li>
+<li>New tables can be added by creating a query for it and 3 lines of code, which looks like a great generalization for this process. It is definitely possible to set up a template and generate the required tables from an input table to further ease this process.</li>
+<li>Because of the previous point, the entire table staging process is very generic and predictable.</li>
+<li>There are three distinct parallel processing phases as one would expect from the design of data vault.</li>
+</ul>
+</div>
+<div class="section" id="data-vault-loading-flow">
+<h2>Data vault loading flow<a class="headerlink" href="#data-vault-loading-flow" title="Permalink to this headline">¶</a></h2>
+<p>Now that data is in staging, it is time to start loading the staging data into datavault.</p>
+<p>Here an important design decision was made:</p>
+<p><em>Getting the business key hashes for all foreign key is a challenge and I opted to generate all
+hashes from the source database using INNER JOINs. The reason is that I&#8217;m assuming a CDC slave
+database system that has no other load and good optimization for querying and joining data on subselects
+of the driving table.</em></p>
+<p>I see three different possibilities:</p>
+<ul class="simple">
+<li>Generate hashes for all primary+foreign keys from the source system (as in this implementation). The rationale is that surrogate sequence keys frequently used in an RDBMS should only have meaning within the context of that RDBMS, so it is important to apply business keys to business entities as soon as possible.</li>
+<li>Generate hashes for those identified business keys you happen to come across and then use more elaborate joins on the data vault (even joining on satellites in cases).</li>
+<li>Create a cache/lookup table for each source system in the staging area that then becomes an integral part of your data warehouse. The idea is to dissociate the surrogate key from the source system and convert that into a hash without adding significant load on the source system. The rationale is that the data warehouse needs the hash key in order to operate, but the source system has given all the data the DWH is asking for. The DWH itself should be responsible for caching and deliverying the hash key that is needed.</li>
+</ul>
+<p>This is the block of code significant for the loading part:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">hubs_done</span> <span class="o">=</span> <span class="n">DummyOperator</span><span class="p">(</span>
+    <span class="n">task_id</span><span class="o">=</span><span class="s1">&#39;hubs_done&#39;</span><span class="p">,</span>
+    <span class="n">dag</span><span class="o">=</span><span class="n">dag</span><span class="p">)</span>
+<span class="n">links_done</span> <span class="o">=</span> <span class="n">DummyOperator</span><span class="p">(</span>
+    <span class="n">task_id</span><span class="o">=</span><span class="s1">&#39;links_done&#39;</span><span class="p">,</span>
+    <span class="n">dag</span><span class="o">=</span><span class="n">dag</span><span class="p">)</span>
+<span class="n">sats_done</span> <span class="o">=</span>  <span class="n">DummyOperator</span><span class="p">(</span>
+    <span class="n">task_id</span><span class="o">=</span><span class="s1">&#39;sats_done&#39;</span><span class="p">,</span>
+    <span class="n">dag</span><span class="o">=</span><span class="n">dag</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">create_hub_operator</span><span class="p">(</span><span class="n">hql</span><span class="p">,</span> <span class="n">hive_table</span><span class="p">):</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">HiveOperator</span><span class="p">(</span>
+        <span class="n">hql</span><span class="o">=</span><span class="n">hql</span><span class="p">,</span>
+        <span class="n">hive_cli_conn_id</span><span class="o">=</span><span class="s1">&#39;hive_datavault_raw&#39;</span><span class="p">,</span>
+        <span class="n">schema</span><span class="o">=</span><span class="s1">&#39;dv_raw&#39;</span><span class="p">,</span>
+        <span class="n">task_id</span><span class="o">=</span><span class="n">hive_table</span><span class="p">,</span>
+        <span class="n">dag</span><span class="o">=</span><span class="n">dag</span><span class="p">)</span>
+
+    <span class="n">staging_done</span> <span class="o">&gt;&gt;</span> <span class="n">t1</span>
+    <span class="n">t1</span> <span class="o">&gt;&gt;</span> <span class="n">hubs_done</span>
+    <span class="k">return</span> <span class="n">t1</span>
+
+<span class="k">def</span> <span class="nf">create_link_operator</span><span class="p">(</span><span class="n">hql</span><span class="p">,</span> <span class="n">hive_table</span><span class="p">):</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">HiveOperator</span><span class="p">(</span>
+        <span class="n">hql</span><span class="o">=</span><span class="n">hql</span><span class="p">,</span>
+        <span class="n">hive_cli_conn_id</span><span class="o">=</span><span class="s1">&#39;hive_datavault_raw&#39;</span><span class="p">,</span>
+        <span class="n">schema</span><span class="o">=</span><span class="s1">&#39;dv_raw&#39;</span><span class="p">,</span>
+        <span class="n">task_id</span><span class="o">=</span><span class="n">hive_table</span><span class="p">,</span>
+        <span class="n">dag</span><span class="o">=</span><span class="n">dag</span><span class="p">)</span>
+
+<span class="c1"># hubs</span>
+<span class="n">create_hub_operator</span><span class="p">(</span><span class="s1">&#39;loading/hub_salesorder.hql&#39;</span><span class="p">,</span> <span class="s1">&#39;hub_salesorder&#39;</span><span class="p">)</span>
+<span class="o">....</span>
+
+<span class="c1"># links</span>
+<span class="n">create_link_operator</span><span class="p">(</span><span class="s1">&#39;loading/link_salesorderdetail.hql&#39;</span><span class="p">,</span> <span class="s1">&#39;link_salesorderdetail&#39;</span><span class="p">)</span>
+<span class="o">....</span>
+</pre></div>
+</div>
+<p>Each operator links to the dummy, which gives us the synchronization points.
+Because links may have dependencies outside each functional area (determined by the schema)
+some further synchronization is required there.</p>
+<p>The loading code follows the same principles as the Data Vault 2.0 default stanzas:</p>
+<p>Loading a hub is concerned about creating an &#8216;anchor&#8217; around which elements referring to a business
+entity resolve. Notice the absence of &#8220;record_source&#8221; check, so whichever system first sees this
+business key will win the record inserted here.:</p>
+<div class="highlight-SQL"><div class="highlight"><pre><span></span>INSERT INTO TABLE dv_raw.hub_product
+SELECT DISTINCT
+    p.hkey_product,
+    p.record_source,
+    p.load_dtm,
+    p.productnumber
+FROM
+    advworks_staging.product_{{ts_nodash}} p
+WHERE
+    p.productnumber NOT IN (
+        SELECT hub.productnumber FROM dv_raw.hub_product hub
+    )
+</pre></div>
+</div>
+<p>Loading a link concerns itself with tying some hubs together, so the number of lookups increase. Any details related to the characteristics of the relationship are kept in a satellite table tied to the link.</p>
+<div class="highlight-SQL"><div class="highlight"><pre><span></span>INSERT INTO TABLE dv_raw.link_salesorderdetail
+SELECT DISTINCT
+    sod.hkey_salesorderdetail,
+    sod.hkey_salesorder,
+    sod.hkey_specialoffer,
+    sod.hkey_product,
+    sod.record_source,
+    sod.load_dtm,
+    sod.salesorderdetailid
+FROM
+           advworks_staging.salesorderdetail_{{ts_nodash}} sod
+WHERE
+    NOT EXISTS (
+        SELECT
+                l.hkey_salesorderdetail
+        FROM    dv_raw.link_salesorderdetail l
+        WHERE
+                l.hkey_salesorder = sod.hkey_salesorder
+        AND     l.hkey_specialoffer = sod.hkey_specialoffer
+        AND     l.hkey_product = sod.hkey_product
+    )
+</pre></div>
+</div>
+<p>Loading satellite is the point where chronological ordering becomes truly important. If we don&#8217;t get the load cycles in chronological order for hubs and links then the &#8220;load_dtm&#8221; for them will be wrong, but functionally the data vault should keep operating.</p>
+<p>For satellites, the chronological ordering determines the version of the entity at a specific time, so it affects what the most current version would look like now. An objective is to avoid loading duplicates, which is the reason we look at characteristics that warrant a new version of the satellite or not.</p>
+<p>Splitting a satellite is a common practice to record data that has different rates of change. For example, if a table has 40 columns as 20 columns change rapidly and 20 more slowly, then if we were to keep everything in the same table, we&#8217;d accumulate data twice as fast. By splitting it into 2 separate tables we can keep the detailed changes to a minimum.</p>
+<div class="highlight-SQL"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
 </div>
 </div>
 
