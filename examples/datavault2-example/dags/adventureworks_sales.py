@@ -135,11 +135,10 @@ create_link_operator('loading/link_salesorderterritory.hql', 'link_salesorderter
 # satellites
 create_satellite_operator('loading/sat_creditcard.hql', 'sat_creditcard')
 create_satellite_operator('loading/sat_currency.hql', 'sat_currency')
-create_satellite_operator('loading/sat_customer.hql', 'sat_customer')
 create_satellite_operator('loading/sat_salesorder.hql', 'sat_salesorder')
 create_satellite_operator('loading/sat_salesorderdetail.hql', 'sat_salesorderdetail')
 create_satellite_operator('loading/sat_salesreason.hql', 'sat_salesreason')
-create_satellite_operator('loading/sat_salesorderterritory.hql', 'sat_salesorderterritory')
+create_satellite_operator('loading/sat_salesterritory.hql', 'sat_salesterritory')
 
 if __name__ == "__main__":
     dag.cli()

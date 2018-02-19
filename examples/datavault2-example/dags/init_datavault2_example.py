@@ -249,6 +249,11 @@ create_table(
     upstream=links_done,
     downstream=all_done)
 create_table(
+    hql='ddl/sat_creditcard.hql',
+    tablename='sat_creditcard',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
     hql='ddl/sat_currency.hql',
     tablename='sat_currency',
     upstream=links_done,
@@ -271,6 +276,16 @@ create_table(
 create_table(
     hql='ddl/sat_salesorderdetail.hql',
     tablename='sat_salesorderdetail',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_salesreason.hql',
+    tablename='sat_salesreason',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_salesterritory.hql',
+    tablename='sat_salesterritory',
     upstream=links_done,
     downstream=all_done)
 create_table(
