@@ -42,6 +42,10 @@ SELECT
             , LTRIM(RTRIM(COALESCE(CAST(cr.fromcurrencycode as varchar), ''))), ';'
             , LTRIM(RTRIM(COALESCE(CAST(cr.tocurrencycode as varchar), '')))
           ) as hkey_currencyrate
+        , CONCAT(
+              LTRIM(RTRIM(COALESCE(CAST(soh.salesorderid as varchar), ''))), ';'
+            , LTRIM(RTRIM(COALESCE(CAST(st.name as varchar), '')))
+          ) as hkey_salesorderterritory
 FROM
             sales.salesorderheader soh
 INNER JOIN  sales.salesterritory st ON soh.territoryid = st.territoryid

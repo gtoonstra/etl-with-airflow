@@ -153,13 +153,28 @@ t1 >> t2 >> t3
 
 # hubs
 create_table(
-    hql='ddl/hub_salesorder.hql',
-    tablename='hub_salesorder',
+    hql='ddl/hub_address.hql',
+    tablename='hub_address',
     upstream=t3,
     downstream=hubs_done)
 create_table(
-    hql='ddl/hub_specialoffer.hql',
-    tablename='hub_specialoffer',
+    hql='ddl/hub_creditcard.hql',
+    tablename='hub_creditcard',
+    upstream=t3,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_currency.hql',
+    tablename='hub_currency',
+    upstream=t3,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_customer.hql',
+    tablename='hub_customer',
+    upstream=t3,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_person.hql',
+    tablename='hub_person',
     upstream=t3,
     downstream=hubs_done)
 create_table(
@@ -167,22 +182,99 @@ create_table(
     tablename='hub_product',
     upstream=t3,
     downstream=hubs_done)
+create_table(
+    hql='ddl/hub_salesorder.hql',
+    tablename='hub_salesorder',
+    upstream=t3,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_salesreason.hql',
+    tablename='hub_salesreason',
+    upstream=t3,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_salesterritory.hql',
+    tablename='hub_salesterritory',
+    upstream=t3,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_shipmethod.hql',
+    tablename='hub_shipmethod',
+    upstream=t3,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_specialoffer.hql',
+    tablename='hub_specialoffer',
+    upstream=t3,
+    downstream=hubs_done)
 
 # links
+create_table(
+    hql='ddl/link_address_stateprovince.hql',
+    tablename='link_address_stateprovince',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
+    hql='ddl/link_currencyrate.hql',
+    tablename='link_currencyrate',
+    upstream=hubs_done,
+    downstream=links_done)
 create_table(
     hql='ddl/link_salesorderdetail.hql',
     tablename='link_salesorderdetail',
     upstream=hubs_done,
     downstream=links_done)
+create_table(
+    hql='ddl/link_salesorderreason.hql',
+    tablename='link_salesorderreason',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
+    hql='ddl/link_salesorderterritory.hql',
+    tablename='link_salesorderterritory',
+    upstream=hubs_done,
+    downstream=links_done)
+
+# references
+create_table(
+    hql='ddl/ref_countryregion.hql',
+    tablename='ref_countryregion',
+    upstream=hubs_done,
+    downstream=links_done)
 
 # satellites
+create_table(
+    hql='ddl/sat_address.hql',
+    tablename='sat_address',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_currency.hql',
+    tablename='sat_currency',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_person.hql',
+    tablename='sat_person',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_product.hql',
+    tablename='sat_product',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_salesorder.hql',
+    tablename='sat_salesorder',
+    upstream=links_done,
+    downstream=all_done)
 create_table(
     hql='ddl/sat_salesorderdetail.hql',
     tablename='sat_salesorderdetail',
     upstream=links_done,
     downstream=all_done)
 create_table(
-    hql='ddl/sat_salesorder.hql',
-    tablename='sat_salesorder',
+    hql='ddl/sat_shipmethod.hql',
+    tablename='sat_shipmethod',
     upstream=links_done,
     downstream=all_done)

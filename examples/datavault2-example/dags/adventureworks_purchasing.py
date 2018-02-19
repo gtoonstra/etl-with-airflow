@@ -25,18 +25,19 @@ args = {
     'owner': 'airflow',
     'start_date': airflow.utils.dates.days_ago(1),
     'provide_context': True,
+    # We want to maintain chronological order when loading the datavault
     'depends_on_past': True
 }
 
 dag = airflow.DAG(
-    'adventureworks_product',
+    'adventureworks_purchasing',
     schedule_interval="@daily",
     dagrun_timeout=timedelta(minutes=60),
     template_searchpath='/usr/local/airflow/sql',
     default_args=args,
     max_active_runs=1)
 
-RECORD_SOURCE = 'adventureworks.product'
+RECORD_SOURCE = 'adventureworks.purchasing'
 
 staging_done = DummyOperator(
     task_id='staging_done',
@@ -51,7 +52,7 @@ sats_done =  DummyOperator(
     task_id='sats_done',
     dag=dag)
 
-
+# A function helps to generalize the parameters
 def create_staging_operator(sql, hive_table, record_source=RECORD_SOURCE):
     t1 = StagePostgresToHiveOperator(
         sql=sql,
@@ -80,7 +81,6 @@ def create_hub_operator(hql, hive_table):
     t1 >> hubs_done
     return t1
 
-
 def create_link_operator(hql, hive_table):
     t1 = HiveOperator(
         hql=hql,
@@ -92,7 +92,6 @@ def create_link_operator(hql, hive_table):
     hubs_done >> t1
     t1 >> links_done
     return t1
-
 
 def create_satellite_operator(hql, hive_table):
     t1 = HiveOperator(
@@ -106,16 +105,17 @@ def create_satellite_operator(hql, hive_table):
     t1 >> sats_done
     return t1
 
-
 # staging
-create_staging_operator(sql='staging/product.sql', hive_table='product')
+create_staging_operator(sql='staging/shipmethod.sql', hive_table='shipmethod')
 
 # hubs
-create_hub_operator('loading/hub_product.hql', 'hub_product')
+create_hub_operator('loading/hub_shipmethod.hql', 'hub_shipmethod')
+
+# links
+# create_link_operator('loading/link_currencyrate.hql', 'link_currencyrate')
 
 # satellites
-create_satellite_operator('loading/sat_product.hql', 'sat_product')
-
+create_satellite_operator('loading/sat_shipmethod.hql', 'sat_shipmethod')
 
 if __name__ == "__main__":
     dag.cli()

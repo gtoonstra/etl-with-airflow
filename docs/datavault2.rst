@@ -297,7 +297,28 @@ Loading satellite is the point where chronological ordering becomes truly import
 
 For satellites, the chronological ordering determines the version of the entity at a specific time, so it affects what the most current version would look like now. An objective is to avoid loading duplicates, which is the reason we look at characteristics that warrant a new version of the satellite or not. 
 
-Splitting a satellite is a common practice to record data that has different rates of change. For example, if a table has 40 columns as 20 columns change rapidly and 20 more slowly, then if we were to keep everything in the same table, we'd accumulate data twice as fast. By splitting it into 2 separate tables we can keep the detailed changes to a minimum.
+Splitting a satellite is a common practice to record data that has different rates of change. For example, if a table has 40 columns as 20 columns change rapidly and 20 more slowly, then if we were to keep everything in the same table, we'd accumulate data twice as fast. By splitting it into 2 separate tables we can keep the detailed changes to a minimum. This is the typical stanza for loading a satellite. Pay attention to how in Hive you can't specify destination columns. If you keep staging data in the same table you'd also have an additional WHERE clause that specifies `load_dtm = xxxxx`.
 
 .. code-block:: SQL
+
+    INSERT INTO TABLE dv_raw.sat_salesorderdetail
+    SELECT DISTINCT
+          so.hkey_salesorderdetail
+        , so.load_dtm
+        , NULL
+        , so.record_source
+        , so.carriertrackingnumber
+        , so.orderqty
+        , so.unitprice
+        , so.unitpricediscount
+    FROM
+                    advworks_staging.salesorderdetail_{{ts_nodash}} so
+    LEFT OUTER JOIN dv_raw.sat_salesorderdetail sat ON (
+                    sat.hkey_salesorderdetail = so.hkey_salesorderdetail
+                AND sat.load_end_dtm IS NULL)
+    WHERE
+        COALESCE(so.carriertrackingnumber, '') != COALESCE(sat.carriertrackingnumber, '')
+    AND COALESCE(so.orderqty, '') != COALESCE(sat.orderqty, '')
+    AND COALESCE(so.unitprice, '') != COALESCE(sat.unitprice, '')
+    AND COALESCE(so.unitpricediscount, '') != COALESCE(sat.unitpricediscount, '')
 

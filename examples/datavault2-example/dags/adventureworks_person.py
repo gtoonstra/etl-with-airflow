@@ -25,18 +25,19 @@ args = {
     'owner': 'airflow',
     'start_date': airflow.utils.dates.days_ago(1),
     'provide_context': True,
+    # We want to maintain chronological order when loading the datavault
     'depends_on_past': True
 }
 
 dag = airflow.DAG(
-    'adventureworks_product',
+    'adventureworks_person',
     schedule_interval="@daily",
     dagrun_timeout=timedelta(minutes=60),
     template_searchpath='/usr/local/airflow/sql',
     default_args=args,
     max_active_runs=1)
 
-RECORD_SOURCE = 'adventureworks.product'
+RECORD_SOURCE = 'adventureworks.person'
 
 staging_done = DummyOperator(
     task_id='staging_done',
@@ -51,7 +52,7 @@ sats_done =  DummyOperator(
     task_id='sats_done',
     dag=dag)
 
-
+# A function helps to generalize the parameters
 def create_staging_operator(sql, hive_table, record_source=RECORD_SOURCE):
     t1 = StagePostgresToHiveOperator(
         sql=sql,
@@ -80,7 +81,6 @@ def create_hub_operator(hql, hive_table):
     t1 >> hubs_done
     return t1
 
-
 def create_link_operator(hql, hive_table):
     t1 = HiveOperator(
         hql=hql,
@@ -92,7 +92,6 @@ def create_link_operator(hql, hive_table):
     hubs_done >> t1
     t1 >> links_done
     return t1
-
 
 def create_satellite_operator(hql, hive_table):
     t1 = HiveOperator(
@@ -106,15 +105,23 @@ def create_satellite_operator(hql, hive_table):
     t1 >> sats_done
     return t1
 
-
 # staging
-create_staging_operator(sql='staging/product.sql', hive_table='product')
+create_staging_operator(sql='staging/address.sql', hive_table='address')
+create_staging_operator(sql='staging/countryregion.sql', hive_table='countryregion')
+create_staging_operator(sql='staging/person.sql', hive_table='person')
+create_staging_operator(sql='staging/stateprovince.sql', hive_table='stateprovince')
 
 # hubs
-create_hub_operator('loading/hub_product.hql', 'hub_product')
+create_hub_operator('loading/hub_address.hql', 'hub_address')
+create_hub_operator('loading/ref_countryregion.hql', 'ref_countryregion')
+create_hub_operator('loading/hub_person.hql', 'hub_person')
+
+# links
+create_link_operator('loading/link_address_stateprovince.hql', 'link_address_stateprovince')
 
 # satellites
-create_satellite_operator('loading/sat_product.hql', 'sat_product')
+create_satellite_operator('loading/sat_address.hql', 'sat_address')
+create_satellite_operator('loading/sat_person.hql', 'sat_person')
 
 
 if __name__ == "__main__":

@@ -23,7 +23,7 @@ from airflow.models import Variable
 
 args = {
     'owner': 'airflow',
-    'start_date': airflow.utils.dates.days_ago(7),
+    'start_date': airflow.utils.dates.days_ago(1),
     'provide_context': True,
     # We want to maintain chronological order when loading the datavault
     'depends_on_past': True
@@ -106,33 +106,40 @@ def create_satellite_operator(hql, hive_table):
     return t1
 
 # staging
-create_staging_operator(
-    sql='staging/salesorderheader.sql',
-    hive_table='salesorderheader')
-create_staging_operator(
-    sql='staging/salesreason.sql',
-    hive_table='salesreason')
-create_staging_operator(
-    sql='staging/salesorderheadersalesreason.sql',
-    hive_table='salesorderheadersalesreason')
-create_staging_operator(
-    sql='staging/salesorderdetail.sql',
-    hive_table='salesorderdetail')
-create_staging_operator(
-    sql='staging/specialoffer.sql',
-    hive_table='specialoffer')
+create_staging_operator(sql='staging/creditcard.sql', hive_table='creditcard')
+create_staging_operator(sql='staging/currency.sql', hive_table='currency')
+create_staging_operator(sql='staging/currencyrate.sql', hive_table='currencyrate')
+create_staging_operator(sql='staging/customer.sql', hive_table='customer')
+create_staging_operator(sql='staging/salesorderdetail.sql', hive_table='salesorderdetail')
+create_staging_operator(sql='staging/salesorderheader.sql', hive_table='salesorderheader')
+create_staging_operator(sql='staging/salesorderheadersalesreason.sql', hive_table='salesorderheadersalesreason')
+create_staging_operator(sql='staging/salesreason.sql', hive_table='salesreason')
+create_staging_operator(sql='staging/salesterritory.sql', hive_table='salesterritory')
+create_staging_operator(sql='staging/specialoffer.sql', hive_table='specialoffer')
 
 # hubs
+create_hub_operator('loading/hub_creditcard.hql', 'hub_creditcard')
+create_hub_operator('loading/hub_currency.hql', 'hub_currency')
+create_hub_operator('loading/hub_customer.hql', 'hub_customer')
 create_hub_operator('loading/hub_salesorder.hql', 'hub_salesorder')
+create_hub_operator('loading/hub_salesreason.hql', 'hub_salesreason')
+create_hub_operator('loading/hub_salesterritory.hql', 'hub_salesterritory')
 create_hub_operator('loading/hub_specialoffer.hql', 'hub_specialoffer')
 
 # links
+create_link_operator('loading/link_currencyrate.hql', 'link_currencyrate')
 create_link_operator('loading/link_salesorderdetail.hql', 'link_salesorderdetail')
+create_link_operator('loading/link_salesorderreason.hql', 'link_salesorderreason')
+create_link_operator('loading/link_salesorderterritory.hql', 'link_salesorderterritory')
 
 # satellites
+create_satellite_operator('loading/sat_creditcard.hql', 'sat_creditcard')
+create_satellite_operator('loading/sat_currency.hql', 'sat_currency')
+create_satellite_operator('loading/sat_customer.hql', 'sat_customer')
 create_satellite_operator('loading/sat_salesorder.hql', 'sat_salesorder')
 create_satellite_operator('loading/sat_salesorderdetail.hql', 'sat_salesorderdetail')
-
+create_satellite_operator('loading/sat_salesreason.hql', 'sat_salesreason')
+create_satellite_operator('loading/sat_salesorderterritory.hql', 'sat_salesorderterritory')
 
 if __name__ == "__main__":
     dag.cli()

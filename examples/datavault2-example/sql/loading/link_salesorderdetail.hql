@@ -5,8 +5,7 @@ SELECT DISTINCT
     sod.hkey_specialoffer,
     sod.hkey_product,
     sod.record_source,
-    sod.load_dtm,
-    sod.salesorderdetailid
+    sod.load_dtm
 FROM
            advworks_staging.salesorderdetail_{{ts_nodash}} sod
 WHERE

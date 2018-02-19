@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS sat_salesorder (
+CREATE TABLE IF NOT EXISTS dv_raw.sat_salesorder (
       hkey_salesorder        STRING
     , load_dtm               TIMESTAMP
     , load_end_dtm           TIMESTAMP
