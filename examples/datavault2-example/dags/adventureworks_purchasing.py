@@ -52,6 +52,10 @@ sats_done =  DummyOperator(
     task_id='sats_done',
     dag=dag)
 
+staging_done >> hubs_done
+hubs_done >> links_done
+links_done >> sats_done
+
 # A function helps to generalize the parameters
 def create_staging_operator(sql, hive_table, record_source=RECORD_SOURCE):
     t1 = StagePostgresToHiveOperator(
