@@ -93,6 +93,18 @@ def create_link_operator(hql, hive_table):
     t1 >> links_done
     return t1
 
+def create_satellite_operator(hql, hive_table):
+    t1 = HiveOperator(
+        hql=hql,
+        hive_cli_conn_id='hive_datavault_raw',
+        schema='dv_raw',
+        task_id=hive_table,
+        dag=dag)
+
+    links_done >> t1
+    t1 >> sats_done
+    return t1
+
 # staging
 create_staging_operator(
     sql='staging/salesorderheader.sql',
@@ -116,6 +128,10 @@ create_hub_operator('loading/hub_specialoffer.hql', 'hub_specialoffer')
 
 # links
 create_link_operator('loading/link_salesorderdetail.hql', 'link_salesorderdetail')
+
+# satellites
+create_satellite_operator('loading/sat_salesorder.hql', 'sat_salesorder')
+create_satellite_operator('loading/sat_salesorderdetail.hql', 'sat_salesorderdetail')
 
 
 if __name__ == "__main__":
