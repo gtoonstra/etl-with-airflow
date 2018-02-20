@@ -57,6 +57,13 @@ as described by Ralph Inmon, years ago.
 
 .. image:: img/dataflow.jpeg
 
+There are 5 dags in total. One dag starting with "init_" is just to bootstrap the example, you wouldn't
+see this DAG in a production situation, because you'd typically use CI tools + other tools to maintain your
+schemas and you'd do the connection management in a different way. So ignore that DAG.
+
+The other DAGs are organized by schema in the source system and propagate the data from staging to their
+relevant hubs, links, satellites and reference tables.
+
 Staging flow
 ------------
 
@@ -185,22 +192,24 @@ Important design principles to focus on:
 Data vault loading flow
 -----------------------
 
-Now that data is in staging, it is time to start loading the staging data into datavault. 
+Now that data is in staging, it is time to start loading the staging data into datavault. Here's a diagram that demonstrates the strategy:
 
-Here an important design decision was made:
+.. image:: img/loading_strategy.jpg
+
+An important design decision has been made in this process:
 
 *Getting the business key hashes for all foreign key is a challenge and I opted to generate all
 hashes from the source database using INNER JOINs. The reason is that I'm assuming a CDC slave 
 database system that has no other load and good optimization for querying and joining data on subselects
 of the driving table.*
 
-I see three different possibilities:
+I think there are three possibilities to resolve this:
 
 * Generate hashes for all primary+foreign keys from the source system (as in this implementation). The rationale is that surrogate sequence keys frequently used in an RDBMS should only have meaning within the context of that RDBMS, so it is important to apply business keys to business entities as soon as possible.
 * Generate hashes for those identified business keys you happen to come across and then use more elaborate joins on the data vault (even joining on satellites in cases).
 * Create a cache/lookup table for each source system in the staging area that then becomes an integral part of your data warehouse. The idea is to dissociate the surrogate key from the source system and convert that into a hash without adding significant load on the source system. The rationale is that the data warehouse needs the hash key in order to operate, but the source system has given all the data the DWH is asking for. The DWH itself should be responsible for caching and deliverying the hash key that is needed.
 
-This is the block of code significant for the loading part:
+This is a block template of code significant for the loading part:
 
 .. code-block:: python
 
@@ -293,9 +302,9 @@ Loading a link concerns itself with tying some hubs together, so the number of l
             AND     l.hkey_product = sod.hkey_product
         )
 
-Loading satellite is the point where chronological ordering becomes truly important. If we don't get the load cycles in chronological order for hubs and links then the "load_dtm" for them will be wrong, but functionally the data vault should keep operating.
+Loading satellite is the point where chronological ordering becomes truly important. If we don't get the load cycles in chronological order for hubs and links then the "load_dtm" for them will be wrong, but functionally the data vault should keep operating. Why is this only relevant for satellites?  Because hubs and links do not have 'rate-of-change'. The links document relationships, but these do not change over time, except for their supposed effectivity. Hubs document the presence of business keys, but these do not change over time, except for their supposed effectivity. Only satellites have a rate-of-change associated with them, which is why they have start and end dates. It is possible that a business key or relation gets deleted in the source system. In our our datavault we'd like to maintain the data there (we never delete except for corruption / resolving incidents). The way how that is done is through "effectivity" tables, which are start/end dates in a table connected to the hub or link that record over which time that hub or link should be active.
 
-For satellites, the chronological ordering determines the version of the entity at a specific time, so it affects what the most current version would look like now. An objective is to avoid loading duplicates, which is the reason we look at characteristics that warrant a new version of the satellite or not. 
+For satellites, the chronological ordering determines the version of the entity at a specific time, so it affects what the most current version would look like now. This is why they have to be loaded in chronological order, because if they were not, the last active record would be different and the active periods would probably look skewed. Another objective for loading it in chronological order is to eliminate true duplicates; if the records come in fast and do not have a chronological order than either true duplicates are not always detected or un-true duplicates are detected and records get eliminated.
 
 Splitting a satellite is a common practice to record data that has different rates of change. For example, if a table has 40 columns as 20 columns change rapidly and 20 more slowly, then if we were to keep everything in the same table, we'd accumulate data twice as fast. By splitting it into 2 separate tables we can keep the detailed changes to a minimum. This is the typical stanza for loading a satellite. Pay attention to how in Hive you can't specify destination columns. If you keep staging data in the same table you'd also have an additional WHERE clause that specifies `load_dtm = xxxxx`.
 
