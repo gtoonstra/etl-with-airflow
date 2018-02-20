@@ -34,6 +34,7 @@ args = {
 
 ADVWORKS_STAGING = 'advworks_staging'
 DATAVAULT = 'dv_raw'
+DV_TEMP = 'dv_temp'
 
 
 def init_datavault2_example():
@@ -103,6 +104,19 @@ def init_datavault2_example():
                          "auth": "none",
                          "use_beeline": "true"})})
 
+    create_new_conn(session,
+                    {"conn_id": "hive_datavault_temp",
+                     "conn_type": "hive_cli",
+                     "host": "hive",
+                     "schema": 'dv_temp',
+                     "port": 10000,
+                     "login": "cloudera",
+                     "password": "cloudera",
+                     "extra": json.dumps(
+                        {"hive_cli_params": "",
+                         "auth": "none",
+                         "use_beeline": "true"})})
+
     session.close()
 
 dag = airflow.DAG(
@@ -129,6 +143,12 @@ t3 = HiveOperator(task_id='create_dv_database',
                   hql='CREATE DATABASE IF NOT EXISTS {0}'.format(DATAVAULT),
                   dag=dag)
 
+t4 = HiveOperator(task_id='create_dv_temp',
+                  hive_cli_conn_id='hive_default',
+                  schema='default',
+                  hql='CREATE DATABASE IF NOT EXISTS {0}'.format(DV_TEMP),
+                  dag=dag)
+
 hubs_done = DummyOperator(
     task_id='hubs_done',
     dag=dag)
@@ -149,63 +169,63 @@ def create_table(hql, tablename, upstream, downstream):
     t >> downstream
 
 
-t1 >> t2 >> t3
+t1 >> t2 >> t3 >> t4
 
 # hubs
 create_table(
     hql='ddl/hub_address.hql',
     tablename='hub_address',
-    upstream=t3,
+    upstream=t4,
     downstream=hubs_done)
 create_table(
     hql='ddl/hub_creditcard.hql',
     tablename='hub_creditcard',
-    upstream=t3,
+    upstream=t4,
     downstream=hubs_done)
 create_table(
     hql='ddl/hub_currency.hql',
     tablename='hub_currency',
-    upstream=t3,
+    upstream=t4,
     downstream=hubs_done)
 create_table(
     hql='ddl/hub_customer.hql',
     tablename='hub_customer',
-    upstream=t3,
+    upstream=t4,
     downstream=hubs_done)
 create_table(
     hql='ddl/hub_person.hql',
     tablename='hub_person',
-    upstream=t3,
+    upstream=t4,
     downstream=hubs_done)
 create_table(
     hql='ddl/hub_product.hql',
     tablename='hub_product',
-    upstream=t3,
+    upstream=t4,
     downstream=hubs_done)
 create_table(
     hql='ddl/hub_salesorder.hql',
     tablename='hub_salesorder',
-    upstream=t3,
+    upstream=t4,
     downstream=hubs_done)
 create_table(
     hql='ddl/hub_salesreason.hql',
     tablename='hub_salesreason',
-    upstream=t3,
+    upstream=t4,
     downstream=hubs_done)
 create_table(
     hql='ddl/hub_salesterritory.hql',
     tablename='hub_salesterritory',
-    upstream=t3,
+    upstream=t4,
     downstream=hubs_done)
 create_table(
     hql='ddl/hub_shipmethod.hql',
     tablename='hub_shipmethod',
-    upstream=t3,
+    upstream=t4,
     downstream=hubs_done)
 create_table(
     hql='ddl/hub_specialoffer.hql',
     tablename='hub_specialoffer',
-    upstream=t3,
+    upstream=t4,
     downstream=hubs_done)
 
 # links
