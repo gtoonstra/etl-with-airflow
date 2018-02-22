@@ -1,3 +1,6 @@
+DROP TABLE dv_star.dim_order;
+
+CREATE TABLE dv_star.dim_order AS
 SELECT
           hub.hkey_salesorder
         , hub.salesorderid

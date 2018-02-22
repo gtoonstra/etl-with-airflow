@@ -35,6 +35,7 @@ args = {
 ADVWORKS_STAGING = 'advworks_staging'
 DATAVAULT = 'dv_raw'
 DV_TEMP = 'dv_temp'
+DV_STAR = 'dv_star'
 
 
 def init_datavault2_example():
@@ -117,6 +118,18 @@ def init_datavault2_example():
                          "auth": "none",
                          "use_beeline": "true"})})
 
+    create_new_conn(session,
+                    {"conn_id": "hive_dv_star",
+                     "conn_type": "hive_cli",
+                     "host": "hive",
+                     "schema": 'dv_star',
+                     "port": 10000,
+                     "login": "cloudera",
+                     "password": "cloudera",
+                     "extra": json.dumps(
+                        {"hive_cli_params": "",
+                         "auth": "none",
+                         "use_beeline": "true"})})
     session.close()
 
 dag = airflow.DAG(
@@ -149,6 +162,12 @@ t4 = HiveOperator(task_id='create_dv_temp',
                   hql='CREATE DATABASE IF NOT EXISTS {0}'.format(DV_TEMP),
                   dag=dag)
 
+t5 = HiveOperator(task_id='create_dv_star',
+                  hive_cli_conn_id='hive_default',
+                  schema='default',
+                  hql='CREATE DATABASE IF NOT EXISTS {0}'.format(DV_STAR),
+                  dag=dag)
+
 hubs_done = DummyOperator(
     task_id='hubs_done',
     dag=dag)
@@ -169,7 +188,7 @@ def create_table(hql, tablename, upstream, downstream):
     t >> downstream
 
 
-t1 >> t2 >> t3 >> t4
+t1 >> t2 >> t3 >> t4 >> t5
 
 # hubs
 create_table(

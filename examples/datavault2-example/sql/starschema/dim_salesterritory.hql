@@ -1,3 +1,6 @@
+DROP TABLE dv_star.dim_salesterritory;
+
+CREATE TABLE dv_star.dim_salesterritory AS
 SELECT
           hub.hkey_salesterritory
         , hub.name

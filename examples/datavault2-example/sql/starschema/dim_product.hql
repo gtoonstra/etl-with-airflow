@@ -1,3 +1,6 @@
+DROP TABLE dv_star.dim_product;
+
+CREATE TABLE dv_star.dim_product AS
 SELECT
           hub.hkey_product
         , hub.productnumber

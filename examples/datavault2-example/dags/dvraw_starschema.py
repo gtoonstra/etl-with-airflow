@@ -35,23 +35,29 @@ dag = airflow.DAG(
     default_args=args,
     max_active_runs=1)
 
+dimensions_done =  DummyOperator(
+    task_id='dimensions_done',
+    dag=dag)
 starschema_done =  DummyOperator(
     task_id='starschema_done',
     dag=dag)
+dimensions_done >> starschema_done
 
-def create_operator(hql, hive_table):
+def create_operator(hql, hive_table, prev_id, next_id):
     t = HiveOperator(
         hql=hql,
         hive_cli_conn_id='hive_datavault_raw',
         schema='dv_raw',
         task_id='star_{0}'.format(hive_table),
         dag=dag)
-    t >> starschema_done
+    t >> next_id
+    if prev_id is not None:
+        prev_id >> t
 
-create_operator('starschema/dim_product.hql', 'dim_product')
-create_operator('starschema/dim_salesterritory.hql', 'dim_salesterritory')
-create_operator('starschema/dim_order.hql', 'dim_order')
-
+create_operator('starschema/dim_product.hql', 'dim_product', None, dimensions_done)
+create_operator('starschema/dim_salesterritory.hql', 'dim_salesterritory', None, dimensions_done)
+create_operator('starschema/dim_order.hql', 'dim_order', None, dimensions_done)
+create_operator('starschema/fact_orderdetail.hql', 'fact_orderdetail', dimensions_done, starschema_done)
 
 if __name__ == "__main__":
     dag.cli()
