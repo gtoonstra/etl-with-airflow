@@ -4,7 +4,6 @@ CREATE TABLE dv_star.dim_salesterritory AS
 SELECT
           hub.hkey_salesterritory
         , hub.name
-        , sat.territoryid
         , sat.territory_group
         , sat.salesytd
         , sat.saleslastyear

@@ -117,8 +117,9 @@ create_staging_operator(sql='staging/stateprovince.sql', hive_table='stateprovin
 
 # hubs
 create_hub_operator('loading/hub_address.hql', 'hub_address')
-create_hub_operator('loading/ref_countryregion.hql', 'ref_countryregion')
 create_hub_operator('loading/hub_person.hql', 'hub_person')
+create_hub_operator('loading/hub_stateprovince.hql', 'hub_stateprovince')
+create_hub_operator('loading/ref_countryregion.hql', 'ref_countryregion')
 
 # links
 create_link_operator('loading/link_address_stateprovince.hql', 'link_address_stateprovince')
@@ -126,6 +127,7 @@ create_link_operator('loading/link_address_stateprovince.hql', 'link_address_sta
 # satellites
 create_satellite_operator('loading/sat_address.hql', 'sat_address')
 create_satellite_operator('loading/sat_person.hql', 'sat_person')
+create_satellite_operator('loading/sat_stateprovince.hql', 'sat_stateprovince')
 
 
 if __name__ == "__main__":

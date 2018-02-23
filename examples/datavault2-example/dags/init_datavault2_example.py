@@ -246,6 +246,11 @@ create_table(
     tablename='hub_specialoffer',
     upstream=t4,
     downstream=hubs_done)
+create_table(
+    hql='ddl/hub_stateprovince.hql',
+    tablename='hub_stateprovince',
+    upstream=t4,
+    downstream=hubs_done)
 
 # links
 create_table(
@@ -330,5 +335,10 @@ create_table(
 create_table(
     hql='ddl/sat_shipmethod.hql',
     tablename='sat_shipmethod',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_stateprovince.hql',
+    tablename='sat_stateprovince',
     upstream=links_done,
     downstream=all_done)

@@ -76,6 +76,7 @@ create_operator_array('postupdates/sat_salesorderdetail.hql', 'sat_salesorderdet
 create_operator_array('postupdates/sat_salesreason.hql', 'sat_salesreason')
 create_operator_array('postupdates/sat_salesterritory.hql', 'sat_salesterritory')
 create_operator_array('postupdates/sat_shipmethod.hql', 'sat_shipmethod')
+create_operator_array('postupdates/sat_stateprovince.hql', 'sat_stateprovince')
 
 
 if __name__ == "__main__":
