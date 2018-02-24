@@ -54,10 +54,10 @@ def create_operator(hql, hive_table, prev_id, next_id):
     if prev_id is not None:
         prev_id >> t
 
+create_operator('starschema/dim_address.hql', 'dim_address', None, dimensions_done)
 create_operator('starschema/dim_product.hql', 'dim_product', None, dimensions_done)
 create_operator('starschema/dim_salesterritory.hql', 'dim_salesterritory', None, dimensions_done)
-create_operator('starschema/dim_order.hql', 'dim_order', None, dimensions_done)
-create_operator('starschema/dim_address.hql', 'dim_address', None, dimensions_done)
+create_operator('starschema/dim_salesorder.hql', 'dim_salesorder', None, dimensions_done)
 create_operator('starschema/fact_orderdetail.hql', 'fact_orderdetail', dimensions_done, starschema_done)
 
 if __name__ == "__main__":

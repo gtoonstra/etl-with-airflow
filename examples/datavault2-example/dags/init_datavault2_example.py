@@ -259,8 +259,18 @@ create_table(
     upstream=hubs_done,
     downstream=links_done)
 create_table(
-    hql='ddl/link_currencyrate.hql',
-    tablename='link_currencyrate',
+    hql='ddl/link_salesorder_address.hql',
+    tablename='link_salesorder_address',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
+    hql='ddl/link_salesorder_creditcard.hql',
+    tablename='link_salesorder_creditcard',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
+    hql='ddl/link_salesorder_currencyrate.hql',
+    tablename='link_salesorder_currencyrate',
     upstream=hubs_done,
     downstream=links_done)
 create_table(

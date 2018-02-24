@@ -35,8 +35,21 @@ SELECT
             , LTRIM(RTRIM(COALESCE(CAST(a2.addressline1 as varchar), ''))), ';'
             , LTRIM(RTRIM(COALESCE(CAST(a2.addressline2 as varchar), '')))
           ) as hkey_address_shiptoaddressid
+        , CONCAT(
+              LTRIM(RTRIM(COALESCE(CAST(soh.salesorderid as varchar), ''))), ';'
+            , LTRIM(RTRIM(COALESCE(CAST(a1.postalcode as varchar), ''))), ';'
+            , LTRIM(RTRIM(COALESCE(CAST(a1.addressline1 as varchar), ''))), ';'
+            , LTRIM(RTRIM(COALESCE(CAST(a1.addressline2 as varchar), ''))), ';'
+            , LTRIM(RTRIM(COALESCE(CAST(a2.postalcode as varchar), ''))), ';'
+            , LTRIM(RTRIM(COALESCE(CAST(a2.addressline1 as varchar), ''))), ';'
+            , LTRIM(RTRIM(COALESCE(CAST(a2.addressline2 as varchar), '')))
+          ) as hkey_salesorder_address
         , LTRIM(RTRIM(COALESCE(CAST(sm.name as varchar), ''))) as hkey_shipmethod
         , LTRIM(RTRIM(COALESCE(CAST(cc.cardnumber as varchar), ''))) as hkey_creditcard
+        , CONCAT(
+              LTRIM(RTRIM(COALESCE(CAST(soh.salesorderid as varchar), ''))), ';'
+            , LTRIM(RTRIM(COALESCE(CAST(cc.cardnumber as varchar), '')))
+          ) as hkey_salesordercreditcard
         , CONCAT(
               LTRIM(RTRIM(COALESCE(CAST(cr.currencyratedate as varchar), ''))), ';'
             , LTRIM(RTRIM(COALESCE(CAST(cr.fromcurrencycode as varchar), ''))), ';'

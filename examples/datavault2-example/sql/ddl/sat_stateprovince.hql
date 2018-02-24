@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS dv_raw.sat_stateprovince (
-      hkey_shipmethod           STRING
+      hkey_stateprovince        STRING
     , load_dtm                  TIMESTAMP
     , load_end_dtm              TIMESTAMP
     , record_source             STRING

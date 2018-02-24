@@ -1,4 +1,4 @@
-INSERT INTO TABLE dv_raw.link_currencyrate
+INSERT INTO TABLE dv_raw.link_salesorder_currencyrate
 SELECT DISTINCT
     cr.hkey_currencyrate,
     cr.hkey_currency_fromcurrencycode,
@@ -11,7 +11,7 @@ WHERE
     NOT EXISTS (
         SELECT 
                 l.hkey_currencyrate
-        FROM    dv_raw.link_currencyrate l
+        FROM    dv_raw.link_salesorder_currencyrate l
         WHERE 
                 l.hkey_currency_fromcurrencycode = cr.hkey_currency_fromcurrencycode
         AND     l.hkey_currency_tocurrencycode = cr.hkey_currency_tocurrencycode

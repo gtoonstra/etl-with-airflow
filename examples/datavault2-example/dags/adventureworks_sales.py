@@ -131,7 +131,9 @@ create_hub_operator('loading/hub_salesterritory.hql', 'hub_salesterritory')
 create_hub_operator('loading/hub_specialoffer.hql', 'hub_specialoffer')
 
 # links
-create_link_operator('loading/link_currencyrate.hql', 'link_currencyrate')
+create_link_operator('loading/link_salesorder_address.hql', 'link_salesorder_address')
+create_link_operator('loading/link_salesorder_creditcard.hql', 'link_salesorder_creditcard')
+create_link_operator('loading/link_salesorder_currencyrate.hql', 'link_salesorder_currencyrate')
 create_link_operator('loading/link_salesorderdetail.hql', 'link_salesorderdetail')
 create_link_operator('loading/link_salesorderreason.hql', 'link_salesorderreason')
 create_link_operator('loading/link_salesorderterritory.hql', 'link_salesorderterritory')

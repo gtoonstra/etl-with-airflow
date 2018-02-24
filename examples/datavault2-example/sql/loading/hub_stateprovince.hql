@@ -1,12 +1,19 @@
 INSERT INTO TABLE dv_raw.hub_stateprovince
 SELECT DISTINCT
-    so.hkey_specialoffer,
-    so.record_source,
-    so.load_dtm,
-    sp.stateprovinceid
+    sp.hkey_stateprovince,
+    sp.record_source,
+    sp.load_dtm,
+    sp.stateprovincecode,
+    sp.countryregioncode
 FROM
-    advworks_staging.stateprovince_{{ts_nodash}} so
+    advworks_staging.stateprovince_{{ts_nodash}} sp
 WHERE
-    so.stateprovinceid NOT IN (
-        SELECT hub.stateprovinceid FROM dv_raw.hub_stateprovince hub
+    NOT EXISTS (
+        SELECT 
+                hub.hkey_stateprovince 
+        FROM 
+                dv_raw.hub_stateprovince hub
+        WHERE
+                hub.stateprovincecode = sp.stateprovincecode
+        AND     hub.countryregioncode = sp.countryregioncode
     )
