@@ -20,7 +20,7 @@ INNER JOIN  dv_raw.link_salesorder_address soa ON soa.hkey_salesorder = link.hke
 INNER JOIN  dv_star.dim_address dba ON dba.hkey_address = soa.hkey_address_billtoaddressid
 INNER JOIN  dv_star.dim_address dsa ON dsa.hkey_address = soa.hkey_address_shiptoaddressid
 INNER JOIN  dv_raw.link_salesorderterritory sot ON sot.hkey_salesorder = link.hkey_salesorder
-LEFT JOIN  dv_raw.link_salesorder_currencyrate socr ON socr.hkey_salesorder = link.hkey_salesorder
+LEFT  JOIN  dv_raw.link_salesorder_currencyrate socr ON socr.hkey_salesorder = link.hkey_salesorder
 LEFT  JOIN  dv_star.dim_currency dc ON dc.hkey_currencyrate = socr.hkey_currencyrate
 WHERE
-            dc.currencyratedate = dso.orderdate
+            (dc.currencyratedate IS NULL OR dc.currencyratedate = dso.orderdate)

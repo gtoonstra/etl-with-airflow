@@ -372,4 +372,15 @@ Future considerations
 What is not shown in this example and which should be considered in real world scenarios:
 
 * Dealing with "delete" records in data sources. You'd typically apply these as 'effectivity' records on hubs and links.
-* 
+
+Data issues
+-----------
+
+The adventure works database isn't the best designed OLTP database ever. Throughout querying and working with the data I found the following data issues:
+
+* Address missed a row in the destination data. "Everett" has two records in address and the only difference is the stateprovinceid. Either the boundaries shifted or there was a correction made in the data.
+* There are some 700 personid's missing for "customer" in the source data. Looks like it malfunctioned and never got fixed?
+* 209 products do not have sub categories, so I allowed that to be NULLable.
+* There can be multiple sales reasons for a salesorder (as per the design). There is a hard business rule when constructing the dim_salesorder which picks the first sales reason by salesreasonid ascending to apply to the dimension.
+* Because of an incomplete business key in address multiple records get created in the dim_address table (4 in total). This table gets cartesian joined again to populate the fact, which leads to a total of 16 records too many for a specific salesorder ('16B735DD67E11B7F9028EF9B4571CF25D1017CF1')
+* Data has not been checked for consistency, correctness and bugs may exist anywhere in the code.

@@ -8,7 +8,8 @@ SELECT DISTINCT
 FROM
            advworks_staging.salesorderheader_{{ts_nodash}} soh
 WHERE
-    NOT EXISTS (
+    soh.creditcardid IS NOT NULL 
+AND NOT EXISTS (
         SELECT 
                 l.hkey_salesordercreditcard
         FROM    dv_raw.link_salesorder_creditcard l

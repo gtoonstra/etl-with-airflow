@@ -27,5 +27,5 @@ SELECT
     , LTRIM(RTRIM(COALESCE(CAST(p.weightunitmeasurecode as varchar), ''))) as hkey_unitmeasure_weightunitmeasurecode
     , LTRIM(RTRIM(COALESCE(CAST(pc.name as varchar), ''))) as hkey_productsubcategory
 FROM
-            production.product p
-INNER JOIN  production.productsubcategory pc ON p.productsubcategoryid = pc.productsubcategoryid
+           production.product p
+LEFT JOIN  production.productsubcategory pc ON p.productsubcategoryid = pc.productsubcategoryid
