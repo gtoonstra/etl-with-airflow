@@ -104,6 +104,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#end-dating">End dating</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#star-schema">Star Schema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#future-considerations">Future considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-issues">Data issues</a></li>
 </ul>
 </li>
 </ul>
@@ -480,7 +481,18 @@ a bit large than regenerating it from scratch will be very costly to do, if not 
 <p>What is not shown in this example and which should be considered in real world scenarios:</p>
 <ul class="simple">
 <li>Dealing with &#8220;delete&#8221; records in data sources. You&#8217;d typically apply these as &#8216;effectivity&#8217; records on hubs and links.</li>
-<li></li>
+</ul>
+</div>
+<div class="section" id="data-issues">
+<h2>Data issues<a class="headerlink" href="#data-issues" title="Permalink to this headline">¶</a></h2>
+<p>The adventure works database isn&#8217;t the best designed OLTP database ever. Throughout querying and working with the data I found the following data issues:</p>
+<ul class="simple">
+<li>Address missed a row in the destination data. &#8220;Everett&#8221; has two records in address and the only difference is the stateprovinceid. Either the boundaries shifted or there was a correction made in the data.</li>
+<li>There are some 700 personid&#8217;s missing for &#8220;customer&#8221; in the source data. Looks like it malfunctioned and never got fixed?</li>
+<li>209 products do not have sub categories, so I allowed that to be NULLable.</li>
+<li>There can be multiple sales reasons for a salesorder (as per the design). There is a hard business rule when constructing the dim_salesorder which picks the first sales reason by salesreasonid ascending to apply to the dimension.</li>
+<li>Because of an incomplete business key in address multiple records get created in the dim_address table (4 in total). This table gets cartesian joined again to populate the fact, which leads to a total of 16 records too many for a specific salesorder (&#8216;16B735DD67E11B7F9028EF9B4571CF25D1017CF1&#8217;)</li>
+<li>Data has not been checked for consistency, correctness and bugs may exist anywhere in the code.</li>
 </ul>
 </div>
 </div>
