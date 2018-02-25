@@ -24,7 +24,7 @@ FROM
 INNER JOIN  dv_raw.hub_salesorder hub ON hub.hkey_salesorder = sat.hkey_salesorder
 LEFT JOIN (
     SELECT 
-        ROW_NUMBER() OVER(PARTITION BY solink.hkey_salesorder ORDER BY srhub.salesreasonid ASC) as rank,
+        ROW_NUMBER() OVER(PARTITION BY solink.hkey_salesorder ORDER BY srhub.name ASC) as rank,
         solink.hkey_salesorder,
         satr.name,
         satr.reasontype 
