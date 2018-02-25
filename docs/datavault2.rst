@@ -49,12 +49,20 @@ as described by Ralph Inmon, years ago.
 
 .. image:: img/dataflow.jpeg
 
-There are 5 dags in total. One dag starting with "init_" is just to bootstrap the example, you wouldn't
+There are 3 dags in total. One dag starting with "init_" is just to bootstrap the example, you wouldn't
 see this DAG in a production situation, because you'd typically use CI tools + other tools to maintain your
 schemas and you'd do the connection management in a different way. So ignore that DAG.
 
-The other DAGs are organized by schema in the source system and propagate the data from staging to their
-relevant hubs, links, satellites and reference tables.
+The 'adventureworks' DAG is the main point where five specific flows happen, which are marked by specific milestones:
+
+* Staging
+* Applying staging to hubs
+* Applying staging to links
+* Applying staging to satellites
+* End dating satellites
+
+After the DAG completes, the data warehouse is in a new state and can be requeried to refresh downstream
+data products, for example as would be done with the starschema DAG.
 
 Staging flow
 ------------
@@ -355,3 +363,13 @@ sold product data, applied discounts and some other data depending on the busine
 
 The fact table can rapidly become complex if there is a lot of data to link together. Similar to building the dimension models, consider splitting up the complex queries by using temp tables that are joined together afterwards to compose the full picture.
 
+The example shows how to generate a star schema from scratch without applying incremental changes. If your data vault grows
+a bit large than regenerating it from scratch will be very costly to do, if not impossible within the given timeframe. Refer to the article in this section for a method that shows how to copy the dimension of the day before and union that to new records in the dimension.
+
+Future considerations
+---------------------
+
+What is not shown in this example and which should be considered in real world scenarios:
+
+* Dealing with "delete" records in data sources. You'd typically apply these as 'effectivity' records on hubs and links.
+* 

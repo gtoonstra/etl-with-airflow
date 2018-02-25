@@ -28,7 +28,7 @@ args = {
 }
 
 dag = airflow.DAG(
-    'dvraw_starschema',
+    'starschema',
     schedule_interval="@daily",
     dagrun_timeout=timedelta(minutes=60),
     template_searchpath='/usr/local/airflow/sql',
