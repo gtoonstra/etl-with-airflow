@@ -8,7 +8,7 @@ SELECT DISTINCT
 FROM
            advworks_staging.salesorderheader_{{ts_nodash}} cr
 WHERE
-    soh.currencyrateid IS NOT NULL
+    cr.currencyrateid IS NOT NULL
 AND NOT EXISTS (
         SELECT 
                 l.hkey_salesorder_currencyrate

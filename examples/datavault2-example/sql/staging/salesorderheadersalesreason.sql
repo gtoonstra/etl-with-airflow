@@ -1,6 +1,6 @@
 SELECT
       sohsr.salesorderid
-    , sohsr.salesreasonid
+    , sr.name
     , LTRIM(RTRIM(COALESCE(CAST(sohsr.salesorderid as varchar), ''))) as hkey_salesorder
     , LTRIM(RTRIM(COALESCE(CAST(sr.name as varchar), ''))) as hkey_salesreason
     , CONCAT(
