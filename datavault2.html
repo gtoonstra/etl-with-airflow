@@ -101,6 +101,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#overall-flow">Overall flow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#staging-flow">Staging flow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#data-vault-loading-flow">Data vault loading flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#end-dating">End dating</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#star-schema">Star Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#future-considerations">Future considerations</a></li>
 </ul>
 </li>
 </ul>
@@ -155,17 +158,15 @@
 <p class="first admonition-title">Important</p>
 <p class="last">This example is work in progress...</p>
 </div>
-<p>This is probably the final and most elaborate example of how to use ETL with Apache Airflow.
-As part of this exercise, let&#8217;s build a data warehouse on Google BigQuery with a DataVault
+<p>This is probably most elaborate example of how to use ETL with Apache Airflow.
+As part of this exercise, let&#8217;s build an information mart on Google BigQuery through a DataVault
 built on top of Hive. (Consequently, this example requires a bit more memory and may not fit in a simple machine).
 We&#8217;re going to start a postgres instance that contains the airflow database and another
-database for the adventureworks database created by Microsoft. We&#8217;ll use a Postgres port
-of that.</p>
-<p>The data will be loaded into a Hive instance from there and in Hive we&#8217;ll set up the Data Vault
-structures. Optionally, if you have a Google account you&#8217;d like to try out, you can set up a
+database for a (postgres port) of the adventureworks database often used by Microsoft.</p>
+<p>The data will be staged into Hive and we&#8217;ll run Hive queries to populate the Data Vault
+model. Optionally, if you have a Google account you&#8217;d like to try out, you can set up a
 connection later on and load some flat tables into BigQuery out of the Data Vault as a final
-part of this exercise; that will basically become our information mart.
-Alternatively, let&#8217;s look into building a Kimball model out of it.</p>
+part of this exercise; that will basically become our information mart.</p>
 <p>Note that similar to the Hive example, I&#8217;m using a special build of the puckel docker airflow
 container that contains the jar files for Hadoop, HDFS and Hive.</p>
 <div class="admonition important">
@@ -173,22 +174,18 @@ container that contains the jar files for Hadoop, HDFS and Hive.</p>
 <p class="last">The default login for &#8220;Hue&#8221;, the interface for the Cloudera quickstart container running Hive
 is cloudera/cloudera.</p>
 </div>
-<p>We are also going to attempt to output some CSV files that are to be imported into databook.
-What is databook?  It&#8217;s an opensource project I&#8217;m running that attempts to replicate what Airbnb
-made in their &#8220;DataPortal&#8221; description. You can read more about databook here:</p>
-<p><a class="reference external" href="https://github.com/gtoonstra/databook">Databook</a></p>
 <p>Finally, let&#8217;s re-test all the work we did against the ETL principles that I wrote about to see
 if all principles are covered and identify what are open topics to cover for a full-circle solution.</p>
 <div class="section" id="about-datavault">
 <h2>About Datavault<a class="headerlink" href="#about-datavault" title="Permalink to this headline">¶</a></h2>
 <p>In the <a class="reference internal" href="datavault.html"><span class="doc">Data vault</span></a> example, we explained some of the benefits of using a datavaulting methodology
-to build your data warehouse and other rationales. Go there for some of the core reasons why data vaulting
-is such a nice methodology to use in the middle.</p>
+to build your data warehouse and other rationales. Read up there for some of the core reasons why data vaulting
+is such a useful methodology to use in the middle.</p>
 <p>This example uses some other techniques and attempts to implement all the best practices associated with
 data vaulting. The &#8220;2.0&#8221; refers to some improvements that have been made since the first version of the
 methodology came out. One of the primary changes is the use of hashes as a means to improve the parallel
-forward flow of the data going into the final information marts and intermediate processing. I&#8217;ll point out
-where hashing is somewhat problematic.</p>
+forward flow of the data going into the final information marts and intermediate processing. Hashing isn&#8217;t
+necessarily straight-forward in all situations and you should prepare for making some practical design decisions there.</p>
 </div>
 <div class="section" id="overall-flow">
 <h2>Overall flow<a class="headerlink" href="#overall-flow" title="Permalink to this headline">¶</a></h2>
@@ -196,11 +193,19 @@ where hashing is somewhat problematic.</p>
 Here you can see how the Data Vault essentially fulfills the role of the Enterprise Data Warehouse
 as described by Ralph Inmon, years ago.</p>
 <img alt="_images/dataflow.jpeg" src="_images/dataflow.jpeg" />
-<p>There are 5 dags in total. One dag starting with &#8220;<a href="#id1"><span class="problematic" id="id2">init_</span></a>&#8221; is just to bootstrap the example, you wouldn&#8217;t
+<p>There are 3 dags in total. One dag starting with &#8220;<a href="#id1"><span class="problematic" id="id2">init_</span></a>&#8221; is just to bootstrap the example, you wouldn&#8217;t
 see this DAG in a production situation, because you&#8217;d typically use CI tools + other tools to maintain your
 schemas and you&#8217;d do the connection management in a different way. So ignore that DAG.</p>
-<p>The other DAGs are organized by schema in the source system and propagate the data from staging to their
-relevant hubs, links, satellites and reference tables.</p>
+<p>The &#8216;adventureworks&#8217; DAG is the main point where five specific flows happen, which are marked by specific milestones:</p>
+<ul class="simple">
+<li>Staging</li>
+<li>Applying staging to hubs</li>
+<li>Applying staging to links</li>
+<li>Applying staging to satellites</li>
+<li>End dating satellites</li>
+</ul>
+<p>After the DAG completes, the data warehouse is in a new state and can be requeried to refresh downstream
+data products, for example as would be done with the starschema DAG.</p>
 </div>
 <div class="section" id="staging-flow">
 <h2>Staging flow<a class="headerlink" href="#staging-flow" title="Permalink to this headline">¶</a></h2>
@@ -222,7 +227,7 @@ identify the deletes. Both the latter and the CDC solution should be capable to 
 <li>Compute and apply system values:
 * Load date
 * Record source
-* A sequence number, which requires you to think about ordering.
+* A sequence number, which defines the record ordering in the current batch.
 * Hash for all business keys in a record. This is the record of the current table, but also business keys for all foreign keys into that table. The reason why this is important is because all surrogate sequences and primary keys that the source system may have should not have any significance in the data warehouse, unless they are also business keys for that table. This is the reason why I force the staging area to apply the hashes prior to loading it in the raw data vault.
 * (optionally) a hash diff compiled from all or certain attributes in the source data that is used to perform change comparisons to identify duplicates, so we don&#8217;t load records twice.</li>
 <li>Remove true duplicates</li>
@@ -241,7 +246,7 @@ impact on the source system because of the extra joins for each table, but these
 &#8216;somewhere&#8217; and because I believe the source system is where the surrogate keys are relevant, it should be
 resolved from there.</p>
 <p>In the current implementation I&#8217;m using python code to apply the hashing, because it demonstrates that
-hashing is possible even if the database engine doesn&#8217;t implement your hash of interest.</p>
+hashing is possible even if the database engine doesn&#8217;t implement your hash algorithm of choice.</p>
 <div class="admonition important">
 <p class="first admonition-title">Important</p>
 <p class="last">The adventureworks database has some serious design flaws and doesn&#8217;t expose a lot of useful
@@ -322,7 +327,7 @@ it anyway.</p>
 </div>
 <div class="section" id="data-vault-loading-flow">
 <h2>Data vault loading flow<a class="headerlink" href="#data-vault-loading-flow" title="Permalink to this headline">¶</a></h2>
-<p>Now that data is in staging, it is time to start loading the staging data into datavault. Here&#8217;s a diagram that demonstrates the strategy:</p>
+<p>Now that data is in staging, it is time to start loading the staging data into datavault. Use the &#8220;adventureworks_*&#8221; dags for that, there is one for each schema in the database. Here&#8217;s a diagram that demonstrates the strategy:</p>
 <img alt="_images/loading_strategy.jpg" src="_images/loading_strategy.jpg" />
 <p>An important design decision has been made in this process:</p>
 <p><em>Getting the business key hashes for all foreign key is a challenge and I opted to generate all
@@ -439,12 +444,44 @@ LEFT OUTER JOIN dv_raw.sat_salesorderdetail sat ON (
                 sat.hkey_salesorderdetail = so.hkey_salesorderdetail
             AND sat.load_end_dtm IS NULL)
 WHERE
-    COALESCE(so.carriertrackingnumber, &#39;&#39;) != COALESCE(sat.carriertrackingnumber, &#39;&#39;)
-AND COALESCE(so.orderqty, &#39;&#39;) != COALESCE(sat.orderqty, &#39;&#39;)
-AND COALESCE(so.unitprice, &#39;&#39;) != COALESCE(sat.unitprice, &#39;&#39;)
-AND COALESCE(so.unitpricediscount, &#39;&#39;) != COALESCE(sat.unitpricediscount, &#39;&#39;)
+   COALESCE(so.carriertrackingnumber, &#39;&#39;) != COALESCE(sat.carriertrackingnumber, &#39;&#39;)
+OR COALESCE(so.orderqty, &#39;&#39;) != COALESCE(sat.orderqty, &#39;&#39;)
+OR COALESCE(so.unitprice, &#39;&#39;) != COALESCE(sat.unitprice, &#39;&#39;)
+OR COALESCE(so.unitpricediscount, &#39;&#39;) != COALESCE(sat.unitpricediscount, &#39;&#39;)
 </pre></div>
 </div>
+</div>
+<div class="section" id="end-dating">
+<h2>End dating<a class="headerlink" href="#end-dating" title="Permalink to this headline">¶</a></h2>
+<p>The hubs and links do not contain start and end dates, because they record relationships, even relationships that were valid at some point in time. If you need to cater for employees joining, leaving and joining again for example, you should use an &#8220;effectivity&#8221; table connected to the link or hub to cater for that.</p>
+<p>The satellites do have validity dates, because you can have different versions of those. The way how you apply those can differ a bit, because you may not always have the required source data if you don&#8217;t have a change data capture setup. Then you&#8217;d only ever
+see the last version of a record or the records that the source system decided to maintain as history. The date you&#8217;d apply as start/end date could then differ.</p>
+<p>It&#8217;s always very important to maintain the &#8220;load_dtm&#8221; and &#8220;load_end_dtm&#8221; separately as well, because you&#8217;d use that to identify
+data from batches that may have failed for example. If you maintain it, you can always remove data for an entire batch and reload it into the data vault.</p>
+<p>The process of end dating is to apply end dates to records in the satellite tables. For Hive, because we can&#8217;t run updates, we&#8217;ll copy the data to a temp table and then copy it back to the original. We can use windowing functions like LAG/LEAD and PARTITION statements, so we use that to look ahead by one row for each partition to look up the next start date and apply that for the end date.</p>
+<p>When a record for a partition has a NULL end_dtm, then it means it&#8217;s the active record. You could choose to explicitly indicate the active record too.</p>
+</div>
+<div class="section" id="star-schema">
+<h2>Star Schema<a class="headerlink" href="#star-schema" title="Permalink to this headline">¶</a></h2>
+<p>The star schema is built with the help of some multi-join queries. The dimensions are built up first and then
+the fact information is built on top of the dimensions. You don&#8217;t need to build the dimensions with one single query,
+it&#8217;s obviously permissible to run a multi-stage pipeline to get the dimensions built.</p>
+<p>Here&#8217;s a [good article](<a class="reference external" href="https://towardsdatascience.com/a-beginners-guide-to-data-engineering-part-ii-47c4e7cbda71">https://towardsdatascience.com/a-beginners-guide-to-data-engineering-part-ii-47c4e7cbda71</a>) on how Hive is used with dimensional data:</p>
+<p>The dimensions in this example use the original hash key as main key for the dimensional entity and in the case of slowly changing dimensions (where dates are applicable and important), it tags the start date on top of the hash key of the entity to derive a new dimensional key.</p>
+<p>The fact is built on top of one of the measures of interest. Usually, you&#8217;ll find that these are link tables, because they often
+link the entities in a context together. For example, the orderlineitem is a link table, because it links the order data with
+sold product data, applied discounts and some other data depending on the business.</p>
+<p>The fact table can rapidly become complex if there is a lot of data to link together. Similar to building the dimension models, consider splitting up the complex queries by using temp tables that are joined together afterwards to compose the full picture.</p>
+<p>The example shows how to generate a star schema from scratch without applying incremental changes. If your data vault grows
+a bit large than regenerating it from scratch will be very costly to do, if not impossible within the given timeframe. Refer to the article in this section for a method that shows how to copy the dimension of the day before and union that to new records in the dimension.</p>
+</div>
+<div class="section" id="future-considerations">
+<h2>Future considerations<a class="headerlink" href="#future-considerations" title="Permalink to this headline">¶</a></h2>
+<p>What is not shown in this example and which should be considered in real world scenarios:</p>
+<ul class="simple">
+<li>Dealing with &#8220;delete&#8221; records in data sources. You&#8217;d typically apply these as &#8216;effectivity&#8217; records on hubs and links.</li>
+<li></li>
+</ul>
 </div>
 </div>
 
