@@ -5,18 +5,16 @@ Data Vault 2
 
     This example is work in progress...
 
-This is probably the final and most elaborate example of how to use ETL with Apache Airflow.
-As part of this exercise, let's build a data warehouse on Google BigQuery with a DataVault
+This is probably most elaborate example of how to use ETL with Apache Airflow.
+As part of this exercise, let's build an information mart on Google BigQuery through a DataVault
 built on top of Hive. (Consequently, this example requires a bit more memory and may not fit in a simple machine).
 We're going to start a postgres instance that contains the airflow database and another 
-database for the adventureworks database created by Microsoft. We'll use a Postgres port
-of that.
+database for a (postgres port) of the adventureworks database often used by Microsoft.
 
-The data will be loaded into a Hive instance from there and in Hive we'll set up the Data Vault
-structures. Optionally, if you have a Google account you'd like to try out, you can set up a 
+The data will be staged into Hive and we'll run Hive queries to populate the Data Vault
+model. Optionally, if you have a Google account you'd like to try out, you can set up a 
 connection later on and load some flat tables into BigQuery out of the Data Vault as a final 
 part of this exercise; that will basically become our information mart. 
-Alternatively, let's look into building a Kimball model out of it.
 
 Note that similar to the Hive example, I'm using a special build of the puckel docker airflow
 container that contains the jar files for Hadoop, HDFS and Hive.
@@ -26,12 +24,6 @@ container that contains the jar files for Hadoop, HDFS and Hive.
     The default login for "Hue", the interface for the Cloudera quickstart container running Hive 
     is cloudera/cloudera.
 
-We are also going to attempt to output some CSV files that are to be imported into databook.
-What is databook?  It's an opensource project I'm running that attempts to replicate what Airbnb
-made in their "DataPortal" description. You can read more about databook here:
-
-`Databook <https://github.com/gtoonstra/databook>`_
-
 Finally, let's re-test all the work we did against the ETL principles that I wrote about to see
 if all principles are covered and identify what are open topics to cover for a full-circle solution.
 
@@ -39,14 +31,14 @@ About Datavault
 ---------------
 
 In the :doc:`/datavault` example, we explained some of the benefits of using a datavaulting methodology
-to build your data warehouse and other rationales. Go there for some of the core reasons why data vaulting
-is such a nice methodology to use in the middle.
+to build your data warehouse and other rationales. Read up there for some of the core reasons why data vaulting
+is such a useful methodology to use in the middle.
 
 This example uses some other techniques and attempts to implement all the best practices associated with
 data vaulting. The "2.0" refers to some improvements that have been made since the first version of the 
 methodology came out. One of the primary changes is the use of hashes as a means to improve the parallel
-forward flow of the data going into the final information marts and intermediate processing. I'll point out
-where hashing is somewhat problematic.
+forward flow of the data going into the final information marts and intermediate processing. Hashing isn't 
+necessarily straight-forward in all situations and you should prepare for making some practical design decisions there.
 
 Overall flow
 ------------
@@ -87,7 +79,7 @@ Our staging approach for all tables in the adventureworks dataset will be:
 4. Compute and apply system values:
    * Load date
    * Record source
-   * A sequence number, which requires you to think about ordering.
+   * A sequence number, which defines the record ordering in the current batch.
    * Hash for all business keys in a record. This is the record of the current table, but also business keys for all foreign keys into that table. The reason why this is important is because all surrogate sequences and primary keys that the source system may have should not have any significance in the data warehouse, unless they are also business keys for that table. This is the reason why I force the staging area to apply the hashes prior to loading it in the raw data vault.
    * (optionally) a hash diff compiled from all or certain attributes in the source data that is used to perform change comparisons to identify duplicates, so we don't load records twice.
 5. Remove true duplicates
@@ -107,7 +99,7 @@ impact on the source system because of the extra joins for each table, but these
 resolved from there.
 
 In the current implementation I'm using python code to apply the hashing, because it demonstrates that
-hashing is possible even if the database engine doesn't implement your hash of interest.
+hashing is possible even if the database engine doesn't implement your hash algorithm of choice.
 
 .. important::
     The adventureworks database has some serious design flaws and doesn't expose a lot of useful 
@@ -192,7 +184,7 @@ Important design principles to focus on:
 Data vault loading flow
 -----------------------
 
-Now that data is in staging, it is time to start loading the staging data into datavault. Here's a diagram that demonstrates the strategy:
+Now that data is in staging, it is time to start loading the staging data into datavault. Use the "adventureworks_*" dags for that, there is one for each schema in the database. Here's a diagram that demonstrates the strategy:
 
 .. image:: img/loading_strategy.jpg
 
@@ -326,8 +318,40 @@ Splitting a satellite is a common practice to record data that has different rat
                     sat.hkey_salesorderdetail = so.hkey_salesorderdetail
                 AND sat.load_end_dtm IS NULL)
     WHERE
-        COALESCE(so.carriertrackingnumber, '') != COALESCE(sat.carriertrackingnumber, '')
-    AND COALESCE(so.orderqty, '') != COALESCE(sat.orderqty, '')
-    AND COALESCE(so.unitprice, '') != COALESCE(sat.unitprice, '')
-    AND COALESCE(so.unitpricediscount, '') != COALESCE(sat.unitpricediscount, '')
+       COALESCE(so.carriertrackingnumber, '') != COALESCE(sat.carriertrackingnumber, '')
+    OR COALESCE(so.orderqty, '') != COALESCE(sat.orderqty, '')
+    OR COALESCE(so.unitprice, '') != COALESCE(sat.unitprice, '')
+    OR COALESCE(so.unitpricediscount, '') != COALESCE(sat.unitpricediscount, '')
+
+End dating
+----------
+
+The hubs and links do not contain start and end dates, because they record relationships, even relationships that were valid at some point in time. If you need to cater for employees joining, leaving and joining again for example, you should use an "effectivity" table connected to the link or hub to cater for that.
+
+The satellites do have validity dates, because you can have different versions of those. The way how you apply those can differ a bit, because you may not always have the required source data if you don't have a change data capture setup. Then you'd only ever
+see the last version of a record or the records that the source system decided to maintain as history. The date you'd apply as start/end date could then differ.
+
+It's always very important to maintain the "load_dtm" and "load_end_dtm" separately as well, because you'd use that to identify
+data from batches that may have failed for example. If you maintain it, you can always remove data for an entire batch and reload it into the data vault.
+
+The process of end dating is to apply end dates to records in the satellite tables. For Hive, because we can't run updates, we'll copy the data to a temp table and then copy it back to the original. We can use windowing functions like LAG/LEAD and PARTITION statements, so we use that to look ahead by one row for each partition to look up the next start date and apply that for the end date.
+
+When a record for a partition has a NULL end_dtm, then it means it's the active record. You could choose to explicitly indicate the active record too.
+
+Star Schema
+-----------
+
+The star schema is built with the help of some multi-join queries. The dimensions are built up first and then
+the fact information is built on top of the dimensions. You don't need to build the dimensions with one single query,
+it's obviously permissible to run a multi-stage pipeline to get the dimensions built.
+
+Here's a [good article](https://towardsdatascience.com/a-beginners-guide-to-data-engineering-part-ii-47c4e7cbda71) on how Hive is used with dimensional data:
+
+The dimensions in this example use the original hash key as main key for the dimensional entity and in the case of slowly changing dimensions (where dates are applicable and important), it tags the start date on top of the hash key of the entity to derive a new dimensional key.
+
+The fact is built on top of one of the measures of interest. Usually, you'll find that these are link tables, because they often
+link the entities in a context together. For example, the orderlineitem is a link table, because it links the order data with
+sold product data, applied discounts and some other data depending on the business.
+
+The fact table can rapidly become complex if there is a lot of data to link together. Similar to building the dimension models, consider splitting up the complex queries by using temp tables that are joined together afterwards to compose the full picture.
 

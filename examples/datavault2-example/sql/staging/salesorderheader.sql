@@ -73,5 +73,5 @@ INNER JOIN  sales.salesterritory st ON soh.territoryid = st.territoryid
 INNER JOIN  person.address a1 ON soh.billtoaddressid = a1.addressid
 INNER JOIN  person.address a2 ON soh.shiptoaddressid = a2.addressid
 INNER JOIN  purchasing.shipmethod sm ON soh.shipmethodid = sm.shipmethodid
-INNER JOIN  sales.creditcard cc ON soh.creditcardid = cc.creditcardid
-INNER JOIN  sales.currencyrate cr ON soh.currencyrateid = cr.currencyrateid
+LEFT JOIN   sales.creditcard cc ON soh.creditcardid = cc.creditcardid
+LEFT JOIN   sales.currencyrate cr ON soh.currencyrateid = cr.currencyrateid

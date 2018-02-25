@@ -21,8 +21,6 @@ INNER JOIN  dv_star.dim_address dba ON dba.hkey_address = soa.hkey_address_billt
 INNER JOIN  dv_star.dim_address dsa ON dsa.hkey_address = soa.hkey_address_shiptoaddressid
 INNER JOIN  dv_raw.link_salesorderterritory sot ON sot.hkey_salesorder = link.hkey_salesorder
 INNER JOIN  dv_raw.link_salesorder_currencyrate socr ON socr.hkey_salesorder = link.hkey_salesorder
-INNER JOIN  dv_star.dim_currency dc ON dc.hkey_currencyrate = socr.hkey_currencyrate
+LEFT  JOIN  dv_star.dim_currency dc ON dc.hkey_currencyrate = socr.hkey_currencyrate
 WHERE
---            (dba.load_dtm <= dso.orderdate AND dba.load_end_dtm > dso.orderdate)
---AND         (dsa.load_dtm <= dso.shipdate AND dsa.load_end_dtm > dso.shipdate)
-            (dc.currencyratedate <= dso.orderdate AND dc.currencyratedate > dso.orderdate)
+            dc.currencyratedate = dso.orderdate
