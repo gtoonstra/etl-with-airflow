@@ -16,9 +16,9 @@ LEFT OUTER JOIN dv_raw.sat_salesterritory sat ON (
                 sat.hkey_salesterritory = st.hkey_salesterritory
             AND sat.load_end_dtm IS NULL)
 WHERE
-    COALESCE(st.territoryid, '') != COALESCE(sat.territoryid, '')
-AND COALESCE(st.territory_group, '') != COALESCE(sat.territory_group, '')
-AND COALESCE(st.salesytd, '') != COALESCE(sat.salesytd, '')
-AND COALESCE(st.saleslastyear, '') != COALESCE(sat.saleslastyear, '')
-AND COALESCE(st.costytd, '') != COALESCE(sat.costytd, '')
-AND COALESCE(st.costlastyear, '') != COALESCE(sat.costlastyear, '')
+   COALESCE(st.territoryid, '') != COALESCE(sat.territoryid, '')
+OR COALESCE(st.territory_group, '') != COALESCE(sat.territory_group, '')
+OR COALESCE(st.salesytd, '') != COALESCE(sat.salesytd, '')
+OR COALESCE(st.saleslastyear, '') != COALESCE(sat.saleslastyear, '')
+OR COALESCE(st.costytd, '') != COALESCE(sat.costytd, '')
+OR COALESCE(st.costlastyear, '') != COALESCE(sat.costlastyear, '')

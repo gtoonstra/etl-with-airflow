@@ -2,7 +2,7 @@ CREATE TABLE dv_temp.{{params.hive_table}}_temp AS
 SELECT
       a.hkey_product
     , a.load_dtm
-    , LEAD(a.load_dtm) OVER (PARTITION BY a.hkey_product ORDER BY a.load_dtm ASC) as load_end_dtm
+    , LEAD(a.load_dtm, 1, NULL) OVER (PARTITION BY a.hkey_product ORDER BY a.load_dtm ASC) as load_end_dtm
     , a.record_source
     , a.productid
     , a.name

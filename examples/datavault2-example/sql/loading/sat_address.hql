@@ -13,6 +13,6 @@ LEFT OUTER JOIN dv_raw.sat_address sat ON (
                 sat.hkey_address = a.hkey_address
             AND sat.load_end_dtm IS NULL)
 WHERE
-    COALESCE(a.addressid, '') != COALESCE(sat.addressid, '')
-AND COALESCE(a.city, '') != COALESCE(sat.city, '')
-AND COALESCE(a.spatiallocation, '') != COALESCE(sat.spatiallocation, '')
+   COALESCE(a.addressid, '') != COALESCE(sat.addressid, '')
+OR COALESCE(a.city, '') != COALESCE(sat.city, '')
+OR COALESCE(a.spatiallocation, '') != COALESCE(sat.spatiallocation, '')

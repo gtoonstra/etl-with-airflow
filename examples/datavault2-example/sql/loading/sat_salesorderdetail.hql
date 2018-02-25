@@ -14,7 +14,7 @@ LEFT OUTER JOIN dv_raw.sat_salesorderdetail sat ON (
                 sat.hkey_salesorderdetail = so.hkey_salesorderdetail
             AND sat.load_end_dtm IS NULL)
 WHERE
-    COALESCE(so.carriertrackingnumber, '') != COALESCE(sat.carriertrackingnumber, '')
-AND COALESCE(so.orderqty, '') != COALESCE(sat.orderqty, '')
-AND COALESCE(so.unitprice, '') != COALESCE(sat.unitprice, '')
-AND COALESCE(so.unitpricediscount, '') != COALESCE(sat.unitpricediscount, '')
+   COALESCE(so.carriertrackingnumber, '') != COALESCE(sat.carriertrackingnumber, '')
+OR COALESCE(so.orderqty, '') != COALESCE(sat.orderqty, '')
+OR COALESCE(so.unitprice, '') != COALESCE(sat.unitprice, '')
+OR COALESCE(so.unitpricediscount, '') != COALESCE(sat.unitpricediscount, '')

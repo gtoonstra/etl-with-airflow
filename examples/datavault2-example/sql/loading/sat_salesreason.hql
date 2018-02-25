@@ -12,5 +12,5 @@ LEFT OUTER JOIN dv_raw.sat_salesreason sat ON (
                 sat.hkey_salesreason = sr.hkey_salesreason
             AND sat.load_end_dtm IS NULL)
 WHERE
-    COALESCE(sr.name, '') != COALESCE(sat.name, '')
-AND COALESCE(sr.reasontype, '') != COALESCE(sat.reasontype, '')
+   COALESCE(sr.name, '') != COALESCE(sat.name, '')
+OR COALESCE(sr.reasontype, '') != COALESCE(sat.reasontype, '')

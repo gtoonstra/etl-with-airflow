@@ -14,7 +14,7 @@ LEFT OUTER JOIN dv_raw.sat_creditcard sat ON (
                 sat.hkey_creditcard = cc.hkey_creditcard
             AND sat.load_end_dtm IS NULL)
 WHERE
-    COALESCE(cc.creditcardid, '') != COALESCE(sat.creditcardid, '')
-AND COALESCE(cc.cardtype, '') != COALESCE(sat.cardtype, '')
-AND COALESCE(cc.expmonth, '') != COALESCE(sat.expmonth, '')
-AND COALESCE(cc.expyear, '') != COALESCE(sat.expyear, '')
+   COALESCE(cc.creditcardid, '') != COALESCE(sat.creditcardid, '')
+OR COALESCE(cc.cardtype, '') != COALESCE(sat.cardtype, '')
+OR COALESCE(cc.expmonth, '') != COALESCE(sat.expmonth, '')
+OR COALESCE(cc.expyear, '') != COALESCE(sat.expyear, '')

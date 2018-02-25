@@ -18,6 +18,3 @@ INNER JOIN dv_raw.hub_currency hca ON cr.hkey_currency_fromcurrencycode = hca.hk
 INNER JOIN dv_raw.hub_currency hcb ON cr.hkey_currency_tocurrencycode = hcb.hkey_currency
 INNER JOIN dv_raw.sat_currency sca ON cr.hkey_currency_fromcurrencycode = sca.hkey_currency
 INNER JOIN dv_raw.sat_currency scb ON cr.hkey_currency_tocurrencycode = scb.hkey_currency
-WHERE
-           scr.currencyratedate BETWEEN sca.load_dtm AND sca.load_end_dtm
-AND        scr.currencyratedate BETWEEN scb.load_dtm AND scb.load_end_dtm
