@@ -7,6 +7,7 @@ SELECT DISTINCT
     , sp.stateprovinceid
     , sp.isonlystateprovinceflag
     , sp.name
+    , sp.countryregioncode
 FROM
                 advworks_staging.stateprovince_{{ts_nodash}} sp
 LEFT OUTER JOIN dv_raw.sat_stateprovince sat ON (
@@ -16,3 +17,4 @@ WHERE
     COALESCE(sp.stateprovinceid, '') != COALESCE(sat.stateprovinceid, '')
 AND COALESCE(sp.isonlystateprovinceflag, '') != COALESCE(sat.isonlystateprovinceflag, '')
 AND COALESCE(sp.name, '') != COALESCE(sat.name, '')
+AND COALESCE(sp.countryregioncode, '') != COALESCE(sat.countryregioncode, '')

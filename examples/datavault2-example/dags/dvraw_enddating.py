@@ -69,6 +69,7 @@ def create_operator_array(hql, hive_table):
 create_operator_array('postupdates/sat_address.hql', 'sat_address')
 create_operator_array('postupdates/sat_creditcard.hql', 'sat_creditcard')
 create_operator_array('postupdates/sat_currency.hql', 'sat_currency')
+create_operator_array('postupdates/sat_currencyrate.hql', 'sat_currencyrate')
 create_operator_array('postupdates/sat_person.hql', 'sat_person')
 create_operator_array('postupdates/sat_product.hql', 'sat_product')
 create_operator_array('postupdates/sat_salesorder.hql', 'sat_salesorder')

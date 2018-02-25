@@ -116,10 +116,11 @@ create_staging_operator(sql='staging/shipmethod.sql', hive_table='shipmethod')
 create_hub_operator('loading/hub_shipmethod.hql', 'hub_shipmethod')
 
 # links
-# create_link_operator('loading/link_currencyrate.hql', 'link_currencyrate')
+create_link_operator('loading/link_salesorder_shipmethod.hql', 'link_salesorder_shipmethod')
 
 # satellites
 create_satellite_operator('loading/sat_shipmethod.hql', 'sat_shipmethod')
 
 if __name__ == "__main__":
     dag.cli()
+

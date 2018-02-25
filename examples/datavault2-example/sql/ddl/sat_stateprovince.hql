@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS dv_raw.sat_stateprovince (
     , stateprovinceid           INT
     , isonlystateprovinceflag   STRING
     , name                      STRING
+    , countryregioncode         STRING
 )
 STORED AS ORC;

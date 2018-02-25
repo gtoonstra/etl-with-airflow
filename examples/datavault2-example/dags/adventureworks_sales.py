@@ -131,6 +131,7 @@ create_hub_operator('loading/hub_salesterritory.hql', 'hub_salesterritory')
 create_hub_operator('loading/hub_specialoffer.hql', 'hub_specialoffer')
 
 # links
+create_link_operator('loading/link_currencyrate.hql', 'link_currencyrate')
 create_link_operator('loading/link_salesorder_address.hql', 'link_salesorder_address')
 create_link_operator('loading/link_salesorder_creditcard.hql', 'link_salesorder_creditcard')
 create_link_operator('loading/link_salesorder_currencyrate.hql', 'link_salesorder_currencyrate')
@@ -141,10 +142,12 @@ create_link_operator('loading/link_salesorderterritory.hql', 'link_salesorderter
 # satellites
 create_satellite_operator('loading/sat_creditcard.hql', 'sat_creditcard')
 create_satellite_operator('loading/sat_currency.hql', 'sat_currency')
+create_satellite_operator('loading/sat_currencyrate.hql', 'sat_currencyrate')
 create_satellite_operator('loading/sat_salesorder.hql', 'sat_salesorder')
 create_satellite_operator('loading/sat_salesorderdetail.hql', 'sat_salesorderdetail')
 create_satellite_operator('loading/sat_salesreason.hql', 'sat_salesreason')
 create_satellite_operator('loading/sat_salesterritory.hql', 'sat_salesterritory')
+
 
 if __name__ == "__main__":
     dag.cli()

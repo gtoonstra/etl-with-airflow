@@ -7,5 +7,6 @@ SELECT
     , stateprovinceid
     , isonlystateprovinceflag
     , name
+    , countryregioncode
 FROM
     dv_raw.{{params.hive_table}} a;

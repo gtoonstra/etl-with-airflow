@@ -259,6 +259,11 @@ create_table(
     upstream=hubs_done,
     downstream=links_done)
 create_table(
+    hql='ddl/link_currencyrate.hql',
+    tablename='link_currencyrate',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
     hql='ddl/link_salesorder_address.hql',
     tablename='link_salesorder_address',
     upstream=hubs_done,
@@ -281,6 +286,11 @@ create_table(
 create_table(
     hql='ddl/link_salesorderreason.hql',
     tablename='link_salesorderreason',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
+    hql='ddl/link_salesorder_shipmethod.hql',
+    tablename='link_salesorder_shipmethod',
     upstream=hubs_done,
     downstream=links_done)
 create_table(
@@ -310,6 +320,11 @@ create_table(
 create_table(
     hql='ddl/sat_currency.hql',
     tablename='sat_currency',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_currencyrate.hql',
+    tablename='sat_currencyrate',
     upstream=links_done,
     downstream=all_done)
 create_table(

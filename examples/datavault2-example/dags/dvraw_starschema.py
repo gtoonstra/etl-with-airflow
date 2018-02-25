@@ -55,6 +55,7 @@ def create_operator(hql, hive_table, prev_id, next_id):
         prev_id >> t
 
 create_operator('starschema/dim_address.hql', 'dim_address', None, dimensions_done)
+create_operator('starschema/dim_currency.hql', 'dim_currency', None, dimensions_done)
 create_operator('starschema/dim_product.hql', 'dim_product', None, dimensions_done)
 create_operator('starschema/dim_salesterritory.hql', 'dim_salesterritory', None, dimensions_done)
 create_operator('starschema/dim_salesorder.hql', 'dim_salesorder', None, dimensions_done)
