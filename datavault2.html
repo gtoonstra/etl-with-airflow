@@ -402,7 +402,7 @@ WHERE
     )
 </pre></div>
 </div>
-<p>Loading a link concerns itself with tying some hubs together, so the number of lookups increase. Any details related to the characteristics of the relationship are kept in a satellite table tied to the link.</p>
+<p>Loading a link is basically tying some hubs together. Any details related to the characteristics of the relationship are kept in a satellite table tied to the link.</p>
 <div class="highlight-SQL"><div class="highlight"><pre><span></span>INSERT INTO TABLE dv_raw.link_salesorderdetail
 SELECT DISTINCT
     sod.hkey_salesorderdetail,
@@ -481,7 +481,11 @@ a bit large than regenerating it from scratch will be very costly to do, if not 
 <p>What is not shown in this example and which should be considered in real world scenarios:</p>
 <ul class="simple">
 <li>Dealing with &#8220;delete&#8221; records in data sources. You&#8217;d typically apply these as &#8216;effectivity&#8217; records on hubs and links.</li>
+<li>Dealing with &#8220;record order&#8221; correctly. The current post-update scripts that do the end-dating assume there is one record per entity in the time interval, but there may be multiple. Make sure that the end dating script applies the end date to the records in the correct order and ensure the most recent record comes out on top with &#8220;NULL&#8221; applied in the end_dtm.</li>
+<li>Dealing with (potentially) large output (larger than 2GB). At the moment the worker reads in all the data in memory and then copies it again into a JSON structure.</li>
 </ul>
+<p>There are ways to output data to multiple files in a single statement using a &#8220;named pipe&#8221; on the worker itself. The named pipe serves the function as a splitter. You&#8217;d then start a &#8220;linux split&#8221; command on the worker reading from the named pipe (which looks just like a file, except it cannot seek in the stream). The split command takes the input and splits the data into separate files of a particular maximum size or maximum number of lines. If you do this to a particular temporary directory of interest, you can then upload the files to GCP from that directory in one easy operation, either through the gsutil command or an operator.</p>
+<p>Or use a call to gsutil to perform a data upload in parallel.</p>
 </div>
 <div class="section" id="data-issues">
 <h2>Data issues<a class="headerlink" href="#data-issues" title="Permalink to this headline">¶</a></h2>

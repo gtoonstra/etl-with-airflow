@@ -276,7 +276,7 @@ business key will win the record inserted here.:
             SELECT hub.productnumber FROM dv_raw.hub_product hub
         )
 
-Loading a link concerns itself with tying some hubs together, so the number of lookups increase. Any details related to the characteristics of the relationship are kept in a satellite table tied to the link.
+Loading a link is basically tying some hubs together. Any details related to the characteristics of the relationship are kept in a satellite table tied to the link.
 
 .. code-block:: SQL
 
@@ -372,6 +372,25 @@ Future considerations
 What is not shown in this example and which should be considered in real world scenarios:
 
 * Dealing with "delete" records in data sources. You'd typically apply these as 'effectivity' records on hubs and links.
+* Dealing with "record order" correctly. The current post-update scripts that do the end-dating assume there is one record per entity in the time interval, but there may be multiple. Make sure that the end dating script applies the end date to the records in the correct order and ensure the most recent record comes out on top with "NULL" applied in the end_dtm.
+* Dealing with (potentially) large output (larger than 2GB). At the moment the worker reads in all the data in memory and then copies it again into a JSON structure. 
+
+There are ways to output data to multiple files in a single statement using a "named pipe" on the worker itself. The named pipe serves the function as a splitter. You'd then start a "linux split" command on the worker reading from the named pipe (which looks just like a file, except it cannot seek in the stream). The split command takes the input and splits the data into separate files of a particular maximum size or maximum number of lines. If you do this to a particular temporary directory of interest, you can then upload the files to GCP from that directory in one easy operation, either through the gsutil command or an operator.
+
+.. code-block:: python
+    with tempfile.NamedTemporaryDir(prefix='export_' as tmp_dir:
+        fifo_path = os.path.join(tmp_dir.name, 'fifopipe')
+        os.mkfifo(fifo_path)
+        p = subprocess.Popen(['split','--numlines','100000','-',prefix])
+        hiveHook.to_csv(<query>, fifo_path, ...)
+        p.communicate()
+        os.remove(fifo_path)
+        datafiles = [f for f in listdir(tmp_dir) if isfile(join(tmp_dir, f)) and f.startswith(prefix)]
+        for data_file in datafiles:
+            remote_name = '{0}.csv'.format(data_file)
+            gcp_hook.upload(self.bucket, remote_name, data_file)
+
+Or use a call to gsutil to perform a data upload in parallel.
 
 Data issues
 -----------
