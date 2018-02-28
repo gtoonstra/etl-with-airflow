@@ -17,7 +17,7 @@ SELECT
         , sat.taxamt
         , sat.freight
         , sat.totaldue
-        , sr.name
+        , sr.name as reasonname
         , sr.reasontype
 FROM
             dv_raw.sat_salesorder sat

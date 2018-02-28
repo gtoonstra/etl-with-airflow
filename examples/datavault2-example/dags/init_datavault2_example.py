@@ -44,17 +44,21 @@ def init_datavault2_example():
     session = Session()
 
     def create_new_conn(session, attributes):
-        new_conn = models.Connection()
-        new_conn.conn_id = attributes.get("conn_id")
+        conn_id = attributes.get("conn_id")
+        new_conn = session.query(models.Connection).filter(models.Connection.conn_id==conn_id).first()
+        if not new_conn:
+            logging.info("No connection found")
+            new_conn = models.Connection()
+        new_conn.conn_id = conn_id
         new_conn.conn_type = attributes.get('conn_type')
         new_conn.host = attributes.get('host')
         new_conn.port = attributes.get('port')
         new_conn.schema = attributes.get('schema')
         new_conn.login = attributes.get('login')
-        new_conn.set_extra(attributes.get('extra'))
         new_conn.set_password(attributes.get('password'))
+        new_conn.set_extra(attributes.get('extra'))
 
-        session.add(new_conn)
+        session.merge(new_conn)
         session.commit()
 
     create_new_conn(session,
@@ -76,7 +80,7 @@ def init_datavault2_example():
                      "password": "cloudera",
                      "extra": json.dumps(
                         {"hive_cli_params": "",
-                         "auth": "none",
+                         "auth": "noSasl",
                          "use_beeline": "true"})})
 
     create_new_conn(session,
@@ -89,7 +93,7 @@ def init_datavault2_example():
                      "password": "cloudera",
                      "extra": json.dumps(
                         {"hive_cli_params": "",
-                         "auth": "none",
+                         "auth": "noSasl",
                          "use_beeline": "true"})})
 
     create_new_conn(session,
@@ -102,7 +106,7 @@ def init_datavault2_example():
                      "password": "cloudera",
                      "extra": json.dumps(
                         {"hive_cli_params": "",
-                         "auth": "none",
+                         "auth": "noSasl",
                          "use_beeline": "true"})})
 
     create_new_conn(session,
@@ -115,7 +119,7 @@ def init_datavault2_example():
                      "password": "cloudera",
                      "extra": json.dumps(
                         {"hive_cli_params": "",
-                         "auth": "none",
+                         "auth": "noSasl",
                          "use_beeline": "true"})})
 
     create_new_conn(session,
@@ -128,8 +132,27 @@ def init_datavault2_example():
                      "password": "cloudera",
                      "extra": json.dumps(
                         {"hive_cli_params": "",
-                         "auth": "none",
+                         "auth": "noSasl",
                          "use_beeline": "true"})})
+
+    create_new_conn(session,
+                    {"conn_id": "hiveserver2-dvstar",
+                     "conn_type": "hiveserver2",
+                     "host": "hive",
+                     "schema": 'dv_star',
+                     "login": "cloudera",
+                     "port": 10000,
+                     "extra": json.dumps({"authMechanism": "NOSASL"})})
+
+    create_new_conn(session,
+                    {"conn_id": "gcp",
+                     "conn_type": "google_cloud_platform",
+                     "extra": json.dumps(
+                        { "extra__google_cloud_platform__key_path": "/usr/local/airflow/keyfile.json",
+                          "extra__google_cloud_platform__scope": "https://www.googleapis.com/auth/cloud-platform"
+                        }
+                      )
+                  })
     session.close()
 
 dag = airflow.DAG(

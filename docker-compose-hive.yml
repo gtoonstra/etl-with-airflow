@@ -28,7 +28,7 @@ services:
       tty: true
       command: /usr/bin/docker-quickstart
   webserver:
-      image: gtoonstra/docker-airflow:1.8.0
+      image: gtoonstra/docker-airflow:1.8.1
       container_name: airflow
       restart: always
       depends_on:

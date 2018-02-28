@@ -24,12 +24,14 @@ services:
           - 10000:10000
           - 7180:7180
           - 8020:8020
+      volumes:
+          - ./examples/datavault2-example/hive-site.xml:/etc/hive/conf.dist/hive-site.xml
       hostname: quickstart.cloudera
       privileged: true
       tty: true
       command: /usr/bin/docker-quickstart
   webserver:
-      image: gtoonstra/docker-airflow:1.8.0
+      image: gtoonstra/docker-airflow:1.8.1
       container_name: airflow
       restart: always
       depends_on:
@@ -42,10 +44,10 @@ services:
       volumes:
           - ./examples/datavault2-example/dags:/usr/local/airflow/dags
           - ./examples/datavault2-example/sql:/usr/local/airflow/sql
-          - ./examples/datavault2-example/hql:/usr/local/airflow/hql
           - ./examples/datavault2-example/core-site.xml:/core-site.xml
           - ./examples/datavault2-example/hdfs-site.xml:/hdfs-site.xml
           - ./examples/datavault2-example/mapred-site.xml:/mapred-site.xml
+          - /home/gt/keyfile.json:/usr/local/airflow/keyfile.json:ro
       ports:
           - 8080:8080
       command: webserver
