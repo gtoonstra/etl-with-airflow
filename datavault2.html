@@ -175,6 +175,20 @@ container that contains the jar files for Hadoop, HDFS and Hive.</p>
 <p class="last">The default login for &#8220;Hue&#8221;, the interface for the Cloudera quickstart container running Hive
 is cloudera/cloudera.</p>
 </div>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">The resulting data was not 100% tested and validated because of the effort involved. It is possible
+that queries contain mistakes or produce invalid data.</p>
+</div>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">In order to see the BigQuery example you need to have your own google cloud project active
+and set up your own service account that has at least google cloud storage and bigquery editing
+permissions (or give it project editing rights). Then you need to make an &#8220;information_mart&#8221;
+dataset in bigquery in that project and create a bucket name of your choice. After the bigquery
+connection is created, change the project ID to your project ID on GCP (this is needed as the
+&#8216;default&#8217; google project).</p>
+</div>
 <p>Finally, let&#8217;s re-test all the work we did against the ETL principles that I wrote about to see
 if all principles are covered and identify what are open topics to cover for a full-circle solution.</p>
 <div class="section" id="about-datavault">
@@ -485,6 +499,20 @@ a bit large than regenerating it from scratch will be very costly to do, if not 
 <li>Dealing with (potentially) large output (larger than 2GB). At the moment the worker reads in all the data in memory and then copies it again into a JSON structure.</li>
 </ul>
 <p>There are ways to output data to multiple files in a single statement using a &#8220;named pipe&#8221; on the worker itself. The named pipe serves the function as a splitter. You&#8217;d then start a &#8220;linux split&#8221; command on the worker reading from the named pipe (which looks just like a file, except it cannot seek in the stream). The split command takes the input and splits the data into separate files of a particular maximum size or maximum number of lines. If you do this to a particular temporary directory of interest, you can then upload the files to GCP from that directory in one easy operation, either through the gsutil command or an operator.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryDir</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;export_&#39;</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
+    <span class="n">fifo_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_dir</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;fifopipe&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkfifo</span><span class="p">(</span><span class="n">fifo_path</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;split&#39;</span><span class="p">,</span><span class="s1">&#39;--numlines&#39;</span><span class="p">,</span><span class="s1">&#39;100000&#39;</span><span class="p">,</span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="n">prefix</span><span class="p">])</span>
+    <span class="n">hiveHook</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="o">&lt;</span><span class="n">query</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">fifo_path</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fifo_path</span><span class="p">)</span>
+    <span class="n">datafiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+                 <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">data_file</span> <span class="ow">in</span> <span class="n">datafiles</span><span class="p">:</span>
+        <span class="n">remote_name</span> <span class="o">=</span> <span class="s1">&#39;{0}.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
+        <span class="n">gcp_hook</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket</span><span class="p">,</span> <span class="n">remote_name</span><span class="p">,</span> <span class="n">data_file</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>Or use a call to gsutil to perform a data upload in parallel.</p>
 </div>
 <div class="section" id="data-issues">
