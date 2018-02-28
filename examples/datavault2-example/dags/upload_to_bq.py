@@ -18,6 +18,7 @@ from datetime import datetime, timedelta
 from airflow.operators.hive_operator import HiveOperator
 from airflow.operators.dummy_operator import DummyOperator
 from acme.operators.hive_to_gcs_operator import HiveToGcsOperator
+from airflow.contrib.operators.gcs_to_bq import GoogleCloudStorageToBigQueryOperator
 from airflow.models import Variable
 
 
@@ -37,16 +38,35 @@ dag = airflow.DAG(
     max_active_runs=1)
 
 
+all_done =  DummyOperator(
+    task_id='all_done',
+    dag=dag)
+
 t1 = HiveToGcsOperator(
     hql='bigquery/upload_flat_table.hql',
     bucket='datavault2-example',
     subdir='{{ds_nodash[:4]}}/{{ds_nodash[4:6]}}/{{ds_nodash[6:8]}}',
-    file_pattern='dv_star_data-{0}.csv',
+    file_pattern='dv_star_data-{0}.json',
     schema='dv_star',
     hiveserver2_conn_id='hiveserver2-dvstar',
     google_cloud_storage_conn_id='gcp',
     task_id='upload_flat_table',
     dag=dag)
+
+t2 = GoogleCloudStorageToBigQueryOperator(
+    bucket='datavault2-example',
+    source_objects=['{{ds_nodash[:4]}}/{{ds_nodash[4:6]}}/{{ds_nodash[6:8]}}/dv_star_data-*.json'],
+    destination_project_dataset_table='information_mart.flat_table',
+    source_format='NEWLINE_DELIMITED_JSON',
+    write_disposition='WRITE_TRUNCATE',
+    src_fmt_configs={'autodetect': True},
+    bigquery_conn_id='gcp',
+    google_cloud_storage_conn_id='gcp',
+    task_id='gcs_to_bq',
+    dag=dag)
+
+t1 >> t2
+t2 >> all_done
 
 
 if __name__ == "__main__":

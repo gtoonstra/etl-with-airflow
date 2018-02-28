@@ -1,24 +1,24 @@
 SELECT
-          fact.carriertrackingnumber
-        , fact.orderqty
-        , fact.unitprice
-        , fact.unitpricediscount
-        , dims.salesorderid
-        , dims.revisionnumber
-        , dims.orderdate
-        , dims.duedate
-        , dims.shipdate
-        , dims.status
-        , dims.onlineorderflag
-        , dims.purchaseordernumber
-        , dims.accountnumber
-        , dims.creditcardapprovalcode
-        , dims.subtotal
-        , dims.taxamt
-        , dims.freight
-        , dims.totaldue
-        , dims.reasonname
-        , dims.reasontype
+          fact.carriertrackingnumber as carriertrackingnumber
+        , fact.orderqty as orderqty
+        , fact.unitprice as unitprice
+        , fact.unitpricediscount as unitpricediscount
+        , dims.salesorderid as salesorderid
+        , dims.revisionnumber as revisionnumber
+        , dims.orderdate as orderdate
+        , dims.duedate as duedate
+        , dims.shipdate as shipdate
+        , dims.status as status
+        , dims.onlineorderflag as onlineorderflag
+        , dims.purchaseordernumber as purchaseordernumber
+        , dims.accountnumber as accountnumber
+        , dims.creditcardapprovalcode as creditcardapprovalcode
+        , dims.subtotal as subtotal
+        , dims.taxamt as taxamt
+        , dims.freight as freight
+        , dims.totaldue as totaldue
+        , dims.reasonname as reasonname
+        , dims.reasontype as reasontype
         , dimab.postalcode as billing_postalcode
         , dimab.addressline1 as billing_addressline1
         , dimab.addressline2 as billing_adrressline2
@@ -39,33 +39,33 @@ SELECT
         , dimas.countryregionname as shipping_countryregionname
         , dimas.isonlystateprovinceflag as shipping_isonlystateprovinceflag
         , dimas.name as shipping_address_name
-        , dimc.currencycodea
-        , dimc.currencynamea
-        , dimc.currencycodeb
-        , dimc.currencynameb
-        , dimc.currencyratedate
-        , dimc.averagerate
-        , dimc.endofdayrate
-        , dimp.productnumber
+        , dimc.currencycodea as currencycodea
+        , dimc.currencynamea as currencynamea
+        , dimc.currencycodeb as currencycodeb
+        , dimc.currencynameb as currencynameb
+        , dimc.currencyratedate as currencyratedate
+        , dimc.averagerate as averagerate
+        , dimc.endofdayrate as endofdayrate
+        , dimp.productnumber as productnumber
         , dimp.name as product_name
-        , dimp.makeflag
-        , dimp.finishedgoodsflag
-        , dimp.color
-        , dimp.safetystocklevel
-        , dimp.reorderpoint
-        , dimp.standardcost
-        , dimp.listprice
+        , dimp.makeflag as makeflag
+        , dimp.finishedgoodsflag as finishedgoodsflag
+        , dimp.color as color
+        , dimp.safetystocklevel as safetystocklevel
+        , dimp.reorderpoint as reorderpoint
+        , dimp.standardcost as standardcost
+        , dimp.listprice as listprice
         , dimp.size as product_size
-        , dimp.weight
-        , dimp.daystomanufacture
-        , dimp.productline
+        , dimp.weight as weight
+        , dimp.daystomanufacture as daystomanufacture
+        , dimp.productline as productline
         , dimp.class as product_class
         , dimp.style as product_style
-        , dimp.productmodelid
-        , dimp.sellstartdate
-        , dimp.sellenddate
-        , dimp.discontinueddate
-        , dimst.territory_group
+        , dimp.productmodelid as productmodelid
+        , dimp.sellstartdate as sellstartdate
+        , dimp.sellenddate as sellenddate
+        , dimp.discontinueddate as discontinueddate
+        , dimst.territory_group as territory_group
         , dimst.salesytd as territory_salesytd
         , dimst.saleslastyear as territory_saleslastyear
         , dimst.costytd as territory_costytd

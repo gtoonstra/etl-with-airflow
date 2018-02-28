@@ -76,13 +76,16 @@ class HiveToGcsOperator(BaseOperator):
         gcp_hook = GoogleCloudStorageHook(google_cloud_storage_conn_id=self.google_cloud_storage_conn_id)
         logging.info('Inserting rows onto google cloud storage')
 
-        f = tempfile.NamedTemporaryFile(suffix='.json', prefix='tmp')
-        f.write(json.loads(data.to_json(orient='records')))
-        f.flush()
-        f.close()
+        with tempfile.NamedTemporaryFile(suffix='.json', prefix='tmp') as tmp_file:
+            data = data.to_json(orient='records')
+            recs = json.loads(data)
+            for record in recs:
+                tmp_file.write(json.dumps(record))
+                tmp_file.write("\n")
+            tmp_file.flush()
 
-        remote_file_name = self.file_pattern.format('aa')
-        remote_name = os.path.join(self.subdir, remote_file_name)
-        gcp_hook.upload(self.bucket, remote_name, f.name)
+            remote_file_name = self.file_pattern.format('aa')
+            remote_name = os.path.join(self.subdir, remote_file_name)
+            gcp_hook.upload(self.bucket, remote_name, tmp_file.name)
 
         logging.info('Done.')

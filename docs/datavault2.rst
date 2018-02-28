@@ -24,6 +24,20 @@ container that contains the jar files for Hadoop, HDFS and Hive.
     The default login for "Hue", the interface for the Cloudera quickstart container running Hive 
     is cloudera/cloudera.
 
+.. important::
+
+    The resulting data was not 100% tested and validated because of the effort involved. It is possible
+    that queries contain mistakes or produce invalid data.
+
+.. important::
+
+    In order to see the BigQuery example you need to have your own google cloud project active
+    and set up your own service account that has at least google cloud storage and bigquery editing
+    permissions (or give it project editing rights). Then you need to make an "information_mart" 
+    dataset in bigquery in that project and create a bucket name of your choice. After the bigquery 
+    connection is created, change the project ID to your project ID on GCP (this is needed as the 
+    'default' google project).
+
 Finally, let's re-test all the work we did against the ETL principles that I wrote about to see
 if all principles are covered and identify what are open topics to cover for a full-circle solution.
 
@@ -378,6 +392,7 @@ What is not shown in this example and which should be considered in real world s
 There are ways to output data to multiple files in a single statement using a "named pipe" on the worker itself. The named pipe serves the function as a splitter. You'd then start a "linux split" command on the worker reading from the named pipe (which looks just like a file, except it cannot seek in the stream). The split command takes the input and splits the data into separate files of a particular maximum size or maximum number of lines. If you do this to a particular temporary directory of interest, you can then upload the files to GCP from that directory in one easy operation, either through the gsutil command or an operator.
 
 .. code-block:: python
+
     with tempfile.NamedTemporaryDir(prefix='export_' as tmp_dir:
         fifo_path = os.path.join(tmp_dir.name, 'fifopipe')
         os.mkfifo(fifo_path)
@@ -385,7 +400,8 @@ There are ways to output data to multiple files in a single statement using a "n
         hiveHook.to_csv(<query>, fifo_path, ...)
         p.communicate()
         os.remove(fifo_path)
-        datafiles = [f for f in listdir(tmp_dir) if isfile(join(tmp_dir, f)) and f.startswith(prefix)]
+        datafiles = [f for f in listdir(tmp_dir) if isfile(join(tmp_dir, f)) 
+                     and f.startswith(prefix)]
         for data_file in datafiles:
             remote_name = '{0}.csv'.format(data_file)
             gcp_hook.upload(self.bucket, remote_name, data_file)
