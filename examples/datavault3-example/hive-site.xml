@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+
+  <!-- Hive Configuration can either be stored in this file or in the hadoop configuration files  -->
+  <!-- that are implied by Hadoop setup variables.                                                -->
+  <!-- Aside from Hadoop setup variables - this file is provided as a convenience so that Hive    -->
+  <!-- users do not have to edit hadoop configuration files (that may be managed as a centralized -->
+  <!-- resource).                                                                                 -->
+
+  <!-- extracted from cloudera 5.6 to be able to add NOSASL configuration -->
+
+  <!-- Hive Execution Parameters -->
+
+  <property>
+    <name>javax.jdo.option.ConnectionURL</name>
+    <value>jdbc:mysql://127.0.0.1/metastore?createDatabaseIfNotExist=true</value>
+    <description>JDBC connect string for a JDBC metastore</description>
+  </property>
+
+  <property>
+    <name>javax.jdo.option.ConnectionDriverName</name>
+    <value>com.mysql.jdbc.Driver</value>
+    <description>Driver class name for a JDBC metastore</description>
+  </property>
+
+  <property>
+    <name>javax.jdo.option.ConnectionUserName</name>
+    <value>hive</value>
+  </property>
+
+  <property>
+    <name>javax.jdo.option.ConnectionPassword</name>
+    <value>cloudera</value>
+  </property>
+
+  <property>
+    <name>hive.hwi.war.file</name>
+    <value>/usr/lib/hive/lib/hive-hwi-0.8.1-cdh4.0.0.jar</value>
+    <description>This is the WAR file with the jsp content for Hive Web Interface</description>
+  </property>
+
+  <property>
+    <name>datanucleus.fixedDatastore</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>datanucleus.autoCreateSchema</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>hive.metastore.uris</name>
+    <value>thrift://127.0.0.1:9083</value>
+    <description>IP address (or fully-qualified domain name) and port of the metastore host</description>
+  </property>
+
+  <!-- to simplify the overall set-up, added for example datavault2 -->
+  <property>
+    <name>hive.server2.authentication</name>
+    <value>NOSASL</value>
+  </property>
+
+</configuration>
