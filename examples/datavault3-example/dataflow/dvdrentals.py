@@ -48,19 +48,22 @@ def filter_bk(record):
     return (record[0], record[1]['dv_bk'])
 
 
-def co_group_op_1(record, list_attribute, bks, key_attribute):
+def co_group_op_1(record, list_attribute, bk, nk, key_attributes):
     list_of_objects = record[1][list_attribute]
-    entity_bk = record[1][bks][0]
+    entity_bk = record[1][bk][0]
     output_recs = []
     for obj in list_of_objects:
-        entity_id = obj[key_attribute]
-        output_recs.append((entity_id, entity_bk))
+        entity_id = obj[nk]
+        d = {bk: entity_bk}
+        for key in key_attributes:
+            d[key] = obj[key]
+        output_recs.append((entity_id, d))
     return output_recs
 
 
-def co_group_op_2(record, list_attribute, bks):
+def co_group_op_2(record, list_attribute, bk):
     list_attributes = record[1][list_attribute]
-    bk_object = record[1][bks][0]
+    bk_object = record[1][bk][0]
     output_recs = []
     for entity_bk in list_attributes:
         output_recs.append((bk_object, entity_bk))
@@ -92,6 +95,7 @@ class DvdRentalsPipeline(object):
         self.hubs = {}
         self.indexes = {}
         self.pcols = {}
+        self.links = {}
         self.intersections = []
 
     def parse(self, argv):
@@ -118,6 +122,9 @@ class DvdRentalsPipeline(object):
 
     def add_index(self, index_name, index_obj):
         self.indexes[index_name] = index_obj
+
+    def add_link(self, link_name, link_obj):
+        self.links[link_name] = link_obj
 
     def get_index_location(self, key):
         return os.path.join(self.index, key)
@@ -199,31 +206,35 @@ class DvdRentalsPipeline(object):
 
                 # self.pcols[intersection] | 'print2' + data >> beam.Map(print_line) 
 
+            for key, value in self.links.items():
+                first = True
+                for pk, lkey, bk, nk, dataset in zip(value['pk'], value['lkey'], value['bk'], value['nk'], value['data']):
+                    if first:
+                        self.pcols[key] = read_data_file(key,
+                            self.get_data_location(key, value.get('include_date', None)) + '*',
+                            pk,
+                            add_source=True)
+                        self.pcols['grouped_by_' + pk] = \
+                            ({key: self.pcols[key], bk: self.pcols[dataset]}) | 'grouped_by_' + pk >> beam.CoGroupByKey()
+                        last = 'remap_' + pk
+                        self.pcols[last] = \
+                            self.pcols['grouped_by_' + pk] | 'remap_' + pk >> beam.FlatMap(co_group_op_1, key, bk, nk, lkey)
+                        # self.pcols[last] | 'print2' + data >> beam.Map(print_line)
+                    else:
+                        self.pcols['grouped_by_' + pk] = \
+                            ({last: self.pcols[last], bk: self.pcols[dataset]}) | 'grouped_by_' + pk >> beam.CoGroupByKey()
+                        new_last = 'remap_' + pk
+                        self.pcols[new_last] = \
+                            self.pcols['grouped_by_' + pk] | 'remap_' + pk >> beam.FlatMap(co_group_op_1, last, bk, nk, lkey)
+                        # self.pcols[new_last] | 'print2' + data >> beam.Map(print_line) 
+                        last = new_last
+                    first = False
 
-            """
-            film_actor = read_csv_file('film_actor', known_args.film_actor, 'actor_id')
-            grouped_by_actor = \
-                ({'film_actors': film_actor, 'actors': actor_p}) | 'group_by_actor' >> beam.CoGroupByKey()
+                self.pcols['extract_' + key] = \
+                    self.pcols[last] | 'extract_' + key >> beam.FlatMap(extract_data_rec)
 
-            remap = grouped_by_actor | 'switch_pk_filmid' >> beam.FlatMap(by_film_id)
-            grouped_by_film = \
-                ({'remap': remap, 'films': film_p}) | 'group_by_film' >> beam.CoGroupByKey()
-
-            remap_film = grouped_by_film | 'film_actor_bks' >> beam.FlatMap(film_bk_actor_bk)
-            # remap_film | 'print' >> beam.Map(print_line)
-            # Write the output using a "Write" transform that has side effects.
-            remap_film | 'Write film actor' >> beam.io.Write(
-                CsvFileSink(known_args.output_film_actor, header=['film_bk', 'actor_bk']))
-            film_p | 'Write film' >> beam.io.Write(
-                CsvFileSink(known_args.index_film, header=['film_id', 'film_bk']))
-
-            actor_p | 'Write actor' >> beam.io.Write(
-                CsvFileSink(known_args.index_actor, header=['actor_id', 'actor_bk']))
-            actor_new | 'Write actor' >> beam.io.Write(
-                CsvFileSink(known_args.index_actor, header=['actor_id', 'actor_bk']))
-            actor_removed | 'Write actor' >> beam.io.Write(
-                CsvFileSink(known_args.index_actor, header=['actor_id', 'actor_bk']))
-            """
+                self.pcols['extract_' + key] | 'Write_' + key >> beam.io.Write(
+                    CsvFileSink(self.get_staging_location(key, 'current'), header=value['header']))
 
 
 if __name__ == '__main__':
@@ -246,4 +257,12 @@ if __name__ == '__main__':
     p.calc_intersection('actorindex', 'actor', 'actor_intersection', 'actor_new', 'actor_removed', ['actor_id', 'actor_bk'])
     p.calc_intersection('filmindex', 'film', 'film_intersection', 'film_new', 'film_removed', ['film_id', 'film_bk'])
     p.calc_intersection('paymentindex', 'payment', 'payment_intersection', 'payment_new', 'payment_removed', ['payment_id', 'payment_bk'])
+    p.add_link('public.film_actor', {'pk': ['actor_id', 'film_id'],
+                                     'lkey': [
+                                        ('film_id', 'last_update', 'dv_load_dtm', 'dv_source', 'actor_id'),
+                                        ('film_id', 'last_update', 'dv_load_dtm', 'dv_source', 'actor_id', 'actor_bk')],
+                                     'nk': ['film_id', 'actor_id'],
+                                     'bk': ['actor_bk', 'film_bk'],
+                                     'data': ['bk_actor', 'bk_film'],
+                                     'header': ['film_bk', 'actor_bk', 'dv_load_dtm', 'dv_source', 'last_update']})
     p.run()
