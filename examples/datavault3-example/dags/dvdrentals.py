@@ -43,9 +43,11 @@ staging_done = DummyOperator(
     dag=dag)
 
 
-def stage_table(pg_table, downstream, override_cols=None):
+def stage_table(pg_table, downstream, override_cols=None, dtm_attribute=None):
     t1 = StagePostgresToFileOperator(
+        source='dvdrentals',
         pg_table=pg_table,
+        dtm_attribute=dtm_attribute,
         override_cols=override_cols,
         postgres_conn_id='dvdrentals',
         file_conn_id='filestore',
@@ -65,7 +67,7 @@ stage_table(pg_table='public.film_actor', downstream=staging_done)
 stage_table(pg_table='public.film_category', downstream=staging_done)
 stage_table(pg_table='public.inventory', downstream=staging_done)
 stage_table(pg_table='public.language', downstream=staging_done)
-stage_table(pg_table='public.payment', downstream=staging_done)
+stage_table(pg_table='public.payment', downstream=staging_done, dtm_attribute='payment_date')
 stage_table(pg_table='public.rental', downstream=staging_done)
 stage_table(pg_table='public.staff', downstream=staging_done, override_cols=[
     'staff_id', 'first_name', 'last_name', 'address_id', 'email', 'store_id', 'active', 'last_update'])

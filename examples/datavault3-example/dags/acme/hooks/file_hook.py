@@ -37,5 +37,9 @@ class FileHook(BaseHook):
     def transfer_file(self, source_file, target_file):
         target_file = os.path.join(self.path, target_file)
         dirname = os.path.dirname(target_file)
-        os.makedirs(dirname)
+        try:
+            os.makedirs(dirname)
+        except OSError as e:
+            if e.errno != os.errno.EEXIST:
+                raise
         shutil.copyfile(source_file, target_file)

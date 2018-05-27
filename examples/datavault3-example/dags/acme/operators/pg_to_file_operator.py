@@ -40,6 +40,8 @@ class StagePostgresToFileOperator(BaseOperator):
     If not set, it will load the whole table.
     The sql and parameters can be used to override the generated source query.
 
+    :param source: string used to specify the source system
+    :type source: str
     :param pg_table: pg_table to export
     :type pg_table: str
     :param dtm_attribute: The dtm attribute in the source table to filter on.
@@ -68,6 +70,8 @@ WHERE
 AND      table_name   = '{1}'
 ORDER BY ordinal_position
 """
+    PG_DATETIME = "%Y-%m-%d %H:%M:%S"
+    DV_LOAD_DTM = 'dv_load_dtm'
 
     template_fields = ('sql', 'parameters')
     template_ext = ('.sql',)
@@ -76,6 +80,7 @@ ORDER BY ordinal_position
     @apply_defaults
     def __init__(
             self,
+            source,
             pg_table,
             dtm_attribute=None,
             override_cols=None,
@@ -87,6 +92,7 @@ ORDER BY ordinal_position
             file_conn_id='file_default',
             *args, **kwargs):
         super(StagePostgresToFileOperator, self).__init__(*args, **kwargs)
+        self.source = source
         self.pg_table = pg_table
         self.dtm_attribute = dtm_attribute
         self.override_cols = override_cols
@@ -100,6 +106,7 @@ ORDER BY ordinal_position
     def execute(self, context):
         file_hook = FileHook(file_conn_id=self.file_conn_id)
         pg_hook = PostgresHook(postgres_conn_id=self.postgres_conn_id)
+        ds = context['execution_date']
 
         logging.info("Dumping postgres query results to local file")
         conn = pg_hook.get_conn()
@@ -113,11 +120,14 @@ ORDER BY ordinal_position
             logging.info(sql)
             cursor = conn.cursor()
             parameters = {
-                "execution_date": context['execution_date'],
-                "next_execution_date": context['next_execution_date']}
+                "execution_date": context['execution_date'].strftime(StagePostgresToFileOperator.PG_DATETIME),
+                "next_execution_date": context['next_execution_date'].strftime(StagePostgresToFileOperator.PG_DATETIME)}
+            logging.info(parameters)
             cursor.execute(sql, parameters)
-             
-        fieldnames = [field[0] for field in cursor.description]   
+
+        fieldnames = [field[0] for field in cursor.description]
+        fieldnames.append(StagePostgresToFileOperator.DV_LOAD_DTM)
+
         with tempfile.NamedTemporaryFile(prefix=self.pg_table, mode="wb", delete=True) as f:
             writer = csv.DictWriter(
                 f, 
@@ -133,20 +143,29 @@ ORDER BY ordinal_position
                 dict_row = {}
                 for key, value in zip(fieldnames, row):
                     dict_row[key] = value
+                dict_row[StagePostgresToFileOperator.DV_LOAD_DTM] = ds
                 writer.writerow(dict_row)
 
             f.flush()
             cursor.close()
             conn.close()
 
-            ds = context['execution_date']
             path = os.path.join(
-                self.pg_table,
-                ds.strftime('%Y'),
-                ds.strftime('%m'),
-                ds.strftime('%d'),
-                self.pg_table + '_' + ds.strftime('%H') + '_' + 
-                ds.strftime('%M') + '_' +
+                'psa',
+                self.source,
+                self.pg_table)
+
+            # With incremental loads, partition data per day.
+            if self.sql or self.dtm_attribute:
+                path = os.path.join(path,
+                    ds.strftime('%Y'),
+                    ds.strftime('%m'),
+                    ds.strftime('%d'))
+
+            path = os.path.join(path, 
+                self.pg_table + '__' + 
+                ds.strftime('%H') + '-' + 
+                ds.strftime('%M') + '-' +
                 ds.strftime('%S'))
             file_hook.transfer_file(
                 f.name,
@@ -171,6 +190,6 @@ ORDER BY ordinal_position
         column_select = ','.join(fieldnames)
         sql = 'SELECT {0} FROM {1}'.format(column_select, self.pg_table)
         if self.dtm_attribute:
-            sql += ' WHERE {0} >= %(execution_date) AND {0} < %(next_execution_date)'.format(
+            sql += " WHERE {0} >= %(execution_date)s AND {0} < %(next_execution_date)s".format(
                 self.dtm_attribute)
         return sql
