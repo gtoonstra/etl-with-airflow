@@ -17,7 +17,7 @@ class CsvFileSink(filebasedsink.FileBasedSink):
                compression_type=CompressionTypes.AUTO,
                header=[],
                delimiter='\x01',
-               lineterminator='\r\n'):
+               lineterminator='\n'):
         super(CsvFileSink, self).__init__(
             file_path_prefix=file_path_prefix,
             file_name_suffix=file_name_suffix,
@@ -69,7 +69,7 @@ class CsvTupleFileSink(CsvFileSink):
                compression_type=CompressionTypes.AUTO,
                header=[],
                delimiter='\x01',
-               lineterminator='\r\n'):
+               lineterminator='\n'):
         super(CsvTupleFileSink, self).__init__(
             file_path_prefix=file_path_prefix,
             file_name_suffix=file_name_suffix,

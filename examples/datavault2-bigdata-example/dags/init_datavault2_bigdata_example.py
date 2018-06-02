@@ -32,13 +32,13 @@ args = {
 }
 
 
-ADVWORKS_STAGING = 'advworks_staging'
+DVDRENTALS_STAGING = 'staging_dvdrentals'
 DATAVAULT = 'dv_raw'
 DV_TEMP = 'dv_temp'
 DV_STAR = 'dv_star'
 
 
-def init_datavault3_example():
+def init_datavault2_bigdata_example():
     logging.info('Creating connections, pool and sql path')
 
     session = Session()
@@ -78,7 +78,7 @@ def init_datavault3_example():
                      "schema": "",
                      "login": "",
                      "password": "",
-                     "extra": json.dumps({"path": "/tmp/datavault3-example"})})
+                     "extra": json.dumps({"path": "/tmp/datavault2-bigdata-example"})})
 
     create_new_conn(session,
                     {"conn_id": "hive_default",
@@ -131,21 +131,21 @@ def init_datavault3_example():
     session.close()
 
 dag = airflow.DAG(
-    'init_datavault3_example',
+    'init_datavault2_bigdata_example',
     schedule_interval="@once",
     default_args=args,
     template_searchpath='/usr/local/airflow/sql',
     max_active_runs=1)
 
-t1 = PythonOperator(task_id='init_datavault3_example',
-                    python_callable=init_datavault3_example,
+t1 = PythonOperator(task_id='init_datavault2_bigdata_example',
+                    python_callable=init_datavault2_bigdata_example,
                     provide_context=False,
                     dag=dag)
 
 t2 = HiveOperator(task_id='create_stg_database',
                   hive_cli_conn_id='hive_default',
                   schema='default',
-                  hql='CREATE DATABASE IF NOT EXISTS {0}'.format(ADVWORKS_STAGING),
+                  hql='CREATE DATABASE IF NOT EXISTS {0}'.format(DVDRENTALS_STAGING),
                   dag=dag)
 
 t3 = HiveOperator(task_id='create_dv_database',

@@ -10,9 +10,9 @@ services:
       ports:
           - 5432:5432
       volumes:
-          - ./examples/datavault3-example/setup/100_restore.sql:/docker-entrypoint-initdb.d/100_restore.sql
-          - ./examples/datavault3-example/setup/200_users.sql:/docker-entrypoint-initdb.d/200_users.sql
-          - ./examples/datavault3-example/setup/data:/docker-entrypoint-initdb.d/data
+          - ./examples/datavault2-bigdata-example/setup/100_restore.sql:/docker-entrypoint-initdb.d/100_restore.sql
+          - ./examples/datavault2-bigdata-example/setup/200_users.sql:/docker-entrypoint-initdb.d/200_users.sql
+          - ./examples/datavault2-bigdata-example/setup/data:/docker-entrypoint-initdb.d/data
   hive:
       image: cloudera/quickstart:latest
       container_name: hive-docker
@@ -25,7 +25,7 @@ services:
           - 7180:7180
           - 8020:8020
       volumes:
-          - ./examples/datavault3-example/hive-site.xml:/etc/hive/conf.dist/hive-site.xml
+          - ./examples/datavault2-bigdata-example/hive-site.xml:/etc/hive/conf.dist/hive-site.xml
       hostname: quickstart.cloudera
       privileged: true
       tty: true
@@ -42,12 +42,12 @@ services:
           - EXECUTOR=Local
           - INSTALL_HIVE=y
       volumes:
-          - ./examples/datavault3-example/dags:/usr/local/airflow/dags
-          - ./examples/datavault3-example/sql:/usr/local/airflow/sql
-          - ./examples/datavault3-example/core-site.xml:/core-site.xml
-          - ./examples/datavault3-example/hdfs-site.xml:/hdfs-site.xml
-          - ./examples/datavault3-example/mapred-site.xml:/mapred-site.xml
-          - /tmp/datavault3-example:/tmp/datavault3-example
+          - ./examples/datavault2-bigdata-example/dags:/usr/local/airflow/dags
+          - ./examples/datavault2-bigdata-example/sql:/usr/local/airflow/sql
+          - ./examples/datavault2-bigdata-example/core-site.xml:/core-site.xml
+          - ./examples/datavault2-bigdata-example/hdfs-site.xml:/hdfs-site.xml
+          - ./examples/datavault2-bigdata-example/mapred-site.xml:/mapred-site.xml
+          - /tmp/datavault2-bigdata-example:/tmp/datavault2-bigdata-example
       ports:
           - 8080:8080
       command: webserver

@@ -2,5 +2,5 @@ _site
 .sass-cache
 .jekyll-metadata
 **/*.pyc
-examples/datavault3-example/dataflow/env
+examples/datavault2-bigdata-example/dataflow/env
 
