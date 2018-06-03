@@ -1,10 +1,6 @@
 Data Vault 2
 ============
 
-.. important::
-
-    This example is work in progress...
-
 This is probably most elaborate example of how to use ETL with Apache Airflow.
 As part of this exercise, let's build an information mart on Google BigQuery through a DataVault
 built on top of Hive. (Consequently, this example requires a bit more memory and may not fit in a simple machine).
