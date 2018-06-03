@@ -43,3 +43,7 @@ class FileHook(BaseHook):
             if e.errno != os.errno.EEXIST:
                 raise
         shutil.copyfile(source_file, target_file)
+
+    def complete_file_path(self, relative_path):
+        target_file = os.path.join(self.path, relative_path)
+        return target_file

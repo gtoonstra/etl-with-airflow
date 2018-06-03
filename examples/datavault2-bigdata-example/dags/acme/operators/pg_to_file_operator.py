@@ -71,7 +71,7 @@ AND      table_name   = '{1}'
 ORDER BY ordinal_position
 """
     PG_DATETIME = "%Y-%m-%d %H:%M:%S"
-    DV_LOAD_DTM = '__dv_load_dtm'
+    DV_LOAD_DTM = 'dv__load_dtm'
 
     template_fields = ('sql', 'parameters')
     template_ext = ('.sql',)

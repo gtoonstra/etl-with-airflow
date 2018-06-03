@@ -26,6 +26,7 @@ services:
           - 8020:8020
       volumes:
           - ./examples/datavault2-bigdata-example/hive-site.xml:/etc/hive/conf.dist/hive-site.xml
+          - /tmp/datavault2-bigdata-example:/external
       hostname: quickstart.cloudera
       privileged: true
       tty: true
@@ -43,11 +44,13 @@ services:
           - INSTALL_HIVE=y
       volumes:
           - ./examples/datavault2-bigdata-example/dags:/usr/local/airflow/dags
+          - ./examples/datavault2-bigdata-example/dataflow:/usr/local/airflow/dataflow
           - ./examples/datavault2-bigdata-example/sql:/usr/local/airflow/sql
           - ./examples/datavault2-bigdata-example/core-site.xml:/core-site.xml
           - ./examples/datavault2-bigdata-example/hdfs-site.xml:/hdfs-site.xml
           - ./examples/datavault2-bigdata-example/mapred-site.xml:/mapred-site.xml
           - /tmp/datavault2-bigdata-example:/tmp/datavault2-bigdata-example
+          - ./examples/datavault2-bigdata-example/requirements.txt:/requirements.txt
       ports:
           - 8080:8080
       command: webserver

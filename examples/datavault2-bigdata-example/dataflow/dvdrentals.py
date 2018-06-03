@@ -14,9 +14,10 @@ from utils.filesink import CsvFileSink
 
 
 CONST_CKSUM_FIELD = '__row_cksum'
-CONST_BK_FIELD = '__dv_bk'
-CONST_SOURCE_FIELD = '__dv_rec_source'
-CONST_LOADDTM_FIELD = '__dv_load_dtm'
+CONST_BK_FIELD = 'dv__bk'
+CONST_SOURCE_FIELD = 'dv__rec_source'
+CONST_LOADDTM_FIELD = 'dv__load_dtm'
+CONST_STATUS_FIELD = 'dv__status'
 
 
 def print_line(record):
@@ -56,7 +57,8 @@ def get_business_key(record, bkey_list):
 
 def calc_cksum(record):
     m = hashlib.md5()
-    m.update(repr(sorted(record.items())))
+    c = {k:v for k, v in record.items() if k != CONST_LOADDTM_FIELD}
+    m.update(repr(sorted(c.items())))
     return m.hexdigest().upper()
 
 
@@ -82,40 +84,6 @@ def add_link_dv_details(record, generated_pk_name, bkey_list, source):
     return (record[generated_pk_name], record)
 
 
-def filter_new(record):
-    index = record[1]['index']
-    data = record[1]['data']
-    if len(index) > 1 or len(data) > 1:
-        raise Exception("Primary key is not unique")
-    if len(index) == 0 and len(data) == 1:
-        return True
-    return False
-
-
-def filter_updated(record):
-    index = record[1]['index']
-    data = record[1]['data']
-    if len(index) > 1 or len(data) > 1:
-        raise Exception("Primary key is not unique")
-    if len(index) == 1 and len(data) == 1:
-        rec_index = index[0]
-        rec_data = data[0]
-        if rec_index[CONST_CKSUM_FIELD] != rec_data[CONST_CKSUM_FIELD]:
-            return True
-
-    return False
-
-
-def filter_deleted(record):
-    index = record[1]['index']
-    data = record[1]['data']
-    if len(index) > 1 or len(data) > 1:
-        raise Exception("Primary key is not unique")
-    if len(index) == 1 and len(data) == 0:
-        return True
-    return False
-
-
 def select_index_or_data(record, pk):
     index = record[1]['index']
     data = record[1]['data']
@@ -133,8 +101,53 @@ def select_index_or_data(record, pk):
     raise Exception("No valid record found")
 
 
+def filter_unchanged_rows(record, incremental):
+    index = record[1]['index']
+    data = record[1]['data']
+    if len(index) > 1 or len(data) > 1:
+        raise Exception("Primary key is not unique")
+
+    if len(index) == 0 and len(data) == 1:
+        # always pick up new rows
+        return True
+
+    if len(index) == 1 and len(data) == 1:
+        rec_index = index[0]
+        rec_data = data[0]
+        if rec_index[CONST_CKSUM_FIELD] != rec_data[CONST_CKSUM_FIELD]:
+            # also pick up updated rows
+            return True
+    if not incremental:
+        if len(index) == 1 and len(data) == 0:
+            # Pick up deleted rows if we are running with full dumps
+            return True
+
+    # all other cases, filter out the row
+    return False
+
+
 def extract_data(record):
-    return record[1]['data'][0]
+    index = record[1]['index']
+    data = record[1]['data']
+    if len(index) > 1 or len(data) > 1:
+        raise Exception("Primary key is not unique")
+
+    if len(index) == 0 and len(data) == 1:
+        data = data[0]
+        data[CONST_STATUS_FIELD] = "NEW"
+        return data
+    if len(index) == 1 and len(data) == 1:
+        data = data[0]
+        data[CONST_STATUS_FIELD] = "UPDATED"
+        return data
+    if len(index) == 1 and len(data) == 0:
+        data = data[0]
+        data[CONST_STATUS_FIELD] = "DELETED"
+        return data
+
+    data = data[0]
+    data[CONST_STATUS_FIELD] = "UNKNOWN"
+    return data
 
 
 def apply_business_key(record, field_name):
@@ -185,8 +198,8 @@ class DvdRentalsPipeline(object):
     def get_staging(self, loc):
         return os.path.join(self.staging, loc)
 
-    def get_staging_location(self, key, prefix):
-        return os.path.join(self.staging, self.year, self.month, self.day, prefix + '_' + key)
+    def get_staging_location(self, key):
+        return os.path.join(self.staging, self.year, self.month, self.day, key, key)
 
     def resolve_foreign_keys(self, hub_name, pk, data, foreign_keys, pipeline):
         data = data | 'Unkey_{0}'.format(hub_name) >> \
@@ -277,33 +290,6 @@ class DvdRentalsPipeline(object):
             field_list=['country_id', 'country', 'last_update'],
             incremental=False)
 
-        # We process inventory as if it were a hub table, because it's a
-        # keyed link table
-        self.process_hub(
-            hub_name='inventory',
-            pk='inventory_id',
-            bkey_list=['inventory_id'],
-            field_list=['film_id', 'store_id', 'last_update'],
-            incremental=False)
-
-        # Rental could be a hub, could be a link.
-        # We process it as a hub for that reason, because it can be converted
-        # to any type later on (or produce multiple links)
-        self.process_hub(
-            hub_name='rental',
-            pk='rental_id',
-            bkey_list=['rental_id'],
-            field_list=['rental_date', 'return_date', 'last_update', 'inventory_bk', 'customer_bk'],
-            foreign_keys=[('inventory', 'inventory_id'), ('customer', 'customer_id')],
-            incremental=False)
-        self.process_hub(
-            hub_name='payment',
-            pk='payment_id',
-            bkey_list=['payment_id'],
-            field_list=['payment_date', 'amount', 'customer_bk', 'staff_bk', 'rental_bk'],
-            foreign_keys=[('customer', 'customer_id'), ('staff', 'staff_id'), ('rental', 'rental_id')],
-            incremental=True)
-
         self.process_hub(
             hub_name='actor',
             pk='actor_id',
@@ -332,6 +318,33 @@ class DvdRentalsPipeline(object):
             foreign_keys=[('language', 'language_id')],
             incremental=False)
 
+        # We process inventory as if it were a hub table, because we need the inventory_bk
+        self.process_hub(
+            hub_name='inventory',
+            pk='inventory_id',
+            bkey_list=['inventory_id'],
+            field_list=['film_id', 'store_id', 'last_update'],
+            foreign_keys=[('film', 'film_id'), ('store', 'store_id')],
+            incremental=False)
+
+        # Rental could be a hub, could be a link.
+        # We process it as a hub for that reason, because it can be converted
+        # to any type later on (or produce multiple links)
+        self.process_hub(
+            hub_name='rental',
+            pk='rental_id',
+            bkey_list=['rental_id'],
+            field_list=['rental_date', 'return_date', 'last_update', 'inventory_bk', 'customer_bk'],
+            foreign_keys=[('inventory', 'inventory_id'), ('customer', 'customer_id')],
+            incremental=False)
+        self.process_hub(
+            hub_name='payment',
+            pk='payment_id',
+            bkey_list=['payment_id'],
+            field_list=['payment_date', 'amount', 'customer_bk', 'staff_bk', 'rental_bk'],
+            foreign_keys=[('customer', 'customer_id'), ('staff', 'staff_id'), ('rental', 'rental_id')],
+            incremental=True)
+
         # Links follow a different processing:
         self.process_link(
             link_name='film_category',
@@ -354,7 +367,7 @@ class DvdRentalsPipeline(object):
                     foreign_keys=None,
                     incremental=True):
         ext_field_list = \
-            [CONST_BK_FIELD, CONST_SOURCE_FIELD, CONST_LOADDTM_FIELD] + \
+            [CONST_BK_FIELD, CONST_SOURCE_FIELD, CONST_LOADDTM_FIELD, CONST_STATUS_FIELD] + \
             field_list
 
         with beam.Pipeline(options=self.pipeline_options) as p:
@@ -402,34 +415,16 @@ class DvdRentalsPipeline(object):
             # Group with index to be able to identify new, updated, deleted
             merge = ({'data': preproc_data, 'index': index}) | 'grouped_by_' + pk >> beam.CoGroupByKey()
 
-            # Filter the new, updated and deleted and make new streams
-            merged_new = merge | 'filter_new_' + hub_name >> beam.Filter(filter_new)
-            merged_updated = merge | 'filter_updated_' + hub_name >> beam.Filter(filter_updated)
-            merged_deleted = None
-            if not incremental:
-                merged_deleted = merge | 'filter_deleted_' + hub_name >> beam.Filter(filter_deleted)
-
             # Extract the data out of the records (still has index/data dict in there)
-            data_new = merged_new | 'extract_new_' + hub_name >> beam.Map(extract_data)
-            data_updated = merged_updated | 'extract_updated_' + hub_name >> beam.Map(extract_data)
-            data_deleted = None
-            if merged_deleted:
-                data_deleted = merged_deleted | 'extract_deleted_' + hub_name >> beam.Map(extract_data)
+            extract = merge \
+                | 'filter_' + hub_name >> beam.Filter(filter_unchanged_rows, incremental) \
+                | 'extract_' + hub_name >> beam.Map(extract_data)
 
             # Write them out to disk in staging
-            data_new | 'Write_new_' + hub_name >> beam.io.Write(
+            extract | 'Write_' + hub_name >> beam.io.Write(
                 CsvFileSink(
-                    self.get_staging_location(hub_name, 'new'),
+                    self.get_staging_location(hub_name),
                     header=ext_field_list))
-            data_updated | 'Write_updated_' + hub_name >> beam.io.Write(
-                CsvFileSink(
-                    self.get_staging_location(hub_name, 'updated'),
-                    header=ext_field_list))
-            if data_deleted:
-                data_deleted | 'Write_deleted_' + hub_name >> beam.io.Write(
-                    CsvFileSink(
-                        self.get_staging_location(hub_name, 'deleted'),
-                        header=ext_field_list))
 
             # Update the index
             updated_index = merge | 'updated_index_' + hub_name >> beam.Map(select_index_or_data, pk)
@@ -447,7 +442,7 @@ class DvdRentalsPipeline(object):
                      foreign_keys,
                      incremental=True):
         ext_field_list = \
-            [CONST_BK_FIELD, CONST_SOURCE_FIELD, CONST_LOADDTM_FIELD] + \
+            [CONST_BK_FIELD, CONST_SOURCE_FIELD, CONST_LOADDTM_FIELD, CONST_STATUS_FIELD] + \
             field_list
 
         keys = [t[1] for t in foreign_keys]
@@ -493,34 +488,16 @@ class DvdRentalsPipeline(object):
             # Group with index to be able to identify new, updated, deleted
             merge = ({'data': preproc_data, 'index': index}) | 'grouped_by_' + generated_pk_name >> beam.CoGroupByKey()
 
-            # Filter the new, updated and deleted and make new streams
-            merged_new = merge | 'filter_new_' + link_name >> beam.Filter(filter_new)
-            merged_updated = merge | 'filter_updated_' + link_name >> beam.Filter(filter_updated)
-            merged_deleted = None
-            if not incremental:
-                merged_deleted = merge | 'filter_deleted_' + link_name >> beam.Filter(filter_deleted)
-
             # Extract the data out of the records (still has index/data dict in there)
-            data_new = merged_new | 'extract_new_' + link_name >> beam.Map(extract_data)
-            data_updated = merged_updated | 'extract_updated_' + link_name >> beam.Map(extract_data)
-            data_deleted = None
-            if merged_deleted:
-                data_deleted = merged_deleted | 'extract_deleted_' + link_name >> beam.Map(extract_data)
+            extract = merge \
+                | 'filter_' + link_name >> beam.Filter(filter_unchanged_rows, incremental) \
+                | 'extract_' + link_name >> beam.Map(extract_data)
 
             # Write them out to disk in staging
-            data_new | 'Write_new_' + link_name >> beam.io.Write(
+            extract | 'Write_' + link_name >> beam.io.Write(
                 CsvFileSink(
-                    self.get_staging_location(link_name, 'new'),
+                    self.get_staging_location(link_name),
                     header=ext_field_list))
-            data_updated | 'Write_updated_' + link_name >> beam.io.Write(
-                CsvFileSink(
-                    self.get_staging_location(link_name, 'updated'),
-                    header=ext_field_list))
-            if data_deleted:
-                data_deleted | 'Write_deleted_' + link_name >> beam.io.Write(
-                    CsvFileSink(
-                        self.get_staging_location(link_name, 'deleted'),
-                        header=ext_field_list))
 
             # Update the index
             updated_index = merge | 'updated_index_' + link_name >> beam.Map(select_index_or_data, generated_pk_name)

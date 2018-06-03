@@ -107,6 +107,19 @@ def init_datavault2_bigdata_example():
                          "use_beeline": "true"})})
 
     create_new_conn(session,
+                    {"conn_id": "hive_dvdrentals_staging",
+                     "conn_type": "hive_cli",
+                     "host": "hive",
+                     "schema": DVDRENTALS_STAGING,
+                     "port": 10000,
+                     "login": "cloudera",
+                     "password": "cloudera",
+                     "extra": json.dumps(
+                        {"hive_cli_params": "",
+                         "auth": "noSasl",
+                         "use_beeline": "true"})})
+
+    create_new_conn(session,
                     {"conn_id": "hive_datavault_temp",
                      "conn_type": "hive_cli",
                      "host": "hive",
@@ -172,10 +185,10 @@ all_done = DummyOperator(
 
 def create_table(hql, tablename, upstream, downstream):
     t = HiveOperator(task_id='table_{0}'.format(tablename),
-                      hive_cli_conn_id='hive_datavault_raw',
-                      schema=DATAVAULT,
-                      hql=hql,
-                      dag=dag)
+                     hive_cli_conn_id='hive_datavault_raw',
+                     schema=DATAVAULT,
+                     hql=hql,
+                     dag=dag)
     upstream >> t
     t >> downstream
 

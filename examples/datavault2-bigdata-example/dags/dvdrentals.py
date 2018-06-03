@@ -13,12 +13,17 @@
 # limitations under the License.
 
 from __future__ import print_function
-import airflow
 from datetime import datetime, timedelta
-from acme.operators.pg_to_file_operator import StagePostgresToFileOperator
+import os
+
+import airflow
+from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.models import Variable
 
+from acme.operators.pg_to_file_operator import StagePostgresToFileOperator
+from acme.operators.file_to_hive_operator import StageFileToHiveOperator
+import acme.schema.dvdrentals_schema as schema
 
 args = {
     'owner': 'airflow',
@@ -38,12 +43,20 @@ dag = airflow.DAG(
     max_active_runs=1)
 
 
-staging_done = DummyOperator(
-    task_id='staging_done',
+extract_done = DummyOperator(
+    task_id='extract_done',
+    dag=dag)
+
+beam_done = DummyOperator(
+    task_id='beam_done',
+    dag=dag)
+
+loading_done = DummyOperator(
+    task_id='loading_done',
     dag=dag)
 
 
-def stage_table(pg_table, downstream, override_cols=None, dtm_attribute=None):
+def stage_table(pg_table, override_cols=None, dtm_attribute=None):
     t1 = StagePostgresToFileOperator(
         source='dvdrentals',
         pg_table=pg_table,
@@ -53,25 +66,66 @@ def stage_table(pg_table, downstream, override_cols=None, dtm_attribute=None):
         file_conn_id='filestore',
         task_id=pg_table,
         dag=dag)
-    t1 >> downstream
+    t1 >> extract_done
 
 
-stage_table(pg_table='public.actor', downstream=staging_done)
-stage_table(pg_table='public.address', downstream=staging_done)
-stage_table(pg_table='public.category', downstream=staging_done)
-stage_table(pg_table='public.city', downstream=staging_done)
-stage_table(pg_table='public.country', downstream=staging_done)
-stage_table(pg_table='public.customer', downstream=staging_done)
-stage_table(pg_table='public.film', downstream=staging_done)
-stage_table(pg_table='public.film_actor', downstream=staging_done)
-stage_table(pg_table='public.film_category', downstream=staging_done)
-stage_table(pg_table='public.inventory', downstream=staging_done)
-stage_table(pg_table='public.language', downstream=staging_done)
-stage_table(pg_table='public.payment', downstream=staging_done, dtm_attribute='payment_date')
-stage_table(pg_table='public.rental', downstream=staging_done)
-stage_table(pg_table='public.staff', downstream=staging_done, override_cols=[
+def create_loading_operator(hive_table):
+    field_dict = schema.schemas[hive_table]
+    t1 = StageFileToHiveOperator(
+        hive_table=hive_table + '_{{ts_nodash}}',
+        relative_file_path='staging/dvdrentals/{{ds[:4]}}/{{ds[5:7]}}/{{ds[8:10]}}/' + hive_table + '/' + hive_table + '-00000-of-00001',
+        field_dict=field_dict,
+        create=True,
+        recreate=True,
+        file_conn_id='filestore',
+        hive_cli_conn_id='hive_dvdrentals_staging',
+        task_id='load_{0}'.format(hive_table),
+        dag=dag)
+
+    beam_done >> t1 >> loading_done
+    return t1
+
+
+stage_table(pg_table='public.actor')
+stage_table(pg_table='public.address')
+stage_table(pg_table='public.category')
+stage_table(pg_table='public.city')
+stage_table(pg_table='public.country')
+stage_table(pg_table='public.customer')
+stage_table(pg_table='public.film')
+stage_table(pg_table='public.film_actor')
+stage_table(pg_table='public.film_category')
+stage_table(pg_table='public.inventory')
+stage_table(pg_table='public.language')
+stage_table(pg_table='public.payment', dtm_attribute='payment_date')
+stage_table(pg_table='public.rental')
+stage_table(pg_table='public.staff', override_cols=[
     'staff_id', 'first_name', 'last_name', 'address_id', 'email', 'store_id', 'active', 'last_update'])
-stage_table(pg_table='public.store', downstream=staging_done)
+stage_table(pg_table='public.store')
+
+
+beam = BashOperator(
+    bash_command='/usr/local/airflow/dataflow/start_dataflow.sh {{ts}}',
+    task_id='dataflow',
+    dag=dag)
+extract_done >> beam >> beam_done
+
+
+create_loading_operator('address')
+create_loading_operator('actor')
+create_loading_operator('category')
+create_loading_operator('city')
+create_loading_operator('country')
+create_loading_operator('customer')
+create_loading_operator('film')
+create_loading_operator('film_actor')
+create_loading_operator('film_category')
+create_loading_operator('inventory')
+create_loading_operator('language')
+create_loading_operator('payment')
+create_loading_operator('rental')
+create_loading_operator('staff')
+create_loading_operator('store')
 
 
 if __name__ == "__main__":
