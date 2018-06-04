@@ -72,6 +72,7 @@ ORDER BY ordinal_position
 """
     PG_DATETIME = "%Y-%m-%d %H:%M:%S"
     DV_LOAD_DTM = 'dv__load_dtm'
+    DV_STATUS = 'dv__status'
 
     template_fields = ('sql', 'parameters')
     template_ext = ('.sql',)
@@ -107,6 +108,10 @@ ORDER BY ordinal_position
         file_hook = FileHook(file_conn_id=self.file_conn_id)
         pg_hook = PostgresHook(postgres_conn_id=self.postgres_conn_id)
         ds = context['execution_date']
+        incremental = False
+
+        if self.sql or self.dtm_attribute:
+            incremental = True
 
         logging.info("Dumping postgres query results to local file")
         conn = pg_hook.get_conn()
@@ -127,6 +132,8 @@ ORDER BY ordinal_position
 
         fieldnames = [field[0] for field in cursor.description]
         fieldnames.append(StagePostgresToFileOperator.DV_LOAD_DTM)
+        if incremental:
+            fieldnames.append(StagePostgresToFileOperator.DV_STATUS)
 
         with tempfile.NamedTemporaryFile(prefix=self.pg_table, mode="wb", delete=True) as f:
             writer = csv.DictWriter(
@@ -144,23 +151,34 @@ ORDER BY ordinal_position
                 for key, value in zip(fieldnames, row):
                     dict_row[key] = value
                 dict_row[StagePostgresToFileOperator.DV_LOAD_DTM] = ds
+                if incremental:
+                    # Always set to NEW for now...
+                    dict_row[StagePostgresToFileOperator.DV_STATUS] = 'NEW'
                 writer.writerow(dict_row)
 
             f.flush()
             cursor.close()
             conn.close()
 
-            path = os.path.join(
-                'psa',
-                self.source,
-                self.pg_table)
+            path = None
+            if incremental:
+                # Incremental loads go straight to psa
+                path = os.path.join(
+                    'psa',
+                    self.source,
+                    self.pg_table)
+            else:
+                # full dumps go to staging
+                path = os.path.join(
+                    'staging',
+                    self.source,
+                    self.pg_table)
 
-            # With incremental loads, partition data per day.
-            if self.sql or self.dtm_attribute:
-                path = os.path.join(path,
-                    ds.strftime('%Y'),
-                    ds.strftime('%m'),
-                    ds.strftime('%d'))
+            # Both roots add yyyy/mm/dd
+            path = os.path.join(path,
+                ds.strftime('%Y'),
+                ds.strftime('%m'),
+                ds.strftime('%d'))
 
             path = os.path.join(path, 
                 self.pg_table + '__' + 

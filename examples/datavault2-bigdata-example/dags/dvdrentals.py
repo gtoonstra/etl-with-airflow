@@ -47,8 +47,8 @@ extract_done = DummyOperator(
     task_id='extract_done',
     dag=dag)
 
-beam_done = DummyOperator(
-    task_id='beam_done',
+daily_process_done = DummyOperator(
+    task_id='daily_process_done',
     dag=dag)
 
 loading_done = DummyOperator(
@@ -73,7 +73,7 @@ def create_loading_operator(hive_table):
     field_dict = schema.schemas[hive_table]
     t1 = StageFileToHiveOperator(
         hive_table=hive_table + '_{{ts_nodash}}',
-        relative_file_path='staging/dvdrentals/{{ds[:4]}}/{{ds[5:7]}}/{{ds[8:10]}}/' + hive_table + '/' + hive_table + '-00000-of-00001',
+        relative_file_path='loading/dvdrentals/{{ds[:4]}}/{{ds[5:7]}}/{{ds[8:10]}}/' + hive_table + '/' + hive_table + '-00000-of-00001',
         field_dict=field_dict,
         create=True,
         recreate=True,
@@ -82,7 +82,7 @@ def create_loading_operator(hive_table):
         task_id='load_{0}'.format(hive_table),
         dag=dag)
 
-    beam_done >> t1 >> loading_done
+    daily_process_done >> t1 >> loading_done
     return t1
 
 
@@ -104,13 +104,18 @@ stage_table(pg_table='public.staff', override_cols=[
 stage_table(pg_table='public.store')
 
 
-beam = BashOperator(
-    bash_command='/usr/local/airflow/dataflow/start_dataflow.sh {{ts}}',
-    task_id='dataflow',
+daily_dumps = BashOperator(
+    bash_command='/usr/local/airflow/dataflow/process_daily_full_dumps.sh {{ts}}',
+    task_id='daily_dumps',
     dag=dag)
-extract_done >> beam >> beam_done
+incremental_build = BashOperator(
+    bash_command='/usr/local/airflow/dataflow/start_incremental_dv.sh {{ts}}',
+    task_id='incremental_build',
+    dag=dag)
 
+extract_done >> daily_dumps >> incremental_build >> daily_process_done
 
+"""
 create_loading_operator('address')
 create_loading_operator('actor')
 create_loading_operator('category')
@@ -126,6 +131,7 @@ create_loading_operator('payment')
 create_loading_operator('rental')
 create_loading_operator('staff')
 create_loading_operator('store')
+"""
 
 
 if __name__ == "__main__":
