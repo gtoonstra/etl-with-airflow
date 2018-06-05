@@ -369,6 +369,10 @@ class DvdRentalsPipeline(object):
                 # create an empty pcollection, so we can at least run
                 index = p | beam.Create([])
 
+            # Generate business keys, checksum, dv_source, load_dtm
+            preproc_data = data | 'preprocess_' + hub_name >> \
+                beam.Map(add_hub_dv_details, bkey_list, self.source)
+
             if foreign_keys:
                 data = self.resolve_foreign_keys(
                     hub_name=hub_name,
@@ -376,10 +380,6 @@ class DvdRentalsPipeline(object):
                     data=data,
                     foreign_keys=foreign_keys,
                     pipeline=p)
-
-            # Generate business keys, checksum, dv_source, load_dtm
-            preproc_data = data | 'preprocess_' + hub_name >> \
-                beam.Map(add_hub_dv_details, bkey_list, self.source)
 
             # Group with index to be able to identify new, updated, deleted
             merge = ({'data': preproc_data, 'index': index}) | 'grouped_by_' + pk >> beam.CoGroupByKey()
@@ -420,9 +420,6 @@ class DvdRentalsPipeline(object):
                 link_name,
                 self.get_psa_location('public.{0}'.format(link_name)) + '*')
 
-            preproc_data = data | 'preprocess_' + link_name >> \
-                beam.Map(add_link_dv_details, foreign_keys, self.source)
-
             index = None
             try:
                 # Also set up a stream for the index
@@ -435,6 +432,9 @@ class DvdRentalsPipeline(object):
                 logging.info("Could not open index, maybe doesn't exist")
                 # create an empty pcollection, so we can at least run
                 index = p | beam.Create([])
+
+            preproc_data = data | 'preprocess_' + link_name >> \
+                beam.Map(add_link_dv_details, foreign_keys, self.source)
 
             preproc_data = self.resolve_foreign_keys(
                 hub_name=link_name,
