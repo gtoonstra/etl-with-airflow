@@ -201,18 +201,81 @@ create_table(
     tablename='hub_actor',
     upstream=t4,
     downstream=hubs_done)
+create_table(
+    hql='ddl/hub_address.hql',
+    tablename='hub_address',
+    upstream=t4,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_category.hql',
+    tablename='hub_category',
+    upstream=t4,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_customer.hql',
+    tablename='hub_customer',
+    upstream=t4,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_film.hql',
+    tablename='hub_film',
+    upstream=t4,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_language.hql',
+    tablename='hub_language',
+    upstream=t4,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_staff.hql',
+    tablename='hub_staff',
+    upstream=t4,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_store.hql',
+    tablename='hub_store',
+    upstream=t4,
+    downstream=hubs_done)
 
 # links
 create_table(
-    hql='ddl/link_actor_film.hql',
-    tablename='link_actor_film',
+    hql='ddl/link_film_actor.hql',
+    tablename='link_film_actor',
     upstream=hubs_done,
     downstream=links_done)
-
-# references
 create_table(
-    hql='ddl/ref_language.hql',
-    tablename='ref_language',
+    hql='ddl/link_film_category.hql',
+    tablename='link_film_category',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
+    hql='ddl/link_film_language.hql',
+    tablename='link_film_language',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
+    hql='ddl/link_payment.hql',
+    tablename='link_payment',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
+    hql='ddl/link_rental.hql',
+    tablename='link_rental',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
+    hql='ddl/link_staff_address.hql',
+    tablename='link_staff_address',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
+    hql='ddl/link_staff_store.hql',
+    tablename='link_staff_store',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
+    hql='ddl/link_store_manager.hql',
+    tablename='link_store_manager',
     upstream=hubs_done,
     downstream=links_done)
 
@@ -220,5 +283,45 @@ create_table(
 create_table(
     hql='ddl/sat_actor.hql',
     tablename='sat_actor',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_address.hql',
+    tablename='sat_address',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_category.hql',
+    tablename='sat_category',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_customer.hql',
+    tablename='sat_customer',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_film.hql',
+    tablename='sat_film',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_language.hql',
+    tablename='sat_language',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_payment.hql',
+    tablename='sat_payment',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_staff.hql',
+    tablename='sat_staff',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_store.hql',
+    tablename='sat_store',
     upstream=links_done,
     downstream=all_done)

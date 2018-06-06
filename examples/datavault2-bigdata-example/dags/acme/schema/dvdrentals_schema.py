@@ -155,7 +155,7 @@ def create_payment_schema():
     d["dv__load_dtm"] = "TIMESTAMP"
     d["dv__status"] = "STRING"
     d["payment_date"] = "TIMESTAMP"
-    d["amount"] = "STRING"
+    d["amount"] = "FLOAT"
     d["customer_bk"] = "STRING"
     d["staff_bk"] = "STRING"
     d["rental_bk"] = "STRING"
@@ -189,8 +189,6 @@ def create_staff_schema():
     d["email"] = "STRING"
     d["store_bk"] = "STRING"
     d["active"] = "STRING"
-    d["username"] = "STRING"
-    d["password"] = "STRING"
     d["last_update"] = "TIMESTAMP"
     return d
 
@@ -208,20 +206,20 @@ def create_store_schema():
 
 
 schemas = {
-    "address": create_address_schema(),
-    "actor": create_actor_schema(),
-    "category": create_category_schema(),
-    "city": create_city_schema(),
-    "country": create_country_schema(),
-    "customer": create_customer_schema(),
-    "film": create_film_schema(),
-    "film_actor": create_film_actor_schema(),
-    "film_category": create_film_category_schema(),
-    "inventory": create_inventory_schema(),
-    "language": create_language_schema(),
-    "payment": create_payment_schema(),
-    "rental": create_rental_schema(),
-    "staff": create_staff_schema(),
-    "store": create_store_schema()
+    "public.address": create_address_schema(),
+    "public.actor": create_actor_schema(),
+    "public.category": create_category_schema(),
+    "public.city": create_city_schema(),
+    "public.country": create_country_schema(),
+    "public.customer": create_customer_schema(),
+    "public.film": create_film_schema(),
+    "public.film_actor": create_film_actor_schema(),
+    "public.film_category": create_film_category_schema(),
+    "public.inventory": create_inventory_schema(),
+    "public.language": create_language_schema(),
+    "public.payment": create_payment_schema(),
+    "public.rental": create_rental_schema(),
+    "public.staff": create_staff_schema(),
+    "public.store": create_store_schema()
 }
 

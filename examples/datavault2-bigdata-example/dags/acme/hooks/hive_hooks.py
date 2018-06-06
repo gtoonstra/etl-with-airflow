@@ -227,11 +227,11 @@ class HiveCliHook(BaseHook):
 
                 return stdout
 
-    def transfer_data_file(self, filepath, verbose=True):
+    def transfer_data_file(self, filepath, table, verbose=True):
             filename = os.path.basename(filepath)
-            destination_path = '/user/cloudera/{0}'.format(filename)
+            destination_path = '/user/cloudera/{0}'.format(table)
 
-            hdfs_cmd = ['hdfs','dfs','-put',filepath,destination_path]
+            hdfs_cmd = ['hdfs','dfs','-put', filepath, destination_path]
             if verbose:
                 logging.info(" ".join(hdfs_cmd))
             sp = subprocess.Popen(
@@ -429,7 +429,7 @@ class HiveCliHook(BaseHook):
         destination_path = None
 
         if self.use_beeline:
-            destination_path = self.transfer_data_file(filepath)
+            destination_path = self.transfer_data_file(filepath, table)
             hql = "LOAD DATA INPATH '{destination_path}' "
         else:
             hql = "LOAD DATA LOCAL INPATH '{filepath}' "

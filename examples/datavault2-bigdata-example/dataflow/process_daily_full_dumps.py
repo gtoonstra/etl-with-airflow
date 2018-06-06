@@ -1,5 +1,5 @@
 import argparse
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
 import logging
 import os
@@ -112,6 +112,7 @@ def extract_data(record):
     data[CONST_STATUS_FIELD] = "UNKNOWN"
     return data
 
+
 class DvdRentalsPipeline(object):
     def __init__(self, source, *args, **kwargs):
         self.source = source
@@ -132,6 +133,7 @@ class DvdRentalsPipeline(object):
         self.year = str(parsed_dtm.year)
         self.month = '{0:02d}'.format(parsed_dtm.month)
         self.day = '{0:02d}'.format(parsed_dtm.day)
+        self.yesterday_dtm = parsed_dtm - timedelta(days=1)
         self.psa = os.path.join(known_args.root, 'psa', self.source)
         self.index = os.path.join(known_args.root, 'index', self.source)
         self.staging = os.path.join(known_args.root, 'staging', self.source)
@@ -145,8 +147,11 @@ class DvdRentalsPipeline(object):
     def get_psa_location(self, loc):
         return os.path.join(self.psa, loc, self.year, self.month, self.day, loc)
 
-    def get_index(self, loc):
-        return os.path.join(self.index, loc)
+    def get_source_index(self, loc):
+        return os.path.join(self.index, self.yesterday_dtm.strftime('%Y-%m-%d_') + loc)
+
+    def get_target_index(self, loc):
+        return os.path.join(self.index, self.parsed_dtm.strftime('%Y-%m-%d_') + loc)
 
     def get_staging(self, loc):
         return os.path.join(self.staging, loc)
@@ -241,7 +246,7 @@ class DvdRentalsPipeline(object):
                 index = read_file(
                     p,
                     '{0}index'.format(hub_name),
-                    self.get_index('hub_{0}*'.format(hub_name)),
+                    self.get_source_index('hub_{0}*'.format(hub_name)),
                     pk)
             except IOError:
                 logging.info("Could not open index, maybe doesn't exist")
@@ -288,7 +293,7 @@ class DvdRentalsPipeline(object):
                 index = read_file(
                     p,
                     '{0}index'.format(link_name),
-                    self.get_index('link_{0}*'.format(link_name)),
+                    self.get_source_index('link_{0}*'.format(link_name)),
                     LINK_KEY)
             except IOError:
                 logging.info("Could not open index, maybe doesn't exist")

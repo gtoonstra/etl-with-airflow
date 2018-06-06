@@ -1,5 +1,5 @@
 import argparse
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
 import logging
 import os
@@ -170,10 +170,11 @@ class DvdRentalsPipeline(object):
         self.year = str(parsed_dtm.year)
         self.month = '{0:02d}'.format(parsed_dtm.month)
         self.day = '{0:02d}'.format(parsed_dtm.day)
+        self.yesterday_dtm = parsed_dtm - timedelta(days=1)
         self.psa = os.path.join(known_args.root, 'psa', self.source)
         self.index = os.path.join(known_args.root, 'index', self.source)
         self.staging = os.path.join(known_args.root, 'staging', self.source)
-        self.loading = os.path.join(known_args.root, 'loading', self.source)
+        self.loading = os.path.join(known_args.root, 'incremental-load', self.source)
 
     def get_psa(self, loc):
         return os.path.join(self.psa, loc)
@@ -187,8 +188,11 @@ class DvdRentalsPipeline(object):
     def get_loading_location(self, loc):
         return os.path.join(self.loading, loc, self.year, self.month, self.day, loc)
 
-    def get_index(self, loc):
-        return os.path.join(self.index, loc)
+    def get_source_index(self, loc):
+        return os.path.join(self.index, self.yesterday_dtm.strftime('%Y-%m-%d_') + loc)
+
+    def get_target_index(self, loc):
+        return os.path.join(self.index, self.parsed_dtm.strftime('%Y-%m-%d_') + loc)
 
     def get_staging(self, loc):
         return os.path.join(self.staging, loc)
@@ -211,12 +215,11 @@ class DvdRentalsPipeline(object):
                 fk_index = read_file(
                     pipeline,
                     '{0}index'.format(fk_table),
-                    self.get_index('hub_{0}*'.format(fk_table)),
+                    self.get_target_index('hub_{0}*'.format(fk_table)),
                     fk_key)
             except IOError:
-                logging.info("Could not open index, maybe doesn't exist")
-                # create an empty pcollection, so we can at least run
-                fk_index = p | beam.Create([])
+                logging.info("Could not open index, incorrect load order")
+                raise
 
             data = data | 'Rekey_{0}_{1}'.format(hub_name, fk_table) >> \
                 beam.Map(lambda x: (x[fk_key], x))
@@ -362,7 +365,7 @@ class DvdRentalsPipeline(object):
                 index = read_file(
                     p,
                     '{0}index'.format(hub_name),
-                    self.get_index('hub_{0}*'.format(hub_name)),
+                    self.get_source_index('hub_{0}*'.format(hub_name)),
                     pk)
             except IOError:
                 logging.info("Could not open index, maybe doesn't exist")
@@ -399,7 +402,7 @@ class DvdRentalsPipeline(object):
             updated_index = merge | 'updated_index_' + hub_name >> beam.Map(hub_select_index_or_data, pk)
             updated_index | 'Write_index_' + hub_name >> beam.io.Write(
                 CsvFileSink(
-                    self.get_index('hub_{0}'.format(hub_name)),
+                    self.get_target_index('hub_{0}'.format(hub_name)),
                     header=[CONST_BK_FIELD, CONST_CKSUM_FIELD, pk]))
 
     def process_link(self,
@@ -426,7 +429,7 @@ class DvdRentalsPipeline(object):
                 index = read_file(
                     p,
                     '{0}index'.format(link_name),
-                    self.get_index('link_{0}*'.format(link_name)),
+                    self.get_source_index('link_{0}*'.format(link_name)),
                     LINK_KEY)
             except IOError:
                 logging.info("Could not open index, maybe doesn't exist")
@@ -461,7 +464,7 @@ class DvdRentalsPipeline(object):
             updated_index = merge | 'updated_index_' + link_name >> beam.Map(link_select_index_or_data, LINK_KEY)
             updated_index | 'Write_index_' + link_name >> beam.io.Write(
                 CsvFileSink(
-                    self.get_index('link_{0}'.format(link_name)),
+                    self.get_target_index('link_{0}'.format(link_name)),
                     header=[CONST_CKSUM_FIELD, LINK_KEY]))
 
 

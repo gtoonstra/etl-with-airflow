@@ -1,10 +1,10 @@
 INSERT INTO TABLE dv_raw.hub_actor
 SELECT DISTINCT
-    a.dv__bk as hkey_actor,
-    a.dv__rec_source as rec_source,
-    a.dv__load_dtm as load_dtm,
-    a.first_name,
-    a.last_name
+      a.dv__bk as hkey_actor
+    , a.dv__rec_source as rec_source
+    , a.dv__load_dtm as load_dtm
+    , a.first_name
+    , a.last_name
 FROM
     staging_dvdrentals.actor_{{ts_nodash}} a
 WHERE
