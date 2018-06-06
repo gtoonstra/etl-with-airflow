@@ -77,9 +77,9 @@ def add_hub_dv_details(record, bkey_list, source):
 def add_link_dv_details(record, pk_keys, source):
     pk = [record.get(key[1], '') for key in pk_keys]
     pk = '|'.join(pk)
+    record[CONST_CKSUM_FIELD] = calc_cksum(record)
     record[LINK_KEY] = pk
     record[CONST_SOURCE_FIELD] = source
-    record[CONST_CKSUM_FIELD] = calc_cksum(record)
     return (pk, record)
 
 

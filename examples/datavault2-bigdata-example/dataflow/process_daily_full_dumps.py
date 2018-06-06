@@ -176,7 +176,7 @@ class DvdRentalsPipeline(object):
             hub_name='staff',
             pk='staff_id',
             field_list=['staff_id', 'first_name' ,'last_name', 'address_id', 'email', 'store_id', 'active',
-            'username', 'password', 'last_update'])
+            'last_update'])
         self.process_table(
             hub_name='city',
             pk='city_id',
