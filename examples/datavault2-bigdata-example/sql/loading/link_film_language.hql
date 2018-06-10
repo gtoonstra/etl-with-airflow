@@ -1,12 +1,12 @@
 INSERT INTO TABLE dv_raw.link_film_language
 SELECT DISTINCT
     upper(md5(concat(fc.hkey_film, fc.hkey_language))) as hkey_film_language,
-    fc.hkey_film,
-    fc.hkey_language,
     fc.record_source,
-    fc.load_dtm
+    fc.load_dtm,
+    fc.hkey_film,
+    fc.hkey_language
 FROM
-    staging_dvdrentals.link_film_language_{{ts_nodash}} fc
+    staging_dvdrentals.film_language_{{ts_nodash}} fc
 WHERE
     NOT EXISTS (
         SELECT 

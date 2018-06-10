@@ -1,10 +1,10 @@
 INSERT INTO TABLE dv_raw.link_customer_address
 SELECT DISTINCT
     upper(md5(concat(ca.hkey_customer, ca.hkey_address))) as hkey_customer_address,
+    ca.record_source,
+    ca.load_dtm,
     ca.hkey_customer,
     ca.hkey_address,
-    ca.record_source,
-    ca.load_dtm
 FROM
     staging_dvdrentals.link_customer_address_{{ts_nodash}} ca
 WHERE

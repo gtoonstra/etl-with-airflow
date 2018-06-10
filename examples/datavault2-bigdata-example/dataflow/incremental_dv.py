@@ -349,7 +349,8 @@ class DvdRentalsPipeline(object):
                     field_list,
                     foreign_keys=None):
         ext_field_list = \
-            field_list + [CONST_BK_FIELD, CONST_SOURCE_FIELD, CONST_LOADDTM_FIELD, CONST_STATUS_FIELD]
+            [CONST_BK_FIELD, CONST_SOURCE_FIELD, CONST_LOADDTM_FIELD, CONST_STATUS_FIELD] + \
+            field_list
 
         with beam.Pipeline(options=self.pipeline_options) as p:
             # First set up a stream for the data

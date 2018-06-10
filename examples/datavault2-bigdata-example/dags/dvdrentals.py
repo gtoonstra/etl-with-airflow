@@ -23,6 +23,7 @@ from airflow.models import Variable
 
 from acme.operators.pg_to_file_operator import StagePostgresToFileOperator
 from acme.operators.file_to_hive_operator import StageFileToHiveOperator
+from airflow.operators.hive_operator import HiveOperator
 import acme.schema.dvdrentals_schema as schema
 
 args = {
@@ -51,6 +52,10 @@ daily_process_done = DummyOperator(
     task_id='daily_process_done',
     dag=dag)
 
+staging_done = DummyOperator(
+    task_id='staging_done',
+    dag=dag)
+
 loading_done = DummyOperator(
     task_id='loading_done',
     dag=dag)
@@ -69,7 +74,7 @@ def stage_table(pg_table, override_cols=None, dtm_attribute=None):
     t1 >> extract_done
 
 
-def create_loading_operator(hive_table):
+def create_staging_operator(hive_table):
     field_dict = schema.schemas[hive_table]
     _, table = hive_table.split('.')
 
@@ -81,10 +86,52 @@ def create_loading_operator(hive_table):
         recreate=True,
         file_conn_id='filestore',
         hive_cli_conn_id='hive_dvdrentals_staging',
+        task_id='stage_{0}'.format(hive_table),
+        dag=dag)
+
+    daily_process_done >> t1 >> staging_done
+    return t1
+
+
+def load_hub(hql, hive_table):
+    _, table = hive_table.split('.')
+
+    t1 = HiveOperator(
+        hql=hql,
+        hive_cli_conn_id='hive_datavault_raw',
+        schema='dv_raw',
         task_id='load_{0}'.format(hive_table),
         dag=dag)
 
-    daily_process_done >> t1 >> loading_done
+    staging_done >> t1 >> loading_done
+    return t1
+
+
+def load_link(hql, hive_table):
+    _, table = hive_table.split('.')
+
+    t1 = HiveOperator(
+        hql=hql,
+        hive_cli_conn_id='hive_datavault_raw',
+        schema='dv_raw',
+        task_id='load_{0}'.format(hive_table),
+        dag=dag)
+
+    staging_done >> t1 >> loading_done
+    return t1
+
+
+def load_sat(hql, hive_table):
+    _, table = hive_table.split('.')
+
+    t1 = HiveOperator(
+        hql=hql,
+        hive_cli_conn_id='hive_datavault_raw',
+        schema='dv_raw',
+        task_id='load_{0}'.format(hive_table),
+        dag=dag)
+
+    staging_done >> t1 >> loading_done
     return t1
 
 
@@ -117,21 +164,51 @@ incremental_build = BashOperator(
 
 extract_done >> daily_dumps >> incremental_build >> daily_process_done
 
-create_loading_operator('public.address')
-create_loading_operator('public.actor')
-create_loading_operator('public.category')
-create_loading_operator('public.city')
-create_loading_operator('public.country')
-create_loading_operator('public.customer')
-create_loading_operator('public.film')
-create_loading_operator('public.film_actor')
-create_loading_operator('public.film_category')
-create_loading_operator('public.inventory')
-create_loading_operator('public.language')
-create_loading_operator('public.payment')
-create_loading_operator('public.rental')
-create_loading_operator('public.staff')
-create_loading_operator('public.store')
+create_staging_operator('public.address')
+create_staging_operator('public.actor')
+create_staging_operator('public.category')
+create_staging_operator('public.city')
+create_staging_operator('public.country')
+create_staging_operator('public.customer')
+create_staging_operator('public.film')
+create_staging_operator('public.film_actor')
+create_staging_operator('public.film_category')
+create_staging_operator('public.inventory')
+create_staging_operator('public.language')
+create_staging_operator('public.payment')
+create_staging_operator('public.rental')
+create_staging_operator('public.staff')
+create_staging_operator('public.store')
+
+
+load_hub('loading/hub_actor.hql', 'dv_raw.hub_actor')
+load_hub('loading/hub_address.hql', 'dv_raw.hub_address')
+load_hub('loading/hub_category.hql', 'dv_raw.hub_category')
+load_hub('loading/hub_customer.hql', 'dv_raw.hub_customer')
+load_hub('loading/hub_film.hql', 'dv_raw.hub_film')
+load_hub('loading/hub_language.hql', 'dv_raw.hub_language')
+load_hub('loading/hub_staff.hql', 'dv_raw.hub_staff')
+load_hub('loading/hub_store.hql', 'dv_raw.hub_store')
+
+load_link('loading/link_customer_address.hql', 'dv_raw.link_customer_address')
+load_link('loading/link_film_actor.hql', 'dv_raw.link_film_actor')
+load_link('loading/link_film_category.hql', 'dv_raw.link_film_category')
+load_link('loading/link_film_language.hql', 'dv_raw.link_film_language')
+load_link('loading/link_payment.hql', 'dv_raw.link_payment')
+load_link('loading/link_rental.hql', 'dv_raw.link_rental')
+load_link('loading/link_staff_address.hql', 'dv_raw.link_staff_address')
+load_link('loading/link_staff_store.hql', 'dv_raw.link_staff_store')
+load_link('loading/link_store_staff.hql', 'dv_raw.link_store_staff')
+
+load_sat('loading/sat_actor.hql', 'dv_raw.sat_actor')
+load_sat('loading/sat_address.hql', 'dv_raw.sat_address')
+load_sat('loading/sat_category.hql', 'dv_raw.sat_category')
+load_sat('loading/sat_customer.hql', 'dv_raw.sat_customer')
+load_sat('loading/sat_film.hql', 'dv_raw.sat_film')
+load_sat('loading/sat_language.hql', 'dv_raw.sat_language')
+load_sat('loading/sat_payment.hql', 'dv_raw.sat_payment')
+load_sat('loading/sat_staff.hql', 'dv_raw.sat_staff')
+load_sat('loading/sat_store.hql', 'dv_raw.sat_store')
 
 
 if __name__ == "__main__":

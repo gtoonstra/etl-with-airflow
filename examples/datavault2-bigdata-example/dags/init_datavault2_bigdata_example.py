@@ -239,6 +239,11 @@ create_table(
 
 # links
 create_table(
+    hql='ddl/link_customer_address.hql',
+    tablename='link_customer_address',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
     hql='ddl/link_film_actor.hql',
     tablename='link_film_actor',
     upstream=hubs_done,
@@ -274,8 +279,8 @@ create_table(
     upstream=hubs_done,
     downstream=links_done)
 create_table(
-    hql='ddl/link_store_manager.hql',
-    tablename='link_store_manager',
+    hql='ddl/link_store_staff.hql',
+    tablename='link_store_staff',
     upstream=hubs_done,
     downstream=links_done)
 
