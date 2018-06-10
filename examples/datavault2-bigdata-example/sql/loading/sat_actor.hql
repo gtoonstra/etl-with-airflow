@@ -1,13 +1,13 @@
 INSERT INTO TABLE dv_raw.sat_actor
 SELECT DISTINCT
-      a.hkey_actor
-    , a.load_dtm
-    , a.record_source
+      a.dv__bk as hkey_actor
+    , a.dv__load_dtm as load_dtm
+    , a.dv__rec_source as record_source
     , a.last_update
 FROM
-                advworks_staging.address_{{ts_nodash}} a
-LEFT OUTER JOIN dv_raw.sat_actor sat ON (
-                sat.hkey_actor = a.hkey_actor
-         AND    sat.load_dtm = a.load_dtm
+                staging_dvdrentals.actor_{{ts_nodash}} a
+LEFT OUTER JOIN dv_raw.sat_actor sat ON
+                sat.hkey_actor = a.dv__bk
+         AND    sat.load_dtm = a.dv__load_dtm
 WHERE
     sat.hkey_actor IS NULL

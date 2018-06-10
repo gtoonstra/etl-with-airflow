@@ -1,18 +1,18 @@
 INSERT INTO TABLE dv_raw.link_staff_store
 SELECT DISTINCT
-    upper(md5(concat(ss.hkey_staff, ss.hkey_store))) as hkey_staff_store,
-    ss.record_source,
-    ss.load_dtm,
-    ss.hkey_staff,
-    ss.hkey_store,    
+    s.staff_store_bk as hkey_staff_store,
+    s.dv__rec_source as record_source,
+    s.dv__load_dtm as load_dtm,
+    s.dv__bk as hkey_staff,
+    s.store_bk as hkey_store
 FROM
-    staging_dvdrentals.staff_store_{{ts_nodash}} ss
+    staging_dvdrentals.staff_{{ts_nodash}} s
 WHERE
     NOT EXISTS (
         SELECT 
-                lss.hkey_staff_address
+                lss.hkey_staff_store
         FROM    dv_raw.link_staff_store lss
         WHERE 
-                lss.hkey_staff = ca.hkey_staff
-        AND     lss.hkey_store = ca.hkey_store
+                lss.hkey_staff = s.dv__bk
+        AND     lss.hkey_store = s.store_bk
     )

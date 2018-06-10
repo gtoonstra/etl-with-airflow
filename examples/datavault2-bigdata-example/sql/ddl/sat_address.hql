@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS dv_raw.sat_address (
-      hkey_adress     STRING
+      hkey_address     STRING
     , load_dtm        TIMESTAMP
     , record_source   STRING    
     , address2        STRING

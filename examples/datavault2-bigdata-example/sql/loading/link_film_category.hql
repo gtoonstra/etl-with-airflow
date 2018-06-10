@@ -1,8 +1,8 @@
 INSERT INTO TABLE dv_raw.link_film_category
 SELECT DISTINCT
-    upper(md5(concat(fc.film_bk, fc.category_bk))) as hkey_film_category,
-    fc.record_source,
-    fc.load_dtm,
+    fc.dv__link_key as hkey_film_category,
+    fc.dv__rec_source as record_source,
+    fc.dv__load_dtm as load_dtm,
     fc.film_bk as hkey_film,
     fc.category_bk as hkey_category
 FROM

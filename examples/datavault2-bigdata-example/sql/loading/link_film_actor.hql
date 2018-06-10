@@ -1,10 +1,10 @@
 INSERT INTO TABLE dv_raw.link_film_actor
 SELECT DISTINCT
-    upper(md5(concat(fa.film_bk, fa.actor_bk))) as hkey_film_actor,
-    fa.record_source,
-    fa.load_dtm,
-    fa.hkey_film,
-    fa.hkey_actor
+    fa.dv__link_key as hkey_film_actor,
+    fa.dv__rec_source as record_source,
+    fa.dv__load_dtm as load_dtm,
+    fa.film_bk as hkey_film,
+    fa.actor_bk as hkey_actor
 FROM
     staging_dvdrentals.film_actor_{{ts_nodash}} fa
 WHERE

@@ -1,18 +1,18 @@
 INSERT INTO TABLE dv_raw.link_customer_address
 SELECT DISTINCT
-    upper(md5(concat(ca.hkey_customer, ca.hkey_address))) as hkey_customer_address,
-    ca.record_source,
-    ca.load_dtm,
-    ca.hkey_customer,
-    ca.hkey_address
+    c.customer_address_bk as hkey_customer_address,
+    c.dv__rec_source as record_source,
+    c.dv__load_dtm as load_dtm,
+    c.dv__bk as hkey_customer,
+    c.address_bk as hkey_address
 FROM
-    staging_dvdrentals.customer_{{ts_nodash}} ca
+    staging_dvdrentals.customer_{{ts_nodash}} c
 WHERE
     NOT EXISTS (
         SELECT 
                 lca.hkey_customer_address
         FROM    dv_raw.link_customer_address lca
         WHERE 
-                lca.hkey_customer = ca.hkey_customer
-        AND     lca.hkey_address = ca.hkey_address
+                lca.hkey_customer = c.dv__bk
+        AND     lca.hkey_address = c.address_bk
     )

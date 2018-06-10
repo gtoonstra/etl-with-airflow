@@ -1,10 +1,10 @@
 INSERT INTO TABLE dv_raw.link_rental
 SELECT DISTINCT
-    upper(md5(concat(fc.customer_bk, fc.inventory_bk))) as hkey_rental,
-    fc.record_source,
-    fc.load_dtm,
-    fc.customer_bk,
-    fc.inventory_bk
+    r.rental_customer_bk as hkey_rental,
+    r.dv__rec_source as record_source,
+    r.dv__load_dtm as load_dtm,
+    r.customer_bk,
+    r.inventory_bk
 FROM
     staging_dvdrentals.rental_{{ts_nodash}} r
 WHERE
