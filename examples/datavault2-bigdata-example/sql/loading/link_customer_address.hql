@@ -4,9 +4,9 @@ SELECT DISTINCT
     ca.record_source,
     ca.load_dtm,
     ca.hkey_customer,
-    ca.hkey_address,
+    ca.hkey_address
 FROM
-    staging_dvdrentals.link_customer_address_{{ts_nodash}} ca
+    staging_dvdrentals.customer_{{ts_nodash}} ca
 WHERE
     NOT EXISTS (
         SELECT 

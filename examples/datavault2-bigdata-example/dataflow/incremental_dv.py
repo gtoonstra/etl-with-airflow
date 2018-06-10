@@ -75,12 +75,14 @@ def add_hub_dv_details(record, bkey_list, source):
 
 
 def add_link_dv_details(record, pk_keys, source):
-    pk = [record.get(key[1], '') for key in pk_keys]
-    pk = '|'.join(pk)
+    bkey_list = [pk[1] for pk in pk_keys]
+    link_bk = get_business_key(record, bkey_list)
     record[CONST_CKSUM_FIELD] = calc_cksum(record)
-    record[LINK_KEY] = pk
+    m = hashlib.md5()
+    m.update(link_bk)
+    record[LINK_KEY] = m.hexdigest().upper()
     record[CONST_SOURCE_FIELD] = source
-    return (pk, record)
+    return (record[LINK_KEY], record)
 
 
 def hub_select_index_or_data(record, pk):
@@ -138,13 +140,20 @@ def extract_data(record):
     return data[0]
 
 
-def apply_business_key(record, field_name):
+def apply_business_key(record, pk, hub_name, foreign_hub):
     index = record[1]['index']
     data = record[1]['data']
+    bk = index[0][CONST_BK_FIELD]
+    field_name = '{0}_bk'.format(foreign_hub)
+    comb_name = hub_name + "_" + foreign_hub + '_bk'
+
     for rec in data:
         if len(index) > 0:
-            bk = index[0][CONST_BK_FIELD]
             rec[field_name] = bk
+            comb_val = rec[pk] + "|" + bk
+            m = hashlib.md5()
+            m.update(comb_val)
+            rec[comb_name] = m.hexdigest().upper()
         else:
             rec[field_name] = None
     return data
@@ -223,12 +232,15 @@ class DvdRentalsPipeline(object):
 
             data = data | 'Rekey_{0}_{1}'.format(hub_name, fk_table) >> \
                 beam.Map(lambda x: (x[fk_key], x))
+
+            # data | 'print_{0}'.format(fk_table) >> beam.Map(print_index)
+
             merge = ({'data': data, 'index': fk_index}) | \
                 'resolve_{0}_{1}'.format(hub_name, fk_table) >> \
                 beam.CoGroupByKey()
-            # merge | 'print_{0}'.format(fk_table) >> beam.Map(print_index)
+
             data = merge | 'convert_{0}_{1}'.format(hub_name, fk_table) >> \
-                beam.FlatMap(apply_business_key, '{0}_bk'.format(fk_table))
+                beam.FlatMap(apply_business_key, pk, hub_name, fk_table)
         data = data | 'Rekey_{0}'.format(hub_name) >> \
             beam.Map(lambda x: (x[pk], x))
 
@@ -253,7 +265,7 @@ class DvdRentalsPipeline(object):
             pk='customer_id',
             bkey_list=['email'],
             field_list=['first_name', 'last_name', 'email', 'activebool',
-            'create_date', 'last_update', 'active', 'address_bk'],
+            'create_date', 'last_update', 'active', 'address_bk', 'customer_address_bk'],
             foreign_keys=[('address', 'address_id')])
 
         # Store/staff have bi-directional references, so we have to resolve the manager
@@ -262,14 +274,15 @@ class DvdRentalsPipeline(object):
             hub_name='store',
             pk='store_id',
             bkey_list=['store_id'],
-            field_list=['last_update', 'manager_staff_id', 'address_bk'],
+            field_list=['last_update', 'manager_staff_id', 'address_bk', 'store_address_bk'],
             foreign_keys=[('address', 'address_id')])
+
         self.process_hub(
             hub_name='staff',
             pk='staff_id',
             bkey_list=['first_name', 'last_name'],
             field_list=['staff_id', 'first_name' ,'last_name', 'address_bk', 'email', 'store_bk', 'active',
-            'username', 'password', 'last_update'],
+            'username', 'password', 'last_update', 'staff_address_bk', 'staff_store_bk'],
             foreign_keys=[('address', 'address_id'), ('store', 'store_id')])
         self.process_hub(
             hub_name='city',
@@ -303,7 +316,8 @@ class DvdRentalsPipeline(object):
             pk='film_id',
             bkey_list=['title', 'release_year'],
             field_list=['title', 'description', 'release_year', 'rental_duration', 'rental_rate',
-            'length', 'replacement_cost', 'rating', 'last_update', 'special_features', 'fulltext', 'language_bk'],
+            'length', 'replacement_cost', 'rating', 'last_update', 'special_features', 'fulltext', 'language_bk',
+            'film_language_bk'],
             foreign_keys=[('language', 'language_id')])
 
         # We process inventory as if it were a hub table, because we need the inventory_bk
@@ -311,7 +325,7 @@ class DvdRentalsPipeline(object):
             hub_name='inventory',
             pk='inventory_id',
             bkey_list=['inventory_id'],
-            field_list=['film_id', 'store_id', 'last_update'],
+            field_list=['film_id', 'store_id', 'last_update', 'inventory_film_bk', 'inventory_store_bk'],
             foreign_keys=[('film', 'film_id'), ('store', 'store_id')])
 
         # Rental could be a hub, could be a link.
@@ -321,14 +335,17 @@ class DvdRentalsPipeline(object):
             hub_name='rental',
             pk='rental_id',
             bkey_list=['rental_id'],
-            field_list=['rental_date', 'return_date', 'last_update', 'inventory_bk', 'customer_bk'],
+            field_list=['rental_date', 'return_date', 'last_update', 'inventory_bk', 'customer_bk',
+            'rental_inventory_bk', 'rental_customer_bk'],
             foreign_keys=[('inventory', 'inventory_id'), ('customer', 'customer_id')])
+
         self.process_hub(
             hub_name='payment',
             pk='payment_id',
             bkey_list=['payment_id'],
-            field_list=['payment_date', 'amount', 'customer_bk', 'staff_bk', 'rental_bk'],
-            foreign_keys=[('customer', 'customer_id'), ('staff', 'staff_id'), ('rental', 'rental_id')])
+            field_list=['payment_date', 'amount', 'customer_bk', 'staff_bk', 'rental_bk',
+            'payment_customer_bk', 'payment_rental_bk', 'payment_staff_bk'],
+            foreign_keys=[('customer', 'customer_id'), ('rental', 'rental_id'), ('staff', 'staff_id')])
 
         # Links follow a different processing:
         self.process_link(
@@ -378,10 +395,10 @@ class DvdRentalsPipeline(object):
                 beam.Map(add_hub_dv_details, bkey_list, self.source)
 
             if foreign_keys:
-                data = self.resolve_foreign_keys(
+                preproc_data = self.resolve_foreign_keys(
                     hub_name=hub_name,
                     pk=pk,
-                    data=data,
+                    data=preproc_data,
                     foreign_keys=foreign_keys,
                     pipeline=p)
 
@@ -412,7 +429,7 @@ class DvdRentalsPipeline(object):
                      field_list,
                      foreign_keys):
         ext_field_list = \
-            [CONST_BK_FIELD, CONST_SOURCE_FIELD, CONST_LOADDTM_FIELD, CONST_STATUS_FIELD] + \
+            [LINK_KEY, CONST_SOURCE_FIELD, CONST_LOADDTM_FIELD, CONST_STATUS_FIELD] + \
             field_list
 
         keys = [t[1] for t in foreign_keys]
@@ -439,6 +456,8 @@ class DvdRentalsPipeline(object):
 
             preproc_data = data | 'preprocess_' + link_name >> \
                 beam.Map(add_link_dv_details, foreign_keys, self.source)
+
+            # preproc_data | 'print_{0}'.format(link_name) >> beam.Map(print_index)
 
             preproc_data = self.resolve_foreign_keys(
                 hub_name=link_name,

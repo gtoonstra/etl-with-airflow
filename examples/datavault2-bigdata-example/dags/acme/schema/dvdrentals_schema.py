@@ -105,7 +105,7 @@ def create_film_schema():
 
 def create_film_actor_schema():
     d = OrderedDict()
-    d["dv__bk"] = "STRING"
+    d["LINK_KEY"] = "STRING"
     d["dv__rec_source"] = "STRING"
     d["dv__load_dtm"] = "TIMESTAMP"
     d["dv__status"] = "STRING"
@@ -116,7 +116,7 @@ def create_film_actor_schema():
 
 def create_film_category_schema():
     d = OrderedDict()
-    d["dv__bk"] = "STRING"
+    d["LINK_KEY"] = "STRING"
     d["dv__rec_source"] = "STRING"
     d["dv__load_dtm"] = "TIMESTAMP"
     d["dv__status"] = "STRING"
@@ -131,6 +131,7 @@ def create_inventory_schema():
     d["dv__rec_source"] = "STRING"
     d["dv__load_dtm"] = "TIMESTAMP"
     d["dv__status"] = "STRING"
+    d["inventory_id"] = "INT"
     d["film_bk"] = "STRING"
     d["store_bk"] = "STRING"
     d["last_update"] = "TIMESTAMP"
@@ -199,6 +200,7 @@ def create_store_schema():
     d["dv__rec_source"] = "STRING"
     d["dv__load_dtm"] = "TIMESTAMP"
     d["dv__status"] = "STRING"
+    d["store_id"] = "INT"
     d["last_update"] = "TIMESTAMP"
     d["manager_staff_id"] = "INT"
     d["address_bk"] = "STRING"

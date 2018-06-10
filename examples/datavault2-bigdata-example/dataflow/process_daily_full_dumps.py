@@ -44,6 +44,18 @@ def read_file(p, label, file_pattern, pk=None):
     return data
 
 
+def get_business_key(record, bkey_list):
+    s = ''
+    first = True
+    for key in bkey_list:
+        if not first:
+            s += '|'
+        val = record.get(key, '')
+        s += str(val).strip().upper()
+        first = False
+    return s
+
+
 def calc_cksum(record):
     m = hashlib.md5()
     c = {k:v for k, v in record.items() if k != CONST_LOADDTM_FIELD and k != CONST_STATUS_FIELD}
@@ -58,10 +70,11 @@ def add_cksum(record):
 
 
 def add_link_cksum(record, pk_keys):
-    pk = [record.get(key, '') for key in pk_keys]
-    pk = '|'.join(pk)
+    bk = get_business_key(record, pk_keys)
+    m = hashlib.md5()
+    m.update(bk)
     record[CONST_CKSUM_FIELD] = calc_cksum(record)
-    return (pk, record)
+    return (m.hexdigest().upper(), record)
 
 
 def filter_unchanged_rows(record):

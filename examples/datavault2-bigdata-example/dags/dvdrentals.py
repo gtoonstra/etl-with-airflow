@@ -61,7 +61,7 @@ loading_done = DummyOperator(
     dag=dag)
 
 
-def stage_table(pg_table, override_cols=None, dtm_attribute=None):
+def extract_table(pg_table, override_cols=None, dtm_attribute=None):
     t1 = StagePostgresToFileOperator(
         source='dvdrentals',
         pg_table=pg_table,
@@ -135,22 +135,22 @@ def load_sat(hql, hive_table):
     return t1
 
 
-stage_table(pg_table='public.actor')
-stage_table(pg_table='public.address')
-stage_table(pg_table='public.category')
-stage_table(pg_table='public.city')
-stage_table(pg_table='public.country')
-stage_table(pg_table='public.customer')
-stage_table(pg_table='public.film')
-stage_table(pg_table='public.film_actor')
-stage_table(pg_table='public.film_category')
-stage_table(pg_table='public.inventory')
-stage_table(pg_table='public.language')
-stage_table(pg_table='public.payment', dtm_attribute='payment_date')
-stage_table(pg_table='public.rental')
-stage_table(pg_table='public.staff', override_cols=[
+extract_table(pg_table='public.actor')
+extract_table(pg_table='public.address')
+extract_table(pg_table='public.category')
+extract_table(pg_table='public.city')
+extract_table(pg_table='public.country')
+extract_table(pg_table='public.customer')
+extract_table(pg_table='public.film')
+extract_table(pg_table='public.film_actor')
+extract_table(pg_table='public.film_category')
+extract_table(pg_table='public.inventory')
+extract_table(pg_table='public.language')
+extract_table(pg_table='public.payment', dtm_attribute='payment_date')
+extract_table(pg_table='public.rental')
+extract_table(pg_table='public.staff', override_cols=[
     'staff_id', 'first_name', 'last_name', 'address_id', 'email', 'store_id', 'active', 'last_update'])
-stage_table(pg_table='public.store')
+extract_table(pg_table='public.store')
 
 
 daily_dumps = BashOperator(

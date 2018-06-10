@@ -222,6 +222,11 @@ create_table(
     upstream=t4,
     downstream=hubs_done)
 create_table(
+    hql='ddl/hub_inventory.hql',
+    tablename='hub_inventory',
+    upstream=t4,
+    downstream=hubs_done)
+create_table(
     hql='ddl/hub_language.hql',
     tablename='hub_language',
     upstream=t4,
@@ -311,6 +316,11 @@ create_table(
     upstream=links_done,
     downstream=all_done)
 create_table(
+    hql='ddl/sat_inventory.hql',
+    tablename='sat_inventory',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
     hql='ddl/sat_language.hql',
     tablename='sat_language',
     upstream=links_done,
@@ -318,6 +328,11 @@ create_table(
 create_table(
     hql='ddl/sat_payment.hql',
     tablename='sat_payment',
+    upstream=links_done,
+    downstream=all_done)
+create_table(
+    hql='ddl/sat_rental.hql',
+    tablename='sat_rental',
     upstream=links_done,
     downstream=all_done)
 create_table(

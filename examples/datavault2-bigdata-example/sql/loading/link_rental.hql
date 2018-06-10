@@ -1,10 +1,10 @@
 INSERT INTO TABLE dv_raw.link_rental
 SELECT DISTINCT
-    upper(md5(concat(fc.hkey_film, fc.hkey_category))) as hkey_rental,
+    upper(md5(concat(fc.customer_bk, fc.inventory_bk))) as hkey_rental,
     fc.record_source,
     fc.load_dtm,
-    fc.hkey_film,
-    fc.hkey_store
+    fc.customer_bk,
+    fc.inventory_bk
 FROM
     staging_dvdrentals.rental_{{ts_nodash}} r
 WHERE
@@ -13,6 +13,6 @@ WHERE
                 lr.hkey_rental
         FROM    dv_raw.link_rental lr
         WHERE 
-                lr.hkey_film = r.hkey_film
-        AND     lr.hkey_store = r.hkey_store
+                lr.hkey_customer = r.customer_bk
+        AND     lr.hkey_inventory = r.inventory_bk
     )
