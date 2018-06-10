@@ -274,7 +274,7 @@ class DvdRentalsPipeline(object):
             hub_name='store',
             pk='store_id',
             bkey_list=['store_id'],
-            field_list=['last_update', 'manager_staff_id', 'address_bk', 'store_address_bk'],
+            field_list=['store_id', 'last_update', 'manager_staff_id', 'address_bk', 'store_address_bk'],
             foreign_keys=[('address', 'address_id')])
 
         self.process_hub(
@@ -282,7 +282,7 @@ class DvdRentalsPipeline(object):
             pk='staff_id',
             bkey_list=['first_name', 'last_name'],
             field_list=['staff_id', 'first_name' ,'last_name', 'address_bk', 'email', 'store_bk', 'active',
-            'username', 'password', 'last_update', 'staff_address_bk', 'staff_store_bk'],
+            'last_update', 'staff_address_bk', 'staff_store_bk'],
             foreign_keys=[('address', 'address_id'), ('store', 'store_id')])
         self.process_hub(
             hub_name='city',
@@ -325,7 +325,7 @@ class DvdRentalsPipeline(object):
             hub_name='inventory',
             pk='inventory_id',
             bkey_list=['inventory_id'],
-            field_list=['film_id', 'store_id', 'last_update', 'inventory_film_bk', 'inventory_store_bk'],
+            field_list=['last_update', 'inventory_film_bk', 'inventory_store_bk', 'film_bk', 'store_bk'],
             foreign_keys=[('film', 'film_id'), ('store', 'store_id')])
 
         # Rental could be a hub, could be a link.

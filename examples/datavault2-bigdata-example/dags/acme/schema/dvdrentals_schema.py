@@ -1,12 +1,26 @@
 from collections import OrderedDict
 
 
-def create_address_schema():
+def create_default_hub_schema():
     d = OrderedDict()
     d["dv__bk"] = "STRING"
     d["dv__rec_source"] = "STRING"
     d["dv__load_dtm"] = "TIMESTAMP"
     d["dv__status"] = "STRING"
+    return d
+
+
+def create_default_link_schema():
+    d = OrderedDict()
+    d["dv__link_key"] = "STRING"
+    d["dv__rec_source"] = "STRING"
+    d["dv__load_dtm"] = "TIMESTAMP"
+    d["dv__status"] = "STRING"
+    return d
+
+
+def create_address_schema():
+    d = create_default_hub_schema()
     d["address"] = "STRING"
     d["address2"] = "STRING"
     d["district"] = "STRING"
@@ -18,11 +32,7 @@ def create_address_schema():
 
 
 def create_actor_schema():
-    d = OrderedDict()
-    d["dv__bk"] = "STRING"
-    d["dv__rec_source"] = "STRING"
-    d["dv__load_dtm"] = "TIMESTAMP"
-    d["dv__status"] = "STRING"
+    d = create_default_hub_schema()
     d["first_name"] = "STRING"
     d["last_name"] = "STRING"
     d["last_update"] = "TIMESTAMP"
@@ -30,22 +40,14 @@ def create_actor_schema():
 
 
 def create_category_schema():
-    d = OrderedDict()
-    d["dv__bk"] = "STRING"
-    d["dv__rec_source"] = "STRING"
-    d["dv__load_dtm"] = "TIMESTAMP"
-    d["dv__status"] = "STRING"
+    d = create_default_hub_schema()
     d["name"] = "STRING"
     d["last_update"] = "TIMESTAMP"
     return d
 
 
 def create_city_schema():
-    d = OrderedDict()
-    d["dv__bk"] = "STRING"
-    d["dv__rec_source"] = "STRING"
-    d["dv__load_dtm"] = "TIMESTAMP"
-    d["dv__status"] = "STRING"
+    d = create_default_hub_schema()
     d["city_id"] = "INT"
     d["city"] = "STRING"
     d["country_id"] = "INT"
@@ -54,11 +56,7 @@ def create_city_schema():
 
 
 def create_country_schema():
-    d = OrderedDict()
-    d["dv__bk"] = "STRING"
-    d["dv__rec_source"] = "STRING"
-    d["dv__load_dtm"] = "TIMESTAMP"
-    d["dv__status"] = "STRING"
+    d = create_default_hub_schema()
     d["country_id"] = "INT"
     d["country"] = "STRING"
     d["last_update"] = "TIMESTAMP"
@@ -66,11 +64,7 @@ def create_country_schema():
 
 
 def create_customer_schema():
-    d = OrderedDict()
-    d["dv__bk"] = "STRING"
-    d["dv__rec_source"] = "STRING"
-    d["dv__load_dtm"] = "TIMESTAMP"
-    d["dv__status"] = "STRING"
+    d = create_default_hub_schema()
     d["first_name"] = "STRING"
     d["last_name"] = "STRING"
     d["email"] = "STRING"
@@ -79,15 +73,12 @@ def create_customer_schema():
     d["last_update"] = "TIMESTAMP"
     d["active"] = "INT"
     d["address_bk"] = "STRING"
+    d["customer_address_bk"] = "STRING"
     return d
 
 
 def create_film_schema():
-    d = OrderedDict()
-    d["dv__bk"] = "STRING"
-    d["dv__rec_source"] = "STRING"
-    d["dv__load_dtm"] = "TIMESTAMP"
-    d["dv__status"] = "STRING"
+    d = create_default_hub_schema()
     d["title"] = "STRING"
     d["description"] = "STRING"
     d["release_year"] = "INT"
@@ -100,89 +91,68 @@ def create_film_schema():
     d["special_features"] = "STRING"
     d["fulltext"] = "STRING"
     d["language_bk"] = "STRING"
+    d["film_language_bk"] = "STRING"
     return d
 
 
 def create_film_actor_schema():
-    d = OrderedDict()
-    d["LINK_KEY"] = "STRING"
-    d["dv__rec_source"] = "STRING"
-    d["dv__load_dtm"] = "TIMESTAMP"
-    d["dv__status"] = "STRING"
+    d = create_default_link_schema()
     d["film_bk"] = "STRING"
     d["actor_bk"] = "STRING"
     return d
 
 
 def create_film_category_schema():
-    d = OrderedDict()
-    d["LINK_KEY"] = "STRING"
-    d["dv__rec_source"] = "STRING"
-    d["dv__load_dtm"] = "TIMESTAMP"
-    d["dv__status"] = "STRING"
+    d = create_default_link_schema()
     d["film_bk"] = "STRING"
     d["category_bk"] = "STRING"
     return d
 
 
 def create_inventory_schema():
-    d = OrderedDict()
-    d["dv__bk"] = "STRING"
-    d["dv__rec_source"] = "STRING"
-    d["dv__load_dtm"] = "TIMESTAMP"
-    d["dv__status"] = "STRING"
-    d["inventory_id"] = "INT"
+    d = create_default_hub_schema()
+    d["last_update"] = "TIMESTAMP"
+    d["inventory_film_bk"] = "STRING"
+    d["inventory_store_bk"] = "STRING"
     d["film_bk"] = "STRING"
     d["store_bk"] = "STRING"
-    d["last_update"] = "TIMESTAMP"
     return d
 
 
 def create_language_schema():
-    d = OrderedDict()
-    d["dv__bk"] = "STRING"
-    d["dv__rec_source"] = "STRING"
-    d["dv__load_dtm"] = "TIMESTAMP"
-    d["dv__status"] = "STRING"
+    d = create_default_hub_schema()
     d["name"] = "STRING"
     d["last_update"] = "TIMESTAMP"
     return d
 
 
 def create_payment_schema():
-    d = OrderedDict()
-    d["dv__bk"] = "STRING"
-    d["dv__rec_source"] = "STRING"
-    d["dv__load_dtm"] = "TIMESTAMP"
-    d["dv__status"] = "STRING"
+    d = create_default_hub_schema()
     d["payment_date"] = "TIMESTAMP"
     d["amount"] = "FLOAT"
     d["customer_bk"] = "STRING"
     d["staff_bk"] = "STRING"
     d["rental_bk"] = "STRING"
+    d["payment_customer_bk"] = "STRING"
+    d["payment_rental_bk"] = "STRING"
+    d["payment_staff_bk"] = "STRING"
     return d
 
 
 def create_rental_schema():
-    d = OrderedDict()
-    d["dv__bk"] = "STRING"
-    d["dv__rec_source"] = "STRING"
-    d["dv__load_dtm"] = "TIMESTAMP"
-    d["dv__status"] = "STRING"
+    d = create_default_hub_schema()
     d["rental_date"] = "TIMESTAMP"
     d["return_date"] = "TIMESTAMP"
     d["last_update"] = "TIMESTAMP"
     d["inventory_bk"] = "STRING"
     d["customer_bk"] = "STRING"
+    d["rental_inventory_bk"] = "STRING"
+    d["rental_customer_bk"] = "STRING"
     return d
 
 
 def create_staff_schema():
-    d = OrderedDict()
-    d["dv__bk"] = "STRING"
-    d["dv__rec_source"] = "STRING"
-    d["dv__load_dtm"] = "TIMESTAMP"
-    d["dv__status"] = "STRING"
+    d = create_default_hub_schema()
     d["staff_id"] = "INT"
     d["first_name"] = "STRING"
     d["last_name"] = "STRING"
@@ -191,19 +161,18 @@ def create_staff_schema():
     d["store_bk"] = "STRING"
     d["active"] = "STRING"
     d["last_update"] = "TIMESTAMP"
+    d["staff_address_bk"] = "STRING"
+    d["staff_store_bk"] = "STRING"
     return d
 
 
 def create_store_schema():
-    d = OrderedDict()
-    d["dv__bk"] = "STRING"
-    d["dv__rec_source"] = "STRING"
-    d["dv__load_dtm"] = "TIMESTAMP"
-    d["dv__status"] = "STRING"
+    d = create_default_hub_schema()
     d["store_id"] = "INT"
     d["last_update"] = "TIMESTAMP"
     d["manager_staff_id"] = "INT"
     d["address_bk"] = "STRING"
+    d["store_address_bk"] = "STRING"
     return d
 
 
