@@ -3,8 +3,8 @@ SELECT DISTINCT
       a.dv__bk as hkey_address
     , a.dv__rec_source as rec_source
     , a.dv__load_dtm as load_dtm
-    , address
-    , postal_code 
+    , a.address
+    , a.postal_code 
 FROM
     staging_dvdrentals.address_{{ts_nodash}} a
 WHERE
