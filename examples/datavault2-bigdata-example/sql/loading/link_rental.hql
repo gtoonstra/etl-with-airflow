@@ -4,7 +4,7 @@ SELECT DISTINCT
     r.inventory_bk,    
     r.customer_bk,
     r.dv__rec_source as record_source,
-    r.dv__load_dtm as load_dtm,
+    r.dv__load_dtm as load_dtm
 FROM
     staging_dvdrentals.rental_{{ts_nodash}} r
 WHERE
