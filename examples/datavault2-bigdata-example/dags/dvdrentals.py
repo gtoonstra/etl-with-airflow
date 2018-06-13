@@ -207,6 +207,7 @@ load_sat('loading/sat_customer.hql', 'dv_raw.sat_customer')
 load_sat('loading/sat_film.hql', 'dv_raw.sat_film')
 load_sat('loading/sat_language.hql', 'dv_raw.sat_language')
 load_sat('loading/sat_payment.hql', 'dv_raw.sat_payment')
+load_sat('loading/sat_rental.hql', 'dv_raw.sat_rental')
 load_sat('loading/sat_staff.hql', 'dv_raw.sat_staff')
 load_sat('loading/sat_store.hql', 'dv_raw.sat_store')
 

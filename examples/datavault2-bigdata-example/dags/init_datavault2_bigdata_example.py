@@ -222,11 +222,6 @@ create_table(
     upstream=t4,
     downstream=hubs_done)
 create_table(
-    hql='ddl/hub_inventory.hql',
-    tablename='hub_inventory',
-    upstream=t4,
-    downstream=hubs_done)
-create_table(
     hql='ddl/hub_language.hql',
     tablename='hub_language',
     upstream=t4,
