@@ -115,3 +115,18 @@ I rendered the following picture from the "DataFlow" UI on google cloud, the pro
 - The index gets updated with new data records and written out as a new version of that index to be used as a source for the new dagrun.
 - Tables with foreign keys do an additional lookup of the hash key of the foreign key by running the records through a 'CoGroupByKey' operation with the 'foreign index'. This introduces a dependency between hubs, so they cannot be processed in parallel. This means that the order of processing is becoming important in this step.
 
+
+Full reprocessing run
+---------------------
+
+The full reprocessing run is remarkably similar. In fact, it's the same code as the incremental run, because we've already made sure that the input data is neatly organized in the PSA with a load_dtm and status per record.
+
+The only difference is that instead of this "glob" pattern for the bucket location:
+
+`<ROOT>/psa/<table_name>/YYYY/MM/DD/<table_name>*`
+
+We use:
+
+`<ROOT>/psa/<table_name>/*/*/*/<table_name>*`
+
+The satellites can be loaded in a straight-forward way, but the hubs and links need a bit more attention. If we fully load from system A first and then B, it may appear as if all hub records were first seen in A when in reality, there are occasions where B was first. So that needs to be worked out with a different query for hubs and links.
