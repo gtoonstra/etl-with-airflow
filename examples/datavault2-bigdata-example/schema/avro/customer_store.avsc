@@ -1,0 +1,27 @@
+{
+  "type": "record",
+  "name": "CustomerStore",
+  "namespace": "acme.datavault.staging.dvdrentals",
+  "fields": [
+    {
+      "name": "dv__bk",
+      "type": "string"
+    },
+    {
+      "name": "dv__load_dtm",
+      "type": "string"
+    },
+    {
+      "name": "dv__rec_source",
+      "type": "string"
+    },
+    {
+      "name": "customer_bk",
+      "type": "string"
+    },
+    {
+      "name": "store_bk",
+      "type": "string"
+    }    
+  ]
+}

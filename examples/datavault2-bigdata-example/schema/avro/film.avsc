@@ -1,0 +1,63 @@
+{
+  "type": "record",
+  "name": "Film",
+  "namespace": "acme.datavault.staging.dvdrentals",
+  "fields": [
+    {
+      "name": "dv__bk",
+      "type": "string"
+    },
+    {
+      "name": "dv__load_dtm",
+      "type": "string"
+    },
+    {
+      "name": "dv__status",
+      "type": "string"
+    },
+    {
+      "name": "dv__rec_source",
+      "type": "string"
+    },
+    {
+      "name": "title",
+      "type": "string"
+    },
+    {
+      "name": "description",
+      "type": "string"
+    },
+    {
+      "name": "release_year",
+      "type": "int"
+    },
+    {
+      "name": "rental_duration",
+      "type": "int"
+    },
+    {
+      "name": "rental_rate",
+      "type": "double"
+    },
+    {
+      "name": "length",
+      "type": "int"
+    },
+    {
+      "name": "replacement_cost",
+      "type": "double"
+    },
+    {
+      "name": "rating",
+      "type": "string"
+    },
+    {
+      "name": "special_features",
+      "type": "string"
+    },
+    {
+      "name": "fulltext",
+      "type": "string"
+    }
+  ]
+}

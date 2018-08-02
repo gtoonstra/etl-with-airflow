@@ -1,0 +1,27 @@
+{
+  "type": "record",
+  "name": "PaymentRental",
+  "namespace": "acme.datavault.staging.dvdrentals",
+  "fields": [
+    {
+      "name": "dv__bk",
+      "type": "string"
+    },
+    {
+      "name": "dv__load_dtm",
+      "type": "string"
+    },
+    {
+      "name": "dv__rec_source",
+      "type": "string"
+    },
+    {
+      "name": "payment_bk",
+      "type": "string"
+    },
+    {
+      "name": "rental_bk",
+      "type": "string"
+    }    
+  ]
+}

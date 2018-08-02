@@ -1,0 +1,75 @@
+{
+  "type": "record",
+  "name": "Customer",
+  "namespace": "acme.datavault.staging.dvdrentals",
+  "fields": [
+    {
+      "name": "dv__bk",
+      "type": "string"
+    },
+    {
+      "name": "dv__load_dtm",
+      "type": "string"
+    },
+    {
+      "name": "dv__status",
+      "type": "string"
+    },
+    {
+      "name": "dv__rec_source",
+      "type": "string"
+    },
+    {
+      "name": "customer_id",
+      "type": "int"
+    },
+    {
+      "name": "first_name",
+      "type": "string"
+    },
+    {
+      "name": "last_name",
+      "type": "string"
+    },
+    {
+      "name": "email",
+      "type": "string"
+    },
+    {
+      "name": "activebool",
+      "type": "boolean"
+    },
+    {
+      "name": "active",
+      "type": "int"
+    },
+    {
+      "name": "address",
+      "type": "string"
+    },
+    {
+      "name": "address2",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "district",
+      "type": "string"
+    },
+    {
+      "name": "city",
+      "type": "string"
+    },
+    {
+      "name": "postal_code",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "phone",
+      "type": ["null", "string"]
+    },
+    {
+      "name": "country",
+      "type": "string"
+    }
+  ]
+}

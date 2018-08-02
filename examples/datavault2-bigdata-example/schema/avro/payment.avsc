@@ -1,0 +1,43 @@
+{
+  "type": "record",
+  "name": "Payment",
+  "namespace": "acme.datavault.staging.dvdrentals",
+  "fields": [
+    {
+      "name": "dv__bk",
+      "type": "string"
+    },
+    {
+      "name": "dv__load_dtm",
+      "type": "string"
+    },
+    {
+      "name": "dv__status",
+      "type": "string"
+    },
+    {
+      "name": "dv__rec_source",
+      "type": "string"
+    },
+    {
+      "name": "payment_id",
+      "type": "int"
+    },
+    {
+      "name": "amount",
+      "type": "double"
+    },
+    {
+      "name": "payment_date",
+      "type": "string"
+    },
+    {
+      "name": "customer_bk",
+      "type": "string"
+    },
+    {
+      "name": "staff_bk",
+      "type": "string"
+    }
+  ]
+}

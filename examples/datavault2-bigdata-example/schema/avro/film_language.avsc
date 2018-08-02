@@ -1,0 +1,27 @@
+{
+  "type": "record",
+  "name": "FilmLanguage",
+  "namespace": "acme.datavault.staging.dvdrentals",
+  "fields": [
+    {
+      "name": "dv__bk",
+      "type": "string"
+    },
+    {
+      "name": "dv__load_dtm",
+      "type": "string"
+    },
+    {
+      "name": "dv__rec_source",
+      "type": "string"
+    },
+    {
+      "name": "film_bk",
+      "type": "string"
+    },
+    {
+      "name": "language_bk",
+      "type": "string"
+    }    
+  ]
+}

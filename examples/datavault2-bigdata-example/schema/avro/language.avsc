@@ -1,0 +1,30 @@
+{
+  "type": "record",
+  "name": "Language",
+  "namespace": "acme.datavault.staging.dvdrentals",
+  "doc": "Schema definition for a language in the datavault",
+  "fields": [
+    {
+      "name": "dv__bk",
+      "doc": "Business key for the language hub",
+      "type": "string"
+    },
+    {
+      "name": "dv__load_dtm",
+      "type": "string"
+    },
+    {
+      "name": "dv__status",
+      "type": "string"
+    },
+    {
+      "name": "dv__rec_source",
+      "type": "string"
+    },
+    {
+      "name": "name",
+      "doc": "The name of the language",
+      "type": "string"
+    }    
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "type": "record",
+  "name": "Rental",
+  "namespace": "acme.datavault.staging.dvdrentals",
+  "fields": [
+    {
+      "name": "dv__bk",
+      "type": "string"
+    },
+    {
+      "name": "dv__load_dtm",
+      "type": "string"
+    },
+    {
+      "name": "dv__status",
+      "type": "string"
+    },
+    {
+      "name": "dv__rec_source",
+      "type": "string"
+    },
+    {
+      "name": "rental_id",
+      "type": "int"
+    },
+    {
+      "name": "rental_date",
+      "type": "string"
+    },
+    {
+      "name": "return_date",
+      "type": "string"
+    }
+  ]
+}

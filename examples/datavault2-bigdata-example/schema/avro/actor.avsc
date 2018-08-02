@@ -1,0 +1,32 @@
+{
+  "type": "record",
+  "name": "Actor",
+  "namespace": "acme.datavault.staging.dvdrentals",
+  "doc": "Schema definition for an actor in the datavault",
+  "fields": [
+    {
+      "name": "dv__bk",
+      "type": "string"
+    },
+    {
+      "name": "dv__load_dtm",
+      "type": "string"
+    },
+    {
+      "name": "dv__status",
+      "type": "string"
+    },
+    {
+      "name": "dv__rec_source",
+      "type": "string"
+    },
+    {
+      "name": "first_name",
+      "type": "string"
+    },
+    {
+      "name": "last_name",
+      "type": "string"
+    }
+  ]
+}
