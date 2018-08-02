@@ -202,11 +202,6 @@ create_table(
     upstream=t4,
     downstream=hubs_done)
 create_table(
-    hql='ddl/hub_address.hql',
-    tablename='hub_address',
-    upstream=t4,
-    downstream=hubs_done)
-create_table(
     hql='ddl/hub_category.hql',
     tablename='hub_category',
     upstream=t4,
@@ -222,8 +217,18 @@ create_table(
     upstream=t4,
     downstream=hubs_done)
 create_table(
+    hql='ddl/hub_inventory.hql',
+    tablename='hub_inventory',
+    upstream=t4,
+    downstream=hubs_done)
+create_table(
     hql='ddl/hub_language.hql',
     tablename='hub_language',
+    upstream=t4,
+    downstream=hubs_done)
+create_table(
+    hql='ddl/hub_rental.hql',
+    tablename='hub_rental',
     upstream=t4,
     downstream=hubs_done)
 create_table(
@@ -237,12 +242,8 @@ create_table(
     upstream=t4,
     downstream=hubs_done)
 
+"""
 # links
-create_table(
-    hql='ddl/link_customer_address.hql',
-    tablename='link_customer_address',
-    upstream=hubs_done,
-    downstream=links_done)
 create_table(
     hql='ddl/link_film_actor.hql',
     tablename='link_film_actor',
@@ -340,3 +341,4 @@ create_table(
     tablename='sat_store',
     upstream=links_done,
     downstream=all_done)
+"""

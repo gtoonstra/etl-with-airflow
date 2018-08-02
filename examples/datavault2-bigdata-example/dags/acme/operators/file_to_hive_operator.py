@@ -47,13 +47,13 @@ class StageFileToHiveOperator(BaseOperator):
     :type hive_table: str
     :param file_pattern: File pattern to pick up files from
     :type file_pattern: str
+    :param schemafile: THe path to hte AVRO schema file
+    :param schemafile: str
     :param create: whether to create the table if it doesn't exist
     :type create: bool
     :param recreate: whether to drop and recreate the table at every
         execution
     :type recreate: bool
-    :param delimiter: field delimiter in the file
-    :type delimiter: str
     :param file_conn_id: source postgres connection
     :type file_conn_id: str
     :param hive_conn_id: destination hive connection
@@ -70,21 +70,19 @@ class StageFileToHiveOperator(BaseOperator):
             self,
             hive_table,
             relative_file_path,
-            field_dict,
+            schemafile,
             create=True,
             recreate=False,
             partition=None,
-            delimiter=chr(1),
             file_conn_id='file_default',
             hive_cli_conn_id='hive_cli_default',
             *args, **kwargs):
         super(StageFileToHiveOperator, self).__init__(*args, **kwargs)
         self.hive_table = hive_table
         self.relative_file_path = relative_file_path
-        self.field_dict = field_dict
+        self.schemafile = schemafile
         self.create = create
         self.recreate = recreate
-        self.delimiter = str(delimiter)
         self.file_conn_id = file_conn_id
         self.hive_cli_conn_id = hive_cli_conn_id
         self.partition = partition
@@ -101,8 +99,7 @@ class StageFileToHiveOperator(BaseOperator):
             hive.load_file(
                 abs_path,
                 self.hive_table,
-                field_dict=self.field_dict,
+                schemafile=self.schemafile,
                 create=self.create,
-                delimiter=self.delimiter,
                 recreate=self.recreate,
                 partition=self.partition)

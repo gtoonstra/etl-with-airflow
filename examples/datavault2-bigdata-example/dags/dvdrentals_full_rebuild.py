@@ -23,7 +23,6 @@ from airflow.models import Variable
 
 from acme.operators.pg_to_file_operator import StagePostgresToFileOperator
 from acme.operators.file_to_hive_operator import StageFileToHiveOperator
-import acme.schema.dvdrentals_schema as schema
 
 args = {
     'owner': 'airflow',
@@ -72,7 +71,7 @@ def create_loading_operator(hive_table, partition=None):
     full_rebuild_from_psa >> t1 >> loading_done
     return t1
 
-
+"""
 create_loading_operator('public.address')
 create_loading_operator('public.actor')
 create_loading_operator('public.category')
@@ -88,7 +87,7 @@ create_loading_operator('public.payment', partition='payment_date')
 create_loading_operator('public.rental', partition='rental_date')
 create_loading_operator('public.staff')
 create_loading_operator('public.store')
-
+"""
 
 if __name__ == "__main__":
     dag.cli()

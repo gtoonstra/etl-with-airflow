@@ -24,7 +24,6 @@ from airflow.models import Variable
 from acme.operators.pg_to_file_operator import StagePostgresToFileOperator
 from acme.operators.file_to_hive_operator import StageFileToHiveOperator
 from airflow.operators.hive_operator import HiveOperator
-import acme.schema.dvdrentals_schema as schema
 
 args = {
     'owner': 'airflow',
@@ -75,15 +74,12 @@ def extract_entity(entity, incremental):
     t1 >> extract_done
 
 
-"""
 def create_staging_operator(hive_table):
-    field_dict = schema.schemas[hive_table]
-    _, table = hive_table.split('.')
-
+    schemafile = os.path.join('file:///external', 'schema', 'avro', hive_table + '.avsc')
     t1 = StageFileToHiveOperator(
-        hive_table=table + '_{{ts_nodash}}',
+        hive_table=hive_table + '_{{ts_nodash}}',
         relative_file_path='incremental-load/dvdrentals/' + hive_table + '/{{ds[:4]}}/{{ds[5:7]}}/{{ds[8:10]}}/',
-        field_dict=field_dict,
+        schemafile=schemafile,
         create=True,
         recreate=True,
         file_conn_id='filestore',
@@ -135,8 +131,6 @@ def load_sat(hql, hive_table):
 
     staging_done >> t1 >> loading_done
     return t1
-"""
-
 
 extract_entity(entity='public.customer', incremental=True)
 extract_entity(entity='public.film', incremental=False)
@@ -146,7 +140,6 @@ extract_entity(entity='public.rental', incremental=True)
 extract_entity(entity='public.staff', incremental=False)
 extract_entity(entity='public.store', incremental=False)
 
-"""
 daily_dumps = BashOperator(
     bash_command='/usr/local/airflow/dataflow/process_daily_full_dumps.sh {{ts}}',
     task_id='daily_dumps',
@@ -158,41 +151,51 @@ incremental_build = BashOperator(
 
 extract_done >> daily_dumps >> incremental_build >> daily_process_done
 
-create_staging_operator('public.address')
-create_staging_operator('public.actor')
-create_staging_operator('public.category')
-create_staging_operator('public.city')
-create_staging_operator('public.country')
-create_staging_operator('public.customer')
-create_staging_operator('public.film')
-create_staging_operator('public.film_actor')
-create_staging_operator('public.film_category')
-create_staging_operator('public.inventory')
-create_staging_operator('public.language')
-create_staging_operator('public.payment')
-create_staging_operator('public.rental')
-create_staging_operator('public.staff')
-create_staging_operator('public.store')
 
+create_staging_operator('actor')
+create_staging_operator('category')
+create_staging_operator('customer')
+create_staging_operator('film')
+create_staging_operator('film_actor')
+create_staging_operator('film_category')
+create_staging_operator('film_language')
+create_staging_operator('inventory')
+create_staging_operator('inventory_film')
+create_staging_operator('inventory_store')
+create_staging_operator('language')
+create_staging_operator('payment')
+create_staging_operator('payment_rental')
+create_staging_operator('rental')
+create_staging_operator('rental_customer')
+create_staging_operator('rental_inventory')
+create_staging_operator('rental_staff')
+create_staging_operator('staff')
+create_staging_operator('staff_store')
+create_staging_operator('store')
 
 load_hub('loading/hub_actor.hql', 'dv_raw.hub_actor')
-load_hub('loading/hub_address.hql', 'dv_raw.hub_address')
 load_hub('loading/hub_category.hql', 'dv_raw.hub_category')
 load_hub('loading/hub_customer.hql', 'dv_raw.hub_customer')
 load_hub('loading/hub_film.hql', 'dv_raw.hub_film')
+load_hub('loading/hub_inventory.hql', 'dv_raw.hub_inventory')
 load_hub('loading/hub_language.hql', 'dv_raw.hub_language')
+load_hub('loading/hub_rental.hql', 'dv_raw.hub_rental')
 load_hub('loading/hub_staff.hql', 'dv_raw.hub_staff')
 load_hub('loading/hub_store.hql', 'dv_raw.hub_store')
 
-load_link('loading/link_customer_address.hql', 'dv_raw.link_customer_address')
+"""
+load_link('loading/link_customer_store.hql', 'dv_raw.link_customer_store')
 load_link('loading/link_film_actor.hql', 'dv_raw.link_film_actor')
 load_link('loading/link_film_category.hql', 'dv_raw.link_film_category')
 load_link('loading/link_film_language.hql', 'dv_raw.link_film_language')
-load_link('loading/link_payment.hql', 'dv_raw.link_payment')
-load_link('loading/link_rental.hql', 'dv_raw.link_rental')
-load_link('loading/link_staff_address.hql', 'dv_raw.link_staff_address')
+load_link('loading/link_inventory_film.hql', 'dv_raw.link_inventory_film')
+load_link('loading/link_inventory_store.hql', 'dv_raw.link_inventory_store')
+load_link('loading/link_payment_customer.hql', 'dv_raw.link_payment_customer')
+load_link('loading/link_payment_rental.hql', 'dv_raw.link_payment_rental')
+load_link('loading/link_payment_staff.hql', 'dv_raw.link_payment_staff')
+load_link('loading/link_rental_customer.hql', 'dv_raw.link_rental_customer')
+load_link('loading/link_rental_inventory.hql', 'dv_raw.link_rental_inventory')
 load_link('loading/link_staff_store.hql', 'dv_raw.link_staff_store')
-load_link('loading/link_store_staff.hql', 'dv_raw.link_store_staff')
 
 load_sat('loading/sat_actor.hql', 'dv_raw.sat_actor')
 load_sat('loading/sat_address.hql', 'dv_raw.sat_address')

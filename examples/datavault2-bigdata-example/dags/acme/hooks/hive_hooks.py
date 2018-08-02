@@ -231,7 +231,28 @@ class HiveCliHook(BaseHook):
             filename = os.path.basename(filepath)
             destination_path = '/user/cloudera/{0}'.format(table)
 
-            hdfs_cmd = ['hdfs','dfs','-put', filepath, destination_path]
+            hdfs_cmd = ['hdfs', 'dfs', '-rm', '-f', '-r', destination_path]
+            if verbose:
+                logging.info(" ".join(hdfs_cmd))
+            sp = subprocess.Popen(
+                hdfs_cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT)
+            self.sp = sp
+            stdout = ''
+            while True:
+                line = sp.stdout.readline()
+                if not line:
+                    break
+                stdout += line.decode('UTF-8')
+                if verbose:
+                    logging.info(line.decode('UTF-8').strip())
+            sp.wait()
+
+            if sp.returncode:
+                raise AirflowException(stdout)
+
+            hdfs_cmd = ['hdfs','dfs','-put', '-f', filepath, destination_path]
             if verbose:
                 logging.info(" ".join(hdfs_cmd))
             sp = subprocess.Popen(
@@ -366,13 +387,11 @@ class HiveCliHook(BaseHook):
             self,
             filepath,
             table,
-            delimiter=",",
-            field_dict=None,
+            schemafile=None,            
             create=True,
             overwrite=True,
             partition=None,
-            recreate=False,
-            skip_data_file_header=True):
+            recreate=False):
         """
         Loads a local file into Hive
 
@@ -386,6 +405,8 @@ class HiveCliHook(BaseHook):
         :param table: target Hive table, use dot notation to target a
             specific database
         :type table: str
+        :param schemafile: The path to the AVRO schema
+        :type schemafile: str
         :param create: whether to create the table if it doesn't exist
         :type create: bool
         :param recreate: whether to drop and recreate the table at every
@@ -394,33 +415,22 @@ class HiveCliHook(BaseHook):
         :param partition: target partition as a dict of partition columns
             and values
         :type partition: dict
-        :param delimiter: field delimiter in the file
-        :type delimiter: str
         """
-        ord_delimiter = ord(delimiter)
         hql = ''
         if recreate:
             hql += "DROP TABLE IF EXISTS {table};\n"
         if create or recreate:
-            if field_dict is None:
-                raise ValueError("Must provide a field dict when creating a table")
-            if partition:
-                fields = ",\n    ".join(
-                    [k + ' ' + v for k, v in field_dict.items() if k not in partition])
-            else:
-                fields = ",\n    ".join(
-                    [k + ' ' + v for k, v in field_dict.items()])
-            hql += "CREATE TABLE IF NOT EXISTS {table} (\n{fields})\n"
+            if schemafile is None:
+                raise ValueError("Must provide a schema file when creating a table")
+            hql += "CREATE TABLE IF NOT EXISTS {table} \n"
             if partition:
                 pfields = ",\n    ".join(
                     [p + " STRING" for p in partition])
                 hql += "PARTITIONED BY ({pfields})\n"
-            hql += "ROW FORMAT DELIMITED\n"
-            hql += "FIELDS TERMINATED BY '\{ord_delimiter:03d}'\n"
-            hql += "STORED AS textfile\n"
-            if skip_data_file_header:
-                hql += "TBLPROPERTIES (\"skip.header.line.count\"=\"1\")\n"
-            hql += ";"
+            hql += "ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe' \n"
+            hql += "WITH SERDEPROPERTIES ('avro.schema.url'='{schemafile}')\n"
+            hql += "STORED as INPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'\n"
+            hql += "OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat';"
 
         hql = hql.format(**locals())
         logging.info(hql)
