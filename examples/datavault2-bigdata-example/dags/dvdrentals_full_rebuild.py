@@ -27,8 +27,8 @@ import acme.schema.dvdrentals_schema as schema
 
 args = {
     'owner': 'airflow',
-    'start_date': datetime(2007, 2, 15),
-    'end_date': datetime(2007, 5, 15),
+    'start_date': datetime(2005, 5, 24),
+    'end_date': datetime(2005, 8, 24),
     'provide_context': True,
     # We want to maintain chronological order when loading the datavault
     'depends_on_past': True

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unicodecsv as csv
+import json
 import logging
 import os
 import tempfile
@@ -21,7 +21,6 @@ from airflow.hooks.postgres_hook import PostgresHook
 from acme.hooks.file_hook import FileHook
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
-from datetime import datetime
 
 
 class StagePostgresToFileOperator(BaseOperator):
@@ -42,34 +41,18 @@ class StagePostgresToFileOperator(BaseOperator):
 
     :param source: string used to specify the source system
     :type source: str
-    :param pg_table: pg_table to export
-    :type pg_table: str
-    :param dtm_attribute: The dtm attribute in the source table to filter on.
-    :type dtm_attribute: str
     :param sql: the sql to run against the source
     :type sql: str
-    :param load_dtm: specifies the load dtm.
-    :type load_dtm: datetime
-    :param delimiter: field delimiter in the file
-    :type delimiter: str
-    :param lineterminator: line terminator
-    :type lineterminator: str
+    :param entity: The entity being created
+    :type entity: str
+    :param incremental: determines if this query does incremental loads
+    :type incremental: bool
     :param postgres_conn_id: source postgres connection
     :type postgres_conn_id: str
     :param file_conn_id: destination hive connection
     :type file_conn_id: str
     """
 
-    INFORMATION_LOOKUP = """
-SELECT 
-         column_name
-FROM 
-         information_schema.columns
-WHERE 
-         table_schema = '{0}'
-AND      table_name   = '{1}'
-ORDER BY ordinal_position
-"""
     PG_DATETIME = "%Y-%m-%d %H:%M:%S"
     DV_LOAD_DTM = 'dv__load_dtm'
     DV_STATUS = 'dv__status'
@@ -82,25 +65,19 @@ ORDER BY ordinal_position
     def __init__(
             self,
             source,
-            pg_table,
-            dtm_attribute=None,
-            override_cols=None,
-            sql=None,
+            sql,
+            entity,
+            incremental=False,
             parameters=None,
-            delimiter=chr(1),
-            line_terminator='\r\n',
             postgres_conn_id='postgres_default',
             file_conn_id='file_default',
             *args, **kwargs):
         super(StagePostgresToFileOperator, self).__init__(*args, **kwargs)
         self.source = source
-        self.pg_table = pg_table
-        self.dtm_attribute = dtm_attribute
-        self.override_cols = override_cols
         self.sql = sql
+        self.entity = entity
+        self.incremental = incremental
         self.parameters = parameters
-        self.delimiter = delimiter
-        self.line_terminator = line_terminator
         self.postgres_conn_id = postgres_conn_id
         self.file_conn_id = file_conn_id
 
@@ -108,71 +85,40 @@ ORDER BY ordinal_position
         file_hook = FileHook(file_conn_id=self.file_conn_id)
         pg_hook = PostgresHook(postgres_conn_id=self.postgres_conn_id)
         ds = context['execution_date']
-        incremental = False
-
-        if self.sql or self.dtm_attribute:
-            incremental = True
 
         logging.info("Dumping postgres query results to local file")
         conn = pg_hook.get_conn()
         cursor = None
 
-        if self.sql:
-            cursor = conn.cursor()
-            cursor.execute(self.sql, self.parameters)
-        else:
-            sql = self.generate_sql(pg_hook)
-            logging.info(sql)
-            cursor = conn.cursor()
-            parameters = {
-                "execution_date": context['execution_date'].strftime(StagePostgresToFileOperator.PG_DATETIME),
-                "next_execution_date": context['next_execution_date'].strftime(StagePostgresToFileOperator.PG_DATETIME)}
-            logging.info(parameters)
-            cursor.execute(sql, parameters)
+        cursor = conn.cursor()
+        cursor.execute(self.sql, self.parameters)
 
-        fieldnames = [field[0] for field in cursor.description]
-        fieldnames.append(StagePostgresToFileOperator.DV_LOAD_DTM)
-        if incremental:
-            fieldnames.append(StagePostgresToFileOperator.DV_STATUS)
-
-        with tempfile.NamedTemporaryFile(prefix=self.pg_table, mode="wb", delete=True) as f:
-            writer = csv.DictWriter(
-                f, 
-                delimiter=self.delimiter, 
-                lineterminator=self.line_terminator,
-                quoting=csv.QUOTE_NONE,
-                quotechar='',
-                encoding='utf-8',
-                fieldnames=fieldnames)
-
-            writer.writeheader()
+        with tempfile.NamedTemporaryFile(prefix='abc', mode="wb", delete=True) as f:
             for row in cursor:
-                dict_row = {}
-                for key, value in zip(fieldnames, row):
-                    dict_row[key] = value
-                dict_row[StagePostgresToFileOperator.DV_LOAD_DTM] = ds
-                if incremental:
-                    # Always set to NEW for now...
-                    dict_row[StagePostgresToFileOperator.DV_STATUS] = 'NEW'
-                writer.writerow(dict_row)
+                jsonfield = row[0]
+                jsonfield[StagePostgresToFileOperator.DV_LOAD_DTM] = ds.strftime('%Y-%m-%dT%H:%M:%S')
+                if self.incremental:
+                    jsonfield[StagePostgresToFileOperator.DV_STATUS] = 'NEW'
+                f.write(json.dumps(jsonfield))
+                f.write('\n')
 
             f.flush()
             cursor.close()
             conn.close()
 
             path = None
-            if incremental:
+            if self.incremental:
                 # Incremental loads go straight to psa
                 path = os.path.join(
                     'psa',
                     self.source,
-                    self.pg_table)
+                    self.entity)
             else:
                 # full dumps go to staging
                 path = os.path.join(
                     'staging',
                     self.source,
-                    self.pg_table)
+                    self.entity)
 
             # Both roots add yyyy/mm/dd
             path = os.path.join(path,
@@ -181,33 +127,10 @@ ORDER BY ordinal_position
                 ds.strftime('%d'))
 
             path = os.path.join(path, 
-                self.pg_table + '__' + 
+                self.entity + '__' + 
                 ds.strftime('%H') + '-' + 
                 ds.strftime('%M') + '-' +
                 ds.strftime('%S'))
             file_hook.transfer_file(
                 f.name,
                 path)
-
-    def generate_sql(self, pg_hook):
-        conn = pg_hook.get_conn()
-        cursor = conn.cursor()
-
-        fieldnames = []
-        if self.override_cols:
-            fieldnames = self.override_cols
-        else:
-            s = self.pg_table.split(".")
-            cursor.execute(StagePostgresToFileOperator.INFORMATION_LOOKUP.format(s[0], s[1]))
-            for row in cursor:
-                fieldnames.append(row[0])
-
-        if len(fieldnames) == 0:
-            raise Exception("No fields to be selected, failed query")
-
-        column_select = ','.join(fieldnames)
-        sql = 'SELECT {0} FROM {1}'.format(column_select, self.pg_table)
-        if self.dtm_attribute:
-            sql += " WHERE {0} >= %(execution_date)s AND {0} < %(next_execution_date)s".format(
-                self.dtm_attribute)
-        return sql

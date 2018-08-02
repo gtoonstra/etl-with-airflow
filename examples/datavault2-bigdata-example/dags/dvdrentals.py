@@ -28,8 +28,8 @@ import acme.schema.dvdrentals_schema as schema
 
 args = {
     'owner': 'airflow',
-    'start_date': datetime(2007, 2, 15),
-    'end_date': datetime(2007, 5, 15),
+    'start_date': datetime(2005, 5, 24),
+    'end_date': datetime(2005, 8, 24),
     'provide_context': True,
     # We want to maintain chronological order when loading the datavault
     'depends_on_past': True
@@ -61,19 +61,21 @@ loading_done = DummyOperator(
     dag=dag)
 
 
-def extract_table(pg_table, override_cols=None, dtm_attribute=None):
+def extract_entity(entity, incremental):
     t1 = StagePostgresToFileOperator(
         source='dvdrentals',
-        pg_table=pg_table,
-        dtm_attribute=dtm_attribute,
-        override_cols=override_cols,
+        sql='extract/{entity}.sql'.format(entity=entity),
+        entity=entity,
+        incremental=incremental,
         postgres_conn_id='dvdrentals',
         file_conn_id='filestore',
-        task_id=pg_table,
+        task_id=entity,
         dag=dag)
+
     t1 >> extract_done
 
 
+"""
 def create_staging_operator(hive_table):
     field_dict = schema.schemas[hive_table]
     _, table = hive_table.split('.')
@@ -133,26 +135,18 @@ def load_sat(hql, hive_table):
 
     staging_done >> t1 >> loading_done
     return t1
+"""
 
 
-extract_table(pg_table='public.actor')
-extract_table(pg_table='public.address')
-extract_table(pg_table='public.category')
-extract_table(pg_table='public.city')
-extract_table(pg_table='public.country')
-extract_table(pg_table='public.customer')
-extract_table(pg_table='public.film')
-extract_table(pg_table='public.film_actor')
-extract_table(pg_table='public.film_category')
-extract_table(pg_table='public.inventory')
-extract_table(pg_table='public.language')
-extract_table(pg_table='public.payment', dtm_attribute='payment_date')
-extract_table(pg_table='public.rental')
-extract_table(pg_table='public.staff', override_cols=[
-    'staff_id', 'first_name', 'last_name', 'address_id', 'email', 'store_id', 'active', 'last_update'])
-extract_table(pg_table='public.store')
+extract_entity(entity='public.customer', incremental=True)
+extract_entity(entity='public.film', incremental=False)
+extract_entity(entity='public.inventory', incremental=False)
+extract_entity(entity='public.payment', incremental=True)
+extract_entity(entity='public.rental', incremental=True)
+extract_entity(entity='public.staff', incremental=False)
+extract_entity(entity='public.store', incremental=False)
 
-
+"""
 daily_dumps = BashOperator(
     bash_command='/usr/local/airflow/dataflow/process_daily_full_dumps.sh {{ts}}',
     task_id='daily_dumps',
@@ -210,6 +204,7 @@ load_sat('loading/sat_payment.hql', 'dv_raw.sat_payment')
 load_sat('loading/sat_rental.hql', 'dv_raw.sat_rental')
 load_sat('loading/sat_staff.hql', 'dv_raw.sat_staff')
 load_sat('loading/sat_store.hql', 'dv_raw.sat_store')
+"""
 
 
 if __name__ == "__main__":

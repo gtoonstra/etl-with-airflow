@@ -12,6 +12,7 @@ services:
       volumes:
           - ./examples/datavault2-bigdata-example/setup/100_restore.sql:/docker-entrypoint-initdb.d/100_restore.sql
           - ./examples/datavault2-bigdata-example/setup/200_users.sql:/docker-entrypoint-initdb.d/200_users.sql
+          - ./examples/datavault2-bigdata-example/setup/300_fixdata.sql:/docker-entrypoint-initdb.d/300_fixdata.sql
           - ./examples/datavault2-bigdata-example/setup/data:/docker-entrypoint-initdb.d/data
   hive:
       image: cloudera/quickstart:latest
