@@ -3,14 +3,10 @@ Data Vault with Big Data processes
 
 .. important::
 
-    This example is work in progress. It is now loading the raw data vault, but I'm in the process 
-    of validating this approach against the Data Vault 2.0 Modeling Standards. There are some deviations
-    that should be documented. It also requires a better way to pass 'schema' from one processing
-    stage to another.
+    This example is work in progress. The previous example had many disadvantages and
+    after advanced insights, I've started reworking the example to become easier to manage.
 
 This example builds on the previous examples yet again and changes the pre-processing stage.
-In conversations with others I extracted some important principles out of data warehousing
-and integrated that with what modern technology offers us as reliability and technology.
 
 The Datavault 2.0 book contains a picture that displays how you'd extract data from a source system,
 hashes its business keys and then moves it into the data vault. The datavault 2 example was based 
@@ -44,11 +40,15 @@ record is in staging when a record in **customerdetails** changes.
 In my view the loading process is the biggest pain of the data vault, because as soon as all the hubs,
 links and satellites are in place, the downstream processes are totally clear and there's no ambiguity.
 
-So, this example changes some of the design decisions I made in previous examples:
+So from the previous example, I've now come to the conclusion that data extraction should perform a "clean" 
+extract of the source data without introducing data vault design decisions. You could add two simple 
+fields to the data extract (extraction_dtm and status) for each record, which will help you later.
+The extraction_dtm is the time when the batch ran, the status is an indicator if the record is NEW,
+UPDATED or DELETED.
 
-- Do not use joins in source OLTP systems to resolve business keys (this also avoids making early business key decisions)
-- For full replications of source data, the joins can be made in the data vault staging area instead
-- For incremental loads, an index of primary key to hash key should be used to resolve the business key
+In the current example, I'm using advanced SQL functions (2016) to extract nested records. The extract is
+actually done in JSON, which is handled perfectly in python. Because I'm assuming incremental extracts
+for the majority (only extract what changed for the day), this shouldn't take that long.
 
 This new example demonstrates how this would work and relies on a PSA as well. It is typically discouraged 
 to use a PSA as a strategic mechanism for the data vault, but there are new trains of thought 
@@ -64,22 +64,36 @@ to use a PSA as a strategic mechanism for the data vault, but there are new trai
 
 The idea is that the PSA is never touched ever again, it is how the source system was at some point.
 What you gain from this strategy is that the choice of business key, hashing algorithm, length of hash and
-other such design decisions can be modified later. I.e. we defer design decisions to a later point in time
-and maintain a pristine copy of source data without important design decisions embedded within them.
+other such design decisions *can* be modified later, although it should never be the purpose of the PSA, the
+purpose is to support the development and deal with significant design decision pains in the startup phase of 
+the DWH. The PSA allows us to defer design decisions to a later point in time and maintain a pristine copy 
+of source data without important design decisions embedded in them (we don't have pre-generated business keys
+from the source extract, we don't have hashes based on pre-identified hashing algorithms or sizes).
 
 Principles
 ----------
 
 This section lists some extracted principles that I think are extremely important to consider and they are valid if you build any kind of data warehouse. They are based on perceptions how some ODS's and Kimball systems evolved and how the specific procedures added complexity or rigidity into the system:
 
-**Extract, verify and keep**: Extract source data and keep it historied in a PSA forever on practically infinite storage. Cloud storage provides eleven 9's of durability (1 in 10.000 documents is lost in 1 million years). This means that no other backup scheme can compete with this durability. Why not use that property?  (Just make sure that the extraction is 100% ok). Use UTF-8 as standard encoding, verify data types and precision output, etc. The extraction process is very generic, so once you have a generic process that really works, it is very easy to add more tables, which actually can become as simple as adding another line. (just work out the GDPR issues there :)
+**Extract, verify and keep**: Extract source data and keep it historied in a PSA forever on practically infinite storage. Cloud storage provides eleven 9's of durability (1 in 10.000 documents is lost in 1 million years). This means that no other backup scheme can compete with this durability. Why not use that property?  (Just make sure that the extraction is ok). Use UTF-8 as standard encoding, verify data types and precision output, etc. The extraction process is very generic, so once you have a generic process that really works, it is very easy to add more tables, which actually can become as simple as adding another line.
 
-**Maintain data in lanes**: Do not combine data from different sources until the very last moment; delay this as far as possible. Think about processing data as having separate lanes of traffic in your data warehouse. The sooner data becomes integrated, the more processes downstream have to be modified when a source system changes, or become invalid for a longer period. Using views on terminal endpoints for each lane allows you to compare results individually and switch the implementation when the results are clear. The more you can keep data separated in lanes per source system, the less complex will be your data warehouse.
+**Maintain data in lanes**: Do not combine data from different sources until the very last moment; delay this as far ahead as possible. Think about processing data as having separate lanes of traffic in your data warehouse. The sooner data becomes integrated, the more processes downstream have to be modified when a source system changes, or when they get replaced. Using views on terminal endpoints for each lane allows you to compare results individually and switch the implementation when the results are clear. The more you can keep data separated in lanes per source system, the less complex the management and future development of your dwh will be.
 
-**Divide and conquer**: Don't perform all complicated logic in a single query; massage your data step by step, pivoting, filtering and working it until you can produce the end result with relatively simple joins. Add static data to define additional attributes where you may be missing some (never use mystical sequences of magic entity id's to filter data inside the query, i.e. don't hardcode id's). It's usually difficult to produce a useful analytical view  when you depart from the operational view, see the next principle!
+**Divide and conquer**: Don't perform all complicated logic in a single query; massage your data step by step, pivoting, filtering, PITting and working it until you can produce the end result with simple joins. Add static data to define additional attributes where you may be missing some (never use mystical sequences of magic entity id's to filter data inside the query, i.e. don't hardcode identifiers). It's usually difficult to produce a useful analytical view when you depart from the source operational view, see the next principle!
 
 **Work on abstraction layers**: Introduce abstraction layers to convert the OLTP design into an analytical structure. Data vault will not allow you to magically transform some OLTP design into a sensible business data model in a single step; the OLTP design always bleeds over into the raw data vault somehow. The OLTP / 3NF design is optimized for operational purposes, so there are important transformations to make there and this requires some thinking.
 
+**Extract entities, not tables**: The previous examples all worked with tables, which means that you're extracting artifacts from some 3NF design that has its own quirks and issues and propagate all those design choices towards other endpoints that have completely different needs. For this reason I started to use more advanced "json extraction methods", which allows me to nest data from queries and extract 'entities' rather than table records. If you can't do that, you should consider merging records into entities elsewhere, but it will definitely be harder.
+
+Entities, not records
+---------------------
+Entities can be compared to documents in NoSQL systems. Although it's also a challenge to analytically query over those in its own format, there are huge advantages to thinking in terms of entities:
+
+- Instead of multiple file types, you have one file type
+- There is no need to combine files to see the data in closer context
+- Each entity is an event or object in a business process (invoice, customer, transaction, etc.)
+- It saves a lot of work.
+- Much less code, much less repetition and lower complexity.
 
 About the implementation
 ------------------------
@@ -92,41 +106,15 @@ Airflow shows that a lot of the steps can be run fully in parallel:
 
 The general process becomes:
 
-1) Extract each table in parallel fashion. The speed at which you can do this is dependent on the source OLTP system, your worker's disk I/O, etc. For each record, add a "load_dtm" field, which is the dtm of the dagrun in which the record was extracted (the "execution_dtm" attribute in airflow). Incremental extracts go straight to the PSA and also have a NEW/DELETED/UPDATED attribute added, full extracts go to a separate landing area for subsequent processing.
-2) Using Apache Beam, process the full dumps in the landing area to identify the NEW, UPDATED or DELETED attribute for each record. An index is made up of a triplet of {primary key, row checksum, hash key}. This allows us to use the index to perform hash key lookups associated by primary key, but also verify if records have changed.
-3) With another Apache Beam run for each table in the PSA, there are two important outputs: the data from the PSA that contains hash keys for each record and hash keys for all foreign keys as well as new triplets in the index for each table. Because of the dependency structure in ERD, the order of processing of each table in the PSA is important and not 100% parallel. The data output is separated into its own directory based on the LOAD_DTM (remember; we keep all data partitions separated by date interval, it is an important principle for easy reprocessing).
-4) Create tables in Data Vault using EXTERNAL TABLE with LOCATION set to cloud storage. This is a zero copy operation, yet makes the files in each directory available as a table in Hive (plan the data output directory structure accordingly).
-5) Apply the Hive staging tables to the raw data vault. This should be an idempotent process, but in the current implementation is additive. Using load_dtm as a partition, it is easy to drop and reload partitions however.
-6) From there, apply further processing downstream until you have the datamarts.
+1) Extract each entity in parallel fashion. The speed at which you can do this is dependent on the source OLTP system, your worker's disk I/O, etc. For each entity, add a "load_dtm" field, which is the dtm of the dagrun in which the entity was extracted (the "execution_dtm" attribute in airflow) and a 'status' field to indicate if it's NEW, UPDATED or DELETED. Incremental extracts go straight to the PSA and also have a NEW/DELETED/UPDATED attribute added, full extracts of a table go to a staging area first for other processing.
+2) Using Apache Beam, process the full dumps in the staging area to identify the NEW, UPDATED or DELETED attribute for each record in a full dump. An index made up of a triplet of {primary key, row checksum, hash key} is used to filter out unchanged entities, so we only process entities that have changed. The output of this process brings the full dump entities to the PSA as well.
+3) With another Apache Beam, run for all entities in the PSA on the given processing dtm. There are two main outputs: entity data split into the raw data vault model and new records for an updated index for each entity. Because of dependencies between entities, the order of processing of each entity is important and therefore not 100% parallel (we must make sure to work with the latest index). For each data file produced that goes into data vault staging, it is organized in its own directory by LOAD_DTM. The output here is written in the Avro file format, so it has its own schema. This is the stage where we are making data vault design decisions (choice of hash key, algorithm, hash size, splitting up the data from entities, looking up related entities from entity indexes, etc)
+4) For each output data file, create a staging table in Data Vault using EXTERNAL TABLE with LOCATION set to cloud storage, again using the same avro schema declared earlier. This ensures consistency and writing the schema once. Loading into Hive like this is a zero copy operation.
+5) Apply the data from the Hive staging tables to the raw data vault. The staging data contains data for hubs and satellites, links and satellites and sometimes only for links without satellites. You now have an updated raw vault.
+6) From there, continue processing the Business Vault.
+7) From there, perform further processing towards data marts in a star schema.
 
 I rendered the following picture from the "DataFlow" UI on google cloud, the process is actually runnable on local disk as well using the beam API (acceptable for this data size). The way things are currently implemented is that the dataflow pipelines are running serially. It should be possible to establish correct dependencies between them in a single pipeline, so that it flows fully in parallel, but that is slightly more complicated and could hit specific limits in the number of nodes (or node memory).
 
-.. image:: img/dv2-dataflow.jpg
+<< outdated >>
 
-- It reads data from a csv file, which is then converted into json.
-- Every row is then 'keyed' by applying the primary key, which generates a stream of data like (pk, record)
-- The preprocessing stage selects the business key, calculates the hash key and calculates a checksum for the data.
-- An 'index' is read from data processed prior to this dagrun. If there is no index, it creates an empty pcollection. An index is a triplet of (pk, hash, checksum)
-- The data and the index are joined together on the primary key, this gives us for each primary key an index and/or data record.
-- We can now identify data that didn't change (checksum of index == checksum of data), which gets discarded.
-- We can also see what changed (there's an index and data and checksum != checksum).
-- We can also see what's new (no index, but a data record)
-- And what's deleted (there's an index, but no data)
-- The index gets updated with new data records and written out as a new version of that index to be used as a source for the new dagrun.
-- Tables with foreign keys do an additional lookup of the hash key of the foreign key by running the records through a 'CoGroupByKey' operation with the 'foreign index'. This introduces a dependency between hubs, so they cannot be processed in parallel. This means that the order of processing is becoming important in this step.
-
-
-Full reprocessing run
----------------------
-
-The full reprocessing run is remarkably similar. In fact, it's the same code as the incremental run, because we've already made sure that the input data is neatly organized in the PSA with a load_dtm and status per record.
-
-The only difference is that instead of this "glob" pattern for the bucket location:
-
-`<ROOT>/psa/<table_name>/YYYY/MM/DD/<table_name>*`
-
-We use:
-
-`<ROOT>/psa/<table_name>/*/*/*/<table_name>*`
-
-The satellites can be loaded in a straight-forward way, but the hubs and links need a bit more attention. If we fully load from system A first and then B, it may appear as if all hub records were first seen in A when in reality, there are occasions where B was first. So that needs to be worked out with a different query for hubs and links.
