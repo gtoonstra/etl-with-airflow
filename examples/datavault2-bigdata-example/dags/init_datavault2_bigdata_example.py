@@ -242,8 +242,12 @@ create_table(
     upstream=t4,
     downstream=hubs_done)
 
-"""
 # links
+create_table(
+    hql='ddl/link_customer_store.hql',
+    tablename='link_customer_store',
+    upstream=hubs_done,
+    downstream=links_done)
 create_table(
     hql='ddl/link_film_actor.hql',
     tablename='link_film_actor',
@@ -260,18 +264,38 @@ create_table(
     upstream=hubs_done,
     downstream=links_done)
 create_table(
+    hql='ddl/link_inventory_film.hql',
+    tablename='link_inventory_film',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
+    hql='ddl/link_inventory_store.hql',
+    tablename='link_inventory_store',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
     hql='ddl/link_payment.hql',
     tablename='link_payment',
     upstream=hubs_done,
     downstream=links_done)
 create_table(
-    hql='ddl/link_rental.hql',
-    tablename='link_rental',
+    hql='ddl/link_payment_rental.hql',
+    tablename='link_payment_rental',
     upstream=hubs_done,
     downstream=links_done)
 create_table(
-    hql='ddl/link_staff_address.hql',
-    tablename='link_staff_address',
+    hql='ddl/link_rental_customer.hql',
+    tablename='link_rental_customer',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
+    hql='ddl/link_rental_inventory.hql',
+    tablename='link_rental_inventory',
+    upstream=hubs_done,
+    downstream=links_done)
+create_table(
+    hql='ddl/link_rental_staff.hql',
+    tablename='link_rental_staff',
     upstream=hubs_done,
     downstream=links_done)
 create_table(
@@ -279,12 +303,8 @@ create_table(
     tablename='link_staff_store',
     upstream=hubs_done,
     downstream=links_done)
-create_table(
-    hql='ddl/link_store_staff.hql',
-    tablename='link_store_staff',
-    upstream=hubs_done,
-    downstream=links_done)
 
+"""
 # satellites
 create_table(
     hql='ddl/sat_actor.hql',

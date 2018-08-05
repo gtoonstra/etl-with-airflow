@@ -1,8 +1,8 @@
 INSERT INTO TABLE dv_raw.link_film_category
 SELECT DISTINCT
-    fc.dv__link_key as hkey_film_category,
-    fc.category_bk as hkey_category,
+    fc.dv__bk as hkey_film_category,
     fc.film_bk as hkey_film,
+    fc.category_bk as hkey_category,    
     fc.dv__rec_source as record_source,
     fc.dv__load_dtm as load_dtm
 FROM

@@ -1,6 +1,6 @@
 INSERT INTO TABLE dv_raw.link_film_actor
 SELECT DISTINCT
-    fa.dv__link_key as hkey_film_actor,
+    fa.dv__bk as hkey_film_actor,
     fa.film_bk as hkey_film,
     fa.actor_bk as hkey_actor,
     fa.dv__rec_source as record_source,
