@@ -3,9 +3,16 @@ SELECT DISTINCT
       a.dv__bk as hkey_staff
     , a.dv__load_dtm as load_dtm
     , a.dv__rec_source as record_source
+    , a.email    
     , a.active
-    , a.email
-    , a.last_update
+    , a.username
+    , a.address
+    , a.address2
+    , a.district
+    , a.city
+    , a.postal_code
+    , a.phone
+    , a.country
 FROM
                 staging_dvdrentals.staff_{{ts_nodash}} a
 LEFT OUTER JOIN dv_raw.sat_staff sat ON

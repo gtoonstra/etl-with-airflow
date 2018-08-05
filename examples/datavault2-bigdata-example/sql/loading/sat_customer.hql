@@ -8,7 +8,13 @@ SELECT DISTINCT
     , a.create_date
     , a.first_name
     , a.last_name
-    , a.last_update
+    , a.address
+    , a.address2
+    , a.district
+    , a.city
+    , a.postal_code
+    , a.phone
+    , a.country
 FROM
                 staging_dvdrentals.customer_{{ts_nodash}} a
 LEFT OUTER JOIN dv_raw.sat_customer sat ON

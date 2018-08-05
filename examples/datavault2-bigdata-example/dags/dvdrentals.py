@@ -190,25 +190,18 @@ load_link('loading/link_film_category.hql', 'dv_raw.link_film_category')
 load_link('loading/link_film_language.hql', 'dv_raw.link_film_language')
 load_link('loading/link_inventory_film.hql', 'dv_raw.link_inventory_film')
 load_link('loading/link_inventory_store.hql', 'dv_raw.link_inventory_store')
-# load_link('loading/link_payment.hql', 'dv_raw.link_payment')
+load_link('loading/link_payment.hql', 'dv_raw.link_payment')
 load_link('loading/link_payment_rental.hql', 'dv_raw.link_payment_rental')
 load_link('loading/link_rental_customer.hql', 'dv_raw.link_rental_customer')
 load_link('loading/link_rental_inventory.hql', 'dv_raw.link_rental_inventory')
 load_link('loading/link_rental_staff.hql', 'dv_raw.link_rental_staff')
 load_link('loading/link_staff_store.hql', 'dv_raw.link_staff_store')
 
-"""
-load_sat('loading/sat_actor.hql', 'dv_raw.sat_actor')
-load_sat('loading/sat_address.hql', 'dv_raw.sat_address')
-load_sat('loading/sat_category.hql', 'dv_raw.sat_category')
 load_sat('loading/sat_customer.hql', 'dv_raw.sat_customer')
 load_sat('loading/sat_film.hql', 'dv_raw.sat_film')
-load_sat('loading/sat_language.hql', 'dv_raw.sat_language')
 load_sat('loading/sat_payment.hql', 'dv_raw.sat_payment')
 load_sat('loading/sat_rental.hql', 'dv_raw.sat_rental')
 load_sat('loading/sat_staff.hql', 'dv_raw.sat_staff')
-load_sat('loading/sat_store.hql', 'dv_raw.sat_store')
-"""
 
 
 if __name__ == "__main__":

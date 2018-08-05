@@ -304,23 +304,7 @@ create_table(
     upstream=hubs_done,
     downstream=links_done)
 
-"""
 # satellites
-create_table(
-    hql='ddl/sat_actor.hql',
-    tablename='sat_actor',
-    upstream=links_done,
-    downstream=all_done)
-create_table(
-    hql='ddl/sat_address.hql',
-    tablename='sat_address',
-    upstream=links_done,
-    downstream=all_done)
-create_table(
-    hql='ddl/sat_category.hql',
-    tablename='sat_category',
-    upstream=links_done,
-    downstream=all_done)
 create_table(
     hql='ddl/sat_customer.hql',
     tablename='sat_customer',
@@ -329,16 +313,6 @@ create_table(
 create_table(
     hql='ddl/sat_film.hql',
     tablename='sat_film',
-    upstream=links_done,
-    downstream=all_done)
-create_table(
-    hql='ddl/sat_inventory.hql',
-    tablename='sat_inventory',
-    upstream=links_done,
-    downstream=all_done)
-create_table(
-    hql='ddl/sat_language.hql',
-    tablename='sat_language',
     upstream=links_done,
     downstream=all_done)
 create_table(
@@ -356,9 +330,3 @@ create_table(
     tablename='sat_staff',
     upstream=links_done,
     downstream=all_done)
-create_table(
-    hql='ddl/sat_store.hql',
-    tablename='sat_store',
-    upstream=links_done,
-    downstream=all_done)
-"""

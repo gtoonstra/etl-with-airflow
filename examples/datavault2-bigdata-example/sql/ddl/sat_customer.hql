@@ -7,5 +7,12 @@ CREATE TABLE IF NOT EXISTS dv_raw.sat_customer (
     , create_date     TIMESTAMP
     , first_name      STRING
     , last_name       STRING
-    , last_update     TIMESTAMP)
+    , address         STRING
+    , address2        STRING
+    , district        STRING
+    , city            STRING
+    , postal_code     STRING
+    , phone           STRING
+    , country         STRING
+)
 STORED AS ORC;

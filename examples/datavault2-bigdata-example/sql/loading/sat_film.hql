@@ -5,7 +5,6 @@ SELECT DISTINCT
     , a.dv__rec_source as record_source
     , a.description
     , a.fulltext
-    , a.last_update
     , a.length
     , a.rating
     , a.rental_duration

@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS dv_raw.sat_film (
     , record_source    STRING    
     , description      STRING
     , fulltext         STRING
-    , last_update      TIMESTAMP
     , length           INT
     , rating           STRING
     , rental_duration  INT
