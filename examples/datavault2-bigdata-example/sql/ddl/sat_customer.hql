@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS dv_raw.sat_customer (
     , record_source   STRING    
     , active          INT
     , activebool      STRING
-    , create_date     TIMESTAMP
+    , create_date     DATE
     , first_name      STRING
     , last_name       STRING
     , address         STRING

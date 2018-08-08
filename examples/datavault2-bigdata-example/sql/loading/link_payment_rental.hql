@@ -4,7 +4,7 @@ SELECT DISTINCT
     pr.payment_bk as hkey_payment,
     pr.rental_bk as hkey_rental,
     pr.dv__rec_source as record_source,
-    pr.dv__load_dtm as load_dtm
+    from_unixtime(unix_timestamp(pr.dv__load_dtm, "yyyy-MM-dd'T'HH:mm:ss")) as load_dtm
 FROM
     staging_dvdrentals.payment_rental_{{ts_nodash}} pr
 WHERE

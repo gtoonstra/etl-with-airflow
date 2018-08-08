@@ -4,7 +4,7 @@ SELECT DISTINCT
     fl.film_bk as hkey_film,
     fl.language_bk as hkey_language,
     fl.dv__rec_source as record_source,
-    fl.dv__load_dtm as load_dtm
+    from_unixtime(unix_timestamp(fl.dv__load_dtm, "yyyy-MM-dd'T'HH:mm:ss")) as load_dtm
 FROM
     staging_dvdrentals.film_language_{{ts_nodash}} fl
 WHERE

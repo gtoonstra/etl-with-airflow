@@ -4,7 +4,7 @@ SELECT DISTINCT
     fc.inventory_bk as hkey_inventory,
     fc.film_bk as hkey_film,
     fc.dv__rec_source as record_source,
-    fc.dv__load_dtm as load_dtm
+    from_unixtime(unix_timestamp(fc.dv__load_dtm, "yyyy-MM-dd'T'HH:mm:ss")) as load_dtm
 FROM
     staging_dvdrentals.inventory_film_{{ts_nodash}} fc
 WHERE

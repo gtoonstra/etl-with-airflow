@@ -3,5 +3,5 @@ CREATE TABLE IF NOT EXISTS dv_raw.sat_payment (
     , load_dtm        TIMESTAMP
     , record_source   STRING    
     , amount          DOUBLE
-    , payment_date    TIMESTAMP)
+    , payment_date    DATE)
 STORED AS ORC;

@@ -1,11 +1,11 @@
 INSERT INTO TABLE dv_raw.sat_customer
 SELECT DISTINCT
       a.dv__bk as hkey_customer
-    , a.dv__load_dtm as load_dtm
+    , from_unixtime(unix_timestamp(a.dv__load_dtm, "yyyy-MM-dd'T'HH:mm:ss")) as load_dtm
     , a.dv__rec_source as record_source
     , a.active
     , a.activebool
-    , a.create_date
+    , cast(a.create_date as date)
     , a.first_name
     , a.last_name
     , a.address
