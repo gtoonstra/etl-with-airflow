@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXISTS dv_raw.sat_customer (
       hkey_customer   STRING
     , load_dtm        TIMESTAMP
-    , record_source   STRING    
+    , record_source   STRING
+    , checksum        STRING    
     , active          INT
     , activebool      STRING
     , create_date     DATE

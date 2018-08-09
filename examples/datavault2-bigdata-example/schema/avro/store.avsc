@@ -12,7 +12,7 @@
       "type": "string"
     },
     {
-      "name": "dv__status",
+      "name": "dv__cksum",
       "type": "string"
     },
     {

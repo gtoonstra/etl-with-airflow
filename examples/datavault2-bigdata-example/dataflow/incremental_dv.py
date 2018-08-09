@@ -16,7 +16,7 @@ import avro
 
 
 CONST_LOADDTM_FIELD = 'dv__load_dtm'
-CONST_CKSUM_FIELD = '__row_cksum'
+CONST_CKSUM_FIELD = 'dv__cksum'
 CONST_SOURCE_FIELD = 'dv__rec_source'
 CONST_BK_FIELD = 'dv__bk'
 CONST_STATUS_FIELD = 'dv__status'
@@ -69,7 +69,7 @@ def get_business_key(record, bkey_list):
 
 def calc_cksum(record):
     m = hashlib.md5()
-    c = {k:v for k, v in record.items() if k != CONST_LOADDTM_FIELD and k != CONST_STATUS_FIELD}
+    c = {k:v for k, v in record.items() if k != CONST_LOADDTM_FIELD and k != CONST_STATUS_FIELD and k != CONST_CKSUM_FIELD}
     m.update(repr(sorted(c.items())))
     return m.hexdigest().upper()
 
@@ -155,7 +155,7 @@ class AbstractToDataVault2(beam.DoFn):
     def prepare_output(self, rec, parent_rec, bkey_list):
         rec[CONST_LOADDTM_FIELD] = parent_rec[CONST_LOADDTM_FIELD]
         rec[CONST_SOURCE_FIELD] = parent_rec[CONST_SOURCE_FIELD]
-        rec[CONST_STATUS_FIELD] = parent_rec[CONST_STATUS_FIELD]
+        rec[CONST_CKSUM_FIELD] = calc_cksum(rec)
         apply_bk(rec, bkey_list)
 
     @staticmethod

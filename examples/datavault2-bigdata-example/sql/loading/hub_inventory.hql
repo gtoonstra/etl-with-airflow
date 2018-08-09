@@ -7,8 +7,6 @@ SELECT DISTINCT
 FROM
     staging_dvdrentals.inventory_{{ts_nodash}} a
 WHERE
-    (a.dv__status = 'NEW' OR a.dv__status = 'UPDATED')
-AND
     NOT EXISTS (
         SELECT 
                 hub.hkey_inventory

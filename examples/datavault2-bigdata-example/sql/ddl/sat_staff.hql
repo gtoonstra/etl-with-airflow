@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXISTS dv_raw.sat_staff (
       hkey_staff      STRING
     , load_dtm        TIMESTAMP
-    , record_source   STRING    
+    , record_source   STRING
+    , checksum        STRING    
     , email           STRING
     , active          STRING    
     , username        STRING

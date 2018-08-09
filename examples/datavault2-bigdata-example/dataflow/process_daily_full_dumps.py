@@ -13,12 +13,11 @@ from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import SetupOptions
 
 
-CONST_CKSUM_FIELD = '__row_cksum'
+CONST_CKSUM_FIELD = 'dv__cksum'
 CONST_BK_FIELD = 'dv__bk'
 CONST_SOURCE_FIELD = 'dv__rec_source'
 CONST_LOADDTM_FIELD = 'dv__load_dtm'
 CONST_STATUS_FIELD = 'dv__status'
-LINK_KEY = 'dv__link_key'
 
 
 class JsonCoder(object):
@@ -45,7 +44,7 @@ def read_file(p, label, file_pattern, pk=None):
 def calc_cksum(record):
     m = hashlib.md5()
     c = {k: v for k, v in record.items()
-         if k != CONST_LOADDTM_FIELD and k != CONST_STATUS_FIELD}
+         if k != CONST_LOADDTM_FIELD and k != CONST_STATUS_FIELD and k != CONST_CKSUM_FIELD}
     m.update(repr(sorted(c.items())))
     return m.hexdigest().upper()
 
@@ -183,7 +182,7 @@ class DvdRentalsPipeline(object):
                 index = read_file(
                     p,
                     '{0}index'.format(entity_name),
-                    self.get_source_index('hub_{0}*'.format(entity_name)),
+                    self.get_source_index('entity_{0}*'.format(entity_name)),
                     pk)
             except IOError:
                 logging.info("Could not open index, maybe doesn't exist")
