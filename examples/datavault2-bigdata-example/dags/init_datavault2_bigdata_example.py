@@ -179,12 +179,15 @@ hubs_done = DummyOperator(
 links_done = DummyOperator(
     task_id='links_done',
     dag=dag)
+sats_done = DummyOperator(
+    task_id='sats_done',
+    dag=dag)
 all_done = DummyOperator(
     task_id='all_done',
     dag=dag)
 
-def create_table(hql, tablename, upstream, downstream):
-    t = HiveOperator(task_id='table_{0}'.format(tablename),
+def create_object(hql, tablename, upstream, downstream):
+    t = HiveOperator(task_id=tablename,
                      hive_cli_conn_id='hive_datavault_raw',
                      schema=DATAVAULT,
                      hql=hql,
@@ -196,137 +199,164 @@ def create_table(hql, tablename, upstream, downstream):
 t1 >> t2 >> t3 >> t4
 
 # hubs
-create_table(
+create_object(
     hql='ddl/hub_actor.hql',
     tablename='hub_actor',
     upstream=t4,
     downstream=hubs_done)
-create_table(
+create_object(
     hql='ddl/hub_category.hql',
     tablename='hub_category',
     upstream=t4,
     downstream=hubs_done)
-create_table(
+create_object(
     hql='ddl/hub_customer.hql',
     tablename='hub_customer',
     upstream=t4,
     downstream=hubs_done)
-create_table(
+create_object(
     hql='ddl/hub_film.hql',
     tablename='hub_film',
     upstream=t4,
     downstream=hubs_done)
-create_table(
+create_object(
     hql='ddl/hub_inventory.hql',
     tablename='hub_inventory',
     upstream=t4,
     downstream=hubs_done)
-create_table(
+create_object(
     hql='ddl/hub_language.hql',
     tablename='hub_language',
     upstream=t4,
     downstream=hubs_done)
-create_table(
+create_object(
     hql='ddl/hub_rental.hql',
     tablename='hub_rental',
     upstream=t4,
     downstream=hubs_done)
-create_table(
+create_object(
     hql='ddl/hub_staff.hql',
     tablename='hub_staff',
     upstream=t4,
     downstream=hubs_done)
-create_table(
+create_object(
     hql='ddl/hub_store.hql',
     tablename='hub_store',
     upstream=t4,
     downstream=hubs_done)
 
 # links
-create_table(
+create_object(
     hql='ddl/link_customer_store.hql',
     tablename='link_customer_store',
     upstream=hubs_done,
     downstream=links_done)
-create_table(
+create_object(
     hql='ddl/link_film_actor.hql',
     tablename='link_film_actor',
     upstream=hubs_done,
     downstream=links_done)
-create_table(
+create_object(
     hql='ddl/link_film_category.hql',
     tablename='link_film_category',
     upstream=hubs_done,
     downstream=links_done)
-create_table(
+create_object(
     hql='ddl/link_film_language.hql',
     tablename='link_film_language',
     upstream=hubs_done,
     downstream=links_done)
-create_table(
+create_object(
     hql='ddl/link_inventory_film.hql',
     tablename='link_inventory_film',
     upstream=hubs_done,
     downstream=links_done)
-create_table(
+create_object(
     hql='ddl/link_inventory_store.hql',
     tablename='link_inventory_store',
     upstream=hubs_done,
     downstream=links_done)
-create_table(
+create_object(
     hql='ddl/link_payment.hql',
     tablename='link_payment',
     upstream=hubs_done,
     downstream=links_done)
-create_table(
+create_object(
     hql='ddl/link_payment_rental.hql',
     tablename='link_payment_rental',
     upstream=hubs_done,
     downstream=links_done)
-create_table(
+create_object(
     hql='ddl/link_rental_customer.hql',
     tablename='link_rental_customer',
     upstream=hubs_done,
     downstream=links_done)
-create_table(
+create_object(
     hql='ddl/link_rental_inventory.hql',
     tablename='link_rental_inventory',
     upstream=hubs_done,
     downstream=links_done)
-create_table(
+create_object(
     hql='ddl/link_rental_staff.hql',
     tablename='link_rental_staff',
     upstream=hubs_done,
     downstream=links_done)
-create_table(
+create_object(
     hql='ddl/link_staff_store.hql',
     tablename='link_staff_store',
     upstream=hubs_done,
     downstream=links_done)
 
 # satellites
-create_table(
+create_object(
     hql='ddl/sat_customer.hql',
     tablename='sat_customer',
     upstream=links_done,
-    downstream=all_done)
-create_table(
+    downstream=sats_done)
+create_object(
     hql='ddl/sat_film.hql',
     tablename='sat_film',
     upstream=links_done,
-    downstream=all_done)
-create_table(
+    downstream=sats_done)
+create_object(
     hql='ddl/sat_payment.hql',
     tablename='sat_payment',
     upstream=links_done,
-    downstream=all_done)
-create_table(
+    downstream=sats_done)
+create_object(
     hql='ddl/sat_rental.hql',
     tablename='sat_rental',
     upstream=links_done,
-    downstream=all_done)
-create_table(
+    downstream=sats_done)
+create_object(
     hql='ddl/sat_staff.hql',
     tablename='sat_staff',
     upstream=links_done,
+    downstream=sats_done)
+
+# views over satellites
+create_object(
+    hql='ddl/vw_sat_customer.hql',
+    tablename='vw_sat_customer',
+    upstream=sats_done,
+    downstream=all_done)
+create_object(
+    hql='ddl/vw_sat_film.hql',
+    tablename='vw_sat_film',
+    upstream=sats_done,
+    downstream=all_done)
+create_object(
+    hql='ddl/vw_sat_payment.hql',
+    tablename='vw_sat_payment',
+    upstream=sats_done,
+    downstream=all_done)
+create_object(
+    hql='ddl/vw_sat_rental.hql',
+    tablename='vw_sat_rental',
+    upstream=sats_done,
+    downstream=all_done)
+create_object(
+    hql='ddl/vw_sat_staff.hql',
+    tablename='vw_sat_staff',
+    upstream=sats_done,
     downstream=all_done)

@@ -17,7 +17,6 @@ CONST_CKSUM_FIELD = 'dv__cksum'
 CONST_BK_FIELD = 'dv__bk'
 CONST_SOURCE_FIELD = 'dv__rec_source'
 CONST_LOADDTM_FIELD = 'dv__load_dtm'
-CONST_STATUS_FIELD = 'dv__status'
 
 
 class JsonCoder(object):
@@ -44,7 +43,7 @@ def read_file(p, label, file_pattern, pk=None):
 def calc_cksum(record):
     m = hashlib.md5()
     c = {k: v for k, v in record.items()
-         if k != CONST_LOADDTM_FIELD and k != CONST_STATUS_FIELD and k != CONST_CKSUM_FIELD}
+         if k != CONST_LOADDTM_FIELD and k != CONST_CKSUM_FIELD}
     m.update(repr(sorted(c.items())))
     return m.hexdigest().upper()
 
@@ -88,19 +87,15 @@ def extract_data(record):
 
     if len(index) == 0 and len(data) == 1:
         data = data[0]
-        data[CONST_STATUS_FIELD] = "NEW"
         return data
     if len(index) == 1 and len(data) == 1:
         data = data[0]
-        data[CONST_STATUS_FIELD] = "UPDATED"
         return data
     if len(index) == 1 and len(data) == 0:
         data = data[0]
-        data[CONST_STATUS_FIELD] = "DELETED"
         return data
 
     data = data[0]
-    data[CONST_STATUS_FIELD] = "UNKNOWN"
     return data
 
 

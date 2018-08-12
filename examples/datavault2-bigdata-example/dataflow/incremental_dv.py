@@ -19,7 +19,6 @@ CONST_LOADDTM_FIELD = 'dv__load_dtm'
 CONST_CKSUM_FIELD = 'dv__cksum'
 CONST_SOURCE_FIELD = 'dv__rec_source'
 CONST_BK_FIELD = 'dv__bk'
-CONST_STATUS_FIELD = 'dv__status'
 
 
 class JsonCoder(object):
@@ -69,7 +68,7 @@ def get_business_key(record, bkey_list):
 
 def calc_cksum(record):
     m = hashlib.md5()
-    c = {k:v for k, v in record.items() if k != CONST_LOADDTM_FIELD and k != CONST_STATUS_FIELD and k != CONST_CKSUM_FIELD}
+    c = {k:v for k, v in record.items() if k != CONST_LOADDTM_FIELD and k != CONST_CKSUM_FIELD}
     m.update(repr(sorted(c.items())))
     return m.hexdigest().upper()
 

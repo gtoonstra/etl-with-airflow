@@ -18,15 +18,8 @@ SELECT DISTINCT
     , a.country
 FROM
                 staging_dvdrentals.customer_{{ts_nodash}} a
-LEFT OUTER JOIN (
-    SELECT  s.hkey_customer,
-            s.load_dtm,
-            s.checksum,
-            row_number() OVER (PARTITION BY s.hkey_customer ORDER BY load_dtm DESC) AS most_recent_row
-    FROM
-            dv_raw.sat_customer s
-) sat 
+LEFT OUTER JOIN dv_raw.vw_sat_customer sat
 ON  sat.hkey_customer   = a.dv__bk
-AND sat.most_recent_row = 1
+AND sat.load_end_dtm IS NULL
 WHERE
     COALESCE(sat.checksum, '') != a.dv__cksum

@@ -8,15 +8,8 @@ SELECT DISTINCT
     , cast(a.return_date as date)
 FROM
                 staging_dvdrentals.rental_{{ts_nodash}} a
-LEFT OUTER JOIN (
-    SELECT  s.hkey_rental,
-            s.load_dtm,
-            s.checksum,
-            row_number() OVER (PARTITION BY s.hkey_rental ORDER BY load_dtm DESC) AS most_recent_row
-    FROM
-            dv_raw.sat_rental s
-) sat 
+LEFT OUTER JOIN dv_raw.vw_sat_rental sat
 ON  sat.hkey_rental     = a.dv__bk
-AND sat.most_recent_row = 1
+AND sat.load_end_dtm IS NULL
 WHERE   
     COALESCE(sat.checksum, '') != a.dv__cksum
