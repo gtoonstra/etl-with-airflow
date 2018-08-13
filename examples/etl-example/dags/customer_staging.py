@@ -57,7 +57,9 @@ extract_customer = PostgresToPostgresOperator(
     dag=dag,
     pool='postgres_dwh')
 
-get_auditid >> extract_customer
+# get_auditid >> extract_customer
+
+extract_customer.set_upstream(get_auditid)
 
 
 if __name__ == "__main__":
