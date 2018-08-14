@@ -18,6 +18,6 @@ FROM
                 staging_dvdrentals.staff_{{ts_nodash}} a
 LEFT OUTER JOIN dv_raw.vw_sat_staff sat
 ON  sat.hkey_staff      = a.dv__bk
-AND sat.load_end_dtm IS NULL
+AND sat.load_end_dtm    = unix_timestamp('9999-12-31', 'yyyy-MM-dd')
 WHERE
     COALESCE(sat.checksum, '') != a.dv__cksum

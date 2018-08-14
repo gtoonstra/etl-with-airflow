@@ -6,7 +6,7 @@ SELECT DISTINCT
     , a.dv__cksum as checksum
     , a.active
     , a.activebool
-    , cast(a.create_date as date)
+    , cast(to_date(from_unixtime(unix_timestamp(a.create_date, 'dd-MM-yyyy'))) as date) as create_date
     , a.first_name
     , a.last_name
     , a.address
@@ -20,6 +20,6 @@ FROM
                 staging_dvdrentals.customer_{{ts_nodash}} a
 LEFT OUTER JOIN dv_raw.vw_sat_customer sat
 ON  sat.hkey_customer   = a.dv__bk
-AND sat.load_end_dtm IS NULL
+AND sat.load_end_dtm    = unix_timestamp('9999-12-31', 'yyyy-MM-dd')
 WHERE
     COALESCE(sat.checksum, '') != a.dv__cksum

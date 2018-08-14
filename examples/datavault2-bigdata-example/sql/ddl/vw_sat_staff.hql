@@ -2,7 +2,7 @@ CREATE VIEW dv_raw.vw_sat_staff AS
 SELECT 
           hkey_staff
         , load_dtm
-        , LEAD(s.load_dtm, 1, '9999-12-31') OVER (PARTITION BY s.hkey_staff ORDER BY s.load_dtm ASC) AS load_end_dtm
+        , LEAD(s.load_dtm, 1, unix_timestamp('9999-12-31', 'yyyy-MM-dd')) OVER (PARTITION BY s.hkey_staff ORDER BY s.load_dtm ASC) AS load_end_dtm
         , record_source
         , checksum
         , email
