@@ -63,4 +63,8 @@
     <value>NOSASL</value>
   </property>
 
+  <property>
+    <name>hive.aux.jars.path</name>
+    <value>file:///usr/lib/hive/lib/md5-1.0-SNAPSHOT.jar</value>
+  </property>
 </configuration>

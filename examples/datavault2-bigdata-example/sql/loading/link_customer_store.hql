@@ -1,18 +1,21 @@
 INSERT INTO TABLE dv_raw.link_customer_store
 SELECT DISTINCT
-    cs.dv__bk as hkey_customer_store,
-    cs.customer_bk as hkey_customer,
-    cs.store_bk as hkey_store,
-    cs.dv__rec_source as record_source,
-    from_unixtime(unix_timestamp(cs.dv__load_dtm, "yyyy-MM-dd'T'HH:mm:ss")) as load_dtm
+      Md5(CONCAT()) as hkey_customer_store
+    , b.hkey_customer as hkey_customer
+, c.hkey_store as hkey_store
+    , 'dvdrentals' as rec_src
+    , from_unixtime(unix_timestamp("{{ts_nodash}}", "yyyyMMdd'T'HHmmss")) as load_dtm
 FROM
-    staging_dvdrentals.customer_store_{{ts_nodash}} cs
+    staging_dvdrentals.customer_{{ts_nodash}} a
+  INNER JOIN dv_raw.hub_customer b ON b.customer_id = a.customer_id
+  INNER JOIN dv_raw.hub_store c ON c.store_id = a.store_id
 WHERE
     NOT EXISTS (
         SELECT 
-                lcs.hkey_customer_store
-        FROM    dv_raw.link_customer_store lcs
+                link.hkey_customer_store
+        FROM    dv_raw.link_customer_store link
         WHERE 
-                lcs.hkey_customer = cs.customer_bk
-        AND     lcs.hkey_store = cs.store_bk
+                    link.hkey_customer = b.hkey_customer
+AND     link.hkey_store = c.hkey_store
+
     )

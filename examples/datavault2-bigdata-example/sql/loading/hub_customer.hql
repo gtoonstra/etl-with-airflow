@@ -1,8 +1,9 @@
 INSERT INTO TABLE dv_raw.hub_customer
 SELECT DISTINCT
-      a.dv__bk as hkey_customer
-    , a.dv__rec_source as rec_source
-    , from_unixtime(unix_timestamp(a.dv__load_dtm, "yyyy-MM-dd'T'HH:mm:ss")) as load_dtm
+      Md5(CONCAT(LTRIM(RTRIM(COALESCE(CAST(a.email as string), ''))))) as hkey_customer
+    , 'dvdrentals' as rec_src
+    , from_unixtime(unix_timestamp("{{ts_nodash}}", "yyyyMMdd'T'HHmmss")) as load_dtm
+      , a.customer_id
     , a.email
 FROM
     staging_dvdrentals.customer_{{ts_nodash}} a
@@ -13,5 +14,6 @@ WHERE
         FROM 
                 dv_raw.hub_customer hub
         WHERE
-                hub.email = a.email
+                    hub.email = a.email
+
     )

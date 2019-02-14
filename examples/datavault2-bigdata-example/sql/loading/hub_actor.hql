@@ -1,10 +1,12 @@
 INSERT INTO TABLE dv_raw.hub_actor
 SELECT DISTINCT
-      a.dv__bk as hkey_actor
-    , a.dv__rec_source as rec_source
-    , from_unixtime(unix_timestamp(a.dv__load_dtm, "yyyy-MM-dd'T'HH:mm:ss")) as load_dtm
+      Md5(CONCAT(LTRIM(RTRIM(COALESCE(CAST(a.first_name as string), ''))) , '-' ,
+LTRIM(RTRIM(COALESCE(CAST(a.last_name as string), ''))))) as hkey_actor
+    , 'dvdrentals' as rec_src
+    , from_unixtime(unix_timestamp("{{ts_nodash}}", "yyyyMMdd'T'HHmmss")) as load_dtm
+      , a.actor_id
     , a.first_name
-    , a.last_name
+, a.last_name
 FROM
     staging_dvdrentals.actor_{{ts_nodash}} a
 WHERE
@@ -14,6 +16,7 @@ WHERE
         FROM 
                 dv_raw.hub_actor hub
         WHERE
-                hub.first_name = a.first_name
-        AND     hub.last_name = a.last_name
+                    hub.first_name = a.first_name
+AND     hub.last_name = a.last_name
+
     )

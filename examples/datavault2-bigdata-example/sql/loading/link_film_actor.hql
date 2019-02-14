@@ -1,18 +1,21 @@
 INSERT INTO TABLE dv_raw.link_film_actor
 SELECT DISTINCT
-    fa.dv__bk as hkey_film_actor,
-    fa.film_bk as hkey_film,
-    fa.actor_bk as hkey_actor,
-    fa.dv__rec_source as record_source,
-    from_unixtime(unix_timestamp(fa.dv__load_dtm, "yyyy-MM-dd'T'HH:mm:ss")) as load_dtm
+      Md5(CONCAT()) as hkey_film_actor
+    , b.hkey_film as hkey_film
+, c.hkey_actor as hkey_actor
+    , 'dvdrentals' as rec_src
+    , from_unixtime(unix_timestamp("{{ts_nodash}}", "yyyyMMdd'T'HHmmss")) as load_dtm
 FROM
-    staging_dvdrentals.film_actor_{{ts_nodash}} fa
+    staging_dvdrentals.film_actor_{{ts_nodash}} a
+  INNER JOIN dv_raw.hub_film b ON b.film_id = a.film_id
+  INNER JOIN dv_raw.hub_actor c ON c.actor_id = a.actor_id
 WHERE
     NOT EXISTS (
         SELECT 
-                lca.hkey_film_actor
-        FROM    dv_raw.link_film_actor lca
+                link.hkey_film_actor
+        FROM    dv_raw.link_film_actor link
         WHERE 
-                lca.hkey_film = fa.film_bk
-        AND     lca.hkey_actor = fa.actor_bk
+                    link.hkey_film = b.hkey_film
+AND     link.hkey_actor = c.hkey_actor
+
     )

@@ -1,18 +1,21 @@
 INSERT INTO TABLE dv_raw.link_film_category
 SELECT DISTINCT
-    fc.dv__bk as hkey_film_category,
-    fc.film_bk as hkey_film,
-    fc.category_bk as hkey_category,    
-    fc.dv__rec_source as record_source,
-    from_unixtime(unix_timestamp(fc.dv__load_dtm, "yyyy-MM-dd'T'HH:mm:ss")) as load_dtm
+      Md5(CONCAT()) as hkey_film_category
+    , b.hkey_film as hkey_film
+, c.hkey_category as hkey_category
+    , 'dvdrentals' as rec_src
+    , from_unixtime(unix_timestamp("{{ts_nodash}}", "yyyyMMdd'T'HHmmss")) as load_dtm
 FROM
-    staging_dvdrentals.film_category_{{ts_nodash}} fc
+    staging_dvdrentals.film_category_{{ts_nodash}} a
+  INNER JOIN dv_raw.hub_film b ON b.film_id = a.film_id
+  INNER JOIN dv_raw.hub_category c ON c.category_id = a.category_id
 WHERE
     NOT EXISTS (
         SELECT 
-                lfc.hkey_film_category
-        FROM    dv_raw.link_film_category lfc
+                link.hkey_film_category
+        FROM    dv_raw.link_film_category link
         WHERE 
-                lfc.hkey_film = fc.film_bk
-        AND     lfc.hkey_category = fc.category_bk
+                    link.hkey_film = b.hkey_film
+AND     link.hkey_category = c.hkey_category
+
     )

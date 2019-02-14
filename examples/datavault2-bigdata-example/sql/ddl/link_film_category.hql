@@ -4,4 +4,4 @@ CREATE TABLE IF NOT EXISTS dv_raw.link_film_category (
     , hkey_category      STRING
     , record_source      STRING
     , load_dtm           TIMESTAMP)
-STORED AS ORC;
+STORED AS PARQUET;

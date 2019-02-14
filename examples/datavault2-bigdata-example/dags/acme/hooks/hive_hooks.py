@@ -393,7 +393,7 @@ class HiveCliHook(BaseHook):
             partition=None,
             recreate=False):
         """
-        Loads a local file into Hive
+        Loads a remote file into Hive
 
         Note that the table generated in Hive uses ``STORED AS textfile``
         which isn't the most efficient serialization format. If a
@@ -453,6 +453,72 @@ class HiveCliHook(BaseHook):
         hql = hql.format(**locals())
         logging.info(hql)
         self.run_cli(hql)
+
+    def load_avro(
+            self,
+            filepath,
+            table,
+            schemafile=None,            
+            create=True,
+            overwrite=True,
+            partition=None,
+            recreate=False):
+        """
+        Loads a remote file into Hive
+
+        Note that the table generated in Hive uses ``STORED AS textfile``
+        which isn't the most efficient serialization format. If a
+        large amount of data is loaded and/or if the tables gets
+        queried considerably, you may want to use this operator only to
+        stage the data into a temporary table before loading it into its
+        final destination using a ``HiveOperator``.
+
+        :param table: target Hive table, use dot notation to target a
+            specific database
+        :type table: str
+        :param schemafile: The path to the AVRO schema
+        :type schemafile: str
+        :param create: whether to create the table if it doesn't exist
+        :type create: bool
+        :param recreate: whether to drop and recreate the table at every
+            execution
+        :type recreate: bool
+        :param partition: target partition as a dict of partition columns
+            and values
+        :type partition: dict
+        """
+        hql = ''
+        if recreate:
+            hql += "DROP TABLE IF EXISTS {table};\n"
+        if create or recreate:
+            if schemafile is None:
+                raise ValueError("Must provide a schema file when creating a table")
+            hql += "CREATE TABLE IF NOT EXISTS {table} \n"
+            if partition:
+                pfields = ",\n    ".join(
+                    [p + " STRING" for p in partition])
+                hql += "PARTITIONED BY ({pfields})\n"
+            hql += "ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe' \n"
+            hql += "WITH SERDEPROPERTIES ('avro.schema.url'='{schemafile}')\n"
+            hql += "STORED as INPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'\n"
+            hql += "OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'\n"
+            hql += "LOCATION '{filepath}'"
+
+        hql = hql.format(**locals())
+        logging.info(hql)
+        self.run_cli(hql)
+
+        # hql = "LOAD DATA LOCAL INPATH '{filepath}' "
+        # if overwrite:
+        #     hql += "OVERWRITE "
+        # hql += "INTO TABLE {table} "
+        # if partition:
+        #     pvals = ", ".join(
+        #         ["{0}='{1}'".format(k, v) for k, v in partition.items()])
+        #     hql += "PARTITION ({pvals});"
+        # hql = hql.format(**locals())
+        # logging.info(hql)
+        # self.run_cli(hql)
 
     def kill(self):
         if hasattr(self, 'sp'):

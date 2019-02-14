@@ -103,3 +103,73 @@ class StageFileToHiveOperator(BaseOperator):
                 create=self.create,
                 recreate=self.recreate,
                 partition=self.partition)
+
+
+class StageAvroToHiveOperator(BaseOperator):
+    """
+    Moves data from HDFS into Hive. The operator picks up all files of interest
+    from storage.
+
+    If the ``create`` or ``recreate`` arguments are set to ``True``,
+    a ``CREATE TABLE`` and ``DROP TABLE`` statement is generated.
+    Hive data types are inferred from the cursor's metadata. Note that the
+    table generated in Hive uses ``STORED AS textfile``
+    which isn't the most efficient serialization format. If a
+    large amount of data is loaded and/or if the table gets
+    queried considerably, you may want to use this operator only to
+    stage the data into a temporary table before loading it into its
+    final destination using a ``HiveOperator``.
+
+    :param hive_table: target Hive table, use dot notation to target a
+        specific database
+    :type hive_table: str
+    :param hdfs_dir: Directory in HDFS with data
+    :type hdfs_dir: str
+    :param schemafile: THe path to hte AVRO schema file
+    :param schemafile: str
+    :param create: whether to create the table if it doesn't exist
+    :type create: bool
+    :param recreate: whether to drop and recreate the table at every
+        execution
+    :type recreate: bool
+    :param file_conn_id: source postgres connection
+    :type file_conn_id: str
+    :param hive_conn_id: destination hive connection
+    :type hive_conn_id: str
+    :param parameters: Parameters for the sql query
+    :type parameters: dict
+    """
+
+    template_fields = ('partition', 'hive_table', 'hdfs_dir', 'schemafile', )
+    ui_color = '#ededed'
+
+    @apply_defaults
+    def __init__(
+            self,
+            hive_table,
+            hdfs_dir,
+            schemafile,
+            create=True,
+            recreate=False,
+            partition=None,
+            hive_cli_conn_id='hive_cli_default',
+            *args, **kwargs):
+        super(StageAvroToHiveOperator, self).__init__(*args, **kwargs)
+        self.hive_table = hive_table
+        self.hdfs_dir = hdfs_dir
+        self.schemafile = schemafile
+        self.create = create
+        self.recreate = recreate
+        self.hive_cli_conn_id = hive_cli_conn_id
+        self.partition = partition
+
+    def execute(self, context):
+        hive = HiveCliHook(hive_cli_conn_id=self.hive_cli_conn_id)
+
+        hive.load_avro(
+            self.hdfs_dir,
+            self.hive_table,
+            schemafile=self.schemafile,
+            create=self.create,
+            recreate=self.recreate,
+            partition=self.partition)

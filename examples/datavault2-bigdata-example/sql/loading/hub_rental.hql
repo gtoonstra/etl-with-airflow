@@ -1,8 +1,9 @@
 INSERT INTO TABLE dv_raw.hub_rental
 SELECT DISTINCT
-      a.dv__bk as hkey_rental
-    , a.dv__rec_source as rec_source
-    , from_unixtime(unix_timestamp(a.dv__load_dtm, "yyyy-MM-dd'T'HH:mm:ss")) as load_dtm
+      Md5(CONCAT(LTRIM(RTRIM(COALESCE(CAST(a.rental_id as string), ''))))) as hkey_rental
+    , 'dvdrentals' as rec_src
+    , from_unixtime(unix_timestamp("{{ts_nodash}}", "yyyyMMdd'T'HHmmss")) as load_dtm
+      
     , a.rental_id
 FROM
     staging_dvdrentals.rental_{{ts_nodash}} a
@@ -13,5 +14,6 @@ WHERE
         FROM 
                 dv_raw.hub_rental hub
         WHERE
-                hub.rental_id = a.rental_id
+                    hub.rental_id = a.rental_id
+
     )

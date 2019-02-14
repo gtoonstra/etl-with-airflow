@@ -1,0 +1,139 @@
+subsystem: dvdrentals
+source: dvdrentals
+staging: hive_dvdrentals_staging
+datavault_raw: hive_datavault_raw
+tables:
+  - name: public.address
+  - name: public.actor
+    hub_name: actor
+    business_key:
+      - first_name
+      - last_name
+    primary_key:
+      - actor_id
+  - name: public.category
+    hub_name: category
+    business_key:
+      - name
+    primary_key:
+      - category_id
+  - name: public.city
+    primary_key:
+      - city_id
+  - name: public.country
+    primary_key:
+      - country_id
+  - name: public.customer
+    hub_name: customer
+    incremental: true
+    business_key:
+      - email
+    primary_key:
+      - customer_id
+  - name: public.film
+    hub_name: film
+    business_key:
+      - title
+      - release_year
+    primary_key:
+      - film_id
+    include_columns:
+      - film_id
+      - title
+      - description
+      - release_year
+      - language_id
+      - rental_duration
+      - rental_rate
+      - length
+      - replacement_cost
+      - rating
+      - last_update
+  - name: public.film_actor
+  - name: public.film_category
+  - name: public.inventory
+    hub_name: inventory
+    business_key:
+      - inventory_id
+    primary_key:
+      - inventory_id
+  - name: public.language
+    hub_name: language
+    business_key:
+      - name
+    primary_key:
+      - language_id
+  - name: public.payment
+    incremental: true
+    primary_key:
+      - payment_id
+  - name: public.rental
+    hub_name: rental
+    incremental: true
+    business_key:
+      - rental_id
+    primary_key:
+      - rental_id
+  - name: public.staff
+    hub_name: staff
+    business_key:
+      - first_name
+      - last_name
+    primary_key:
+      - staff_id
+  - name: public.store
+    hub_name: store
+    business_key:
+      - store_id
+    primary_key:
+      - store_id
+links:
+  - name: customer_store
+    source: customer
+    refs:
+      - customer
+      - store
+  - name: film_actor
+    source: film_actor
+    refs:
+      - film
+      - actor
+  - name: film_category
+    source: film_category
+    refs:
+      - film
+      - category
+  - name: film_language
+    source: film
+    refs:
+      - film
+      - language
+  - name: inventory_film_store
+    source: inventory
+    refs:
+      - inventory
+      - film
+      - store
+  - name: payment
+    source: payment
+    refs:
+      - customer
+      - staff
+      - rental
+  - name: rental_transaction
+    source: rental
+    refs:
+      - rental
+      - customer
+      - inventory
+      - staff
+  - name: staff_store
+    source: staff
+    refs:
+      - staff
+      - store
+  - name: store_manager
+    source: store
+    refs:
+      - store
+      - staff

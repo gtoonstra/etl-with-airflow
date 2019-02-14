@@ -27,13 +27,16 @@ services:
           - 8020:8020
       volumes:
           - ./examples/datavault2-bigdata-example/hive-site.xml:/etc/hive/conf.dist/hive-site.xml
+          - ./jdbc/postgresql-42.2.5.jre7.jar:/usr/share/java/postgresql-42.2.5.jre7.jar
           - /tmp/datavault2-bigdata-example:/external
+          - ./examples/datavault2-bigdata-example/setup/md5-1.0-SNAPSHOT.jar:/usr/lib/hive/lib/md5-1.0-SNAPSHOT.jar
+          - ./examples/datavault2-bigdata-example/hive-server2:/etc/default/hive-server2
       hostname: quickstart.cloudera
       privileged: true
       tty: true
       command: /usr/bin/docker-quickstart
   webserver:
-      image: gtoonstra/docker-airflow:1.9.0
+      image: gtoonstra/docker-airflow:1.0
       container_name: airflow
       restart: always
       depends_on:
@@ -47,11 +50,13 @@ services:
           - ./examples/datavault2-bigdata-example/dags:/usr/local/airflow/dags
           - ./examples/datavault2-bigdata-example/dataflow:/usr/local/airflow/dataflow
           - ./examples/datavault2-bigdata-example/sql:/usr/local/airflow/sql
+          - ./examples/datavault2-bigdata-example/schema:/usr/local/airflow/schema
           - ./examples/datavault2-bigdata-example/core-site.xml:/core-site.xml
           - ./examples/datavault2-bigdata-example/hdfs-site.xml:/hdfs-site.xml
           - ./examples/datavault2-bigdata-example/mapred-site.xml:/mapred-site.xml
           - /tmp/datavault2-bigdata-example:/tmp/datavault2-bigdata-example
           - ./examples/datavault2-bigdata-example/requirements.txt:/requirements.txt
+          - ./jdbc/postgresql-42.2.5.jre7.jar:/usr/lib/sqoop/lib/postgresql-42.2.5.jre7.jar
       ports:
           - 8080:8080
       command: webserver

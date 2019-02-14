@@ -1,18 +1,21 @@
 INSERT INTO TABLE dv_raw.link_film_language
 SELECT DISTINCT
-    fl.dv__bk as hkey_film_language,
-    fl.film_bk as hkey_film,
-    fl.language_bk as hkey_language,
-    fl.dv__rec_source as record_source,
-    from_unixtime(unix_timestamp(fl.dv__load_dtm, "yyyy-MM-dd'T'HH:mm:ss")) as load_dtm
+      Md5(CONCAT()) as hkey_film_language
+    , b.hkey_film as hkey_film
+, c.hkey_language as hkey_language
+    , 'dvdrentals' as rec_src
+    , from_unixtime(unix_timestamp("{{ts_nodash}}", "yyyyMMdd'T'HHmmss")) as load_dtm
 FROM
-    staging_dvdrentals.film_language_{{ts_nodash}} fl
+    staging_dvdrentals.film_{{ts_nodash}} a
+  INNER JOIN dv_raw.hub_film b ON b.film_id = a.film_id
+  INNER JOIN dv_raw.hub_language c ON c.language_id = a.language_id
 WHERE
     NOT EXISTS (
         SELECT 
-                lfl.hkey_film_language
-        FROM    dv_raw.link_film_language lfl
+                link.hkey_film_language
+        FROM    dv_raw.link_film_language link
         WHERE 
-                lfl.hkey_film = fl.film_bk
-        AND     lfl.hkey_language = fl.language_bk
+                    link.hkey_film = b.hkey_film
+AND     link.hkey_language = c.hkey_language
+
     )

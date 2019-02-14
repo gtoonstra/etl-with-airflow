@@ -3,4 +3,4 @@ CREATE TABLE IF NOT EXISTS dv_raw.hub_inventory (
     , record_source    STRING
     , load_dtm         TIMESTAMP
     , inventory_id     INT)
-STORED AS ORC;
+STORED AS PARQUET;

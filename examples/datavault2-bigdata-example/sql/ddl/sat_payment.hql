@@ -4,5 +4,5 @@ CREATE TABLE IF NOT EXISTS dv_raw.sat_payment (
     , record_source   STRING
     , checksum        STRING    
     , amount          DOUBLE
-    , payment_date    DATE)
-STORED AS ORC;
+    , payment_date    TIMESTAMP)
+STORED AS PARQUET;

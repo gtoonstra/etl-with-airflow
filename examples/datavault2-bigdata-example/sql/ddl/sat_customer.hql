@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS dv_raw.sat_customer (
     , checksum        STRING    
     , active          INT
     , activebool      STRING
-    , create_date     DATE
+    , create_date     TIMESTAMP
     , first_name      STRING
     , last_name       STRING
     , address         STRING
@@ -16,4 +16,4 @@ CREATE TABLE IF NOT EXISTS dv_raw.sat_customer (
     , phone           STRING
     , country         STRING
 )
-STORED AS ORC;
+STORED AS PARQUET;

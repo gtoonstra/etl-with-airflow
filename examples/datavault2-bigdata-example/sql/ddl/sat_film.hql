@@ -11,4 +11,4 @@ CREATE TABLE IF NOT EXISTS dv_raw.sat_film (
     , rental_rate      DOUBLE
     , replacement_cost DOUBLE
     , special_features STRING)
-STORED AS ORC;
+STORED AS PARQUET;

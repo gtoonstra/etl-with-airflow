@@ -25,6 +25,8 @@ from acme.operators.pg_to_file_operator import StagePostgresToFileOperator
 from acme.operators.file_to_hive_operator import StageFileToHiveOperator
 from airflow.operators.hive_operator import HiveOperator
 
+from airflow.contrib.operators.sqoop_operator import SqoopOperator
+
 args = {
     'owner': 'airflow',
     'start_date': datetime(2005, 5, 24),

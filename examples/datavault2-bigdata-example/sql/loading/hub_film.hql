@@ -1,10 +1,12 @@
 INSERT INTO TABLE dv_raw.hub_film
 SELECT DISTINCT
-      a.dv__bk as hkey_film
-    , a.dv__rec_source as rec_source
-    , from_unixtime(unix_timestamp(a.dv__load_dtm, "yyyy-MM-dd'T'HH:mm:ss")) as load_dtm
-    , a.release_year
+      Md5(CONCAT(LTRIM(RTRIM(COALESCE(CAST(a.title as string), ''))) , '-' ,
+LTRIM(RTRIM(COALESCE(CAST(a.release_year as string), ''))))) as hkey_film
+    , 'dvdrentals' as rec_src
+    , from_unixtime(unix_timestamp("{{ts_nodash}}", "yyyyMMdd'T'HHmmss")) as load_dtm
+      , a.film_id
     , a.title
+, a.release_year
 FROM
     staging_dvdrentals.film_{{ts_nodash}} a
 WHERE
@@ -14,6 +16,7 @@ WHERE
         FROM 
                 dv_raw.hub_film hub
         WHERE
-                hub.release_year = a.release_year
-        AND     hub.title = a.title
+                    hub.title = a.title
+AND     hub.release_year = a.release_year
+
     )

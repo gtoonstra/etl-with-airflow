@@ -18,6 +18,7 @@ from datetime import datetime, timedelta
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.hive_operator import HiveOperator
 from airflow.operators.dummy_operator import DummyOperator
+from acme.hooks.sqoop_hook import SqoopHook
 from airflow import models
 from airflow.settings import Session
 from airflow.models import Variable
@@ -37,6 +38,10 @@ DATAVAULT = 'dv_raw'
 DV_TEMP = 'dv_temp'
 DV_STAR = 'dv_star'
 
+
+def copy_jar():
+    hook = SqoopHook(conn_id='sqoop_dvdrentals')
+    hook.copy_file('/usr/lib/hive/lib/md5-1.0-SNAPSHOT.jar', 'usr/lib/hive/lib/md5-1.0-SNAPSHOT.jar')
 
 def init_datavault2_bigdata_example():
     logging.info('Creating connections, pool and sql path')
@@ -141,6 +146,15 @@ def init_datavault2_bigdata_example():
                      "port": 10000,
                      "extra": json.dumps({"authMechanism": "NOSASL"})})
 
+    create_new_conn(session,
+                    {"conn_id": "sqoop_dvdrentals",
+                     "host": "jdbc:postgresql://postgres",
+                     "port": 5432,
+                     "schema": "dvdrentals",
+                     "login": "oltp_read",
+                     "password": "oltp_read",
+                     "conn_type": "sqoop"})
+
     session.close()
 
 dag = airflow.DAG(
@@ -173,6 +187,13 @@ t4 = HiveOperator(task_id='create_dv_temp',
                   hql='CREATE DATABASE IF NOT EXISTS {0}'.format(DV_TEMP),
                   dag=dag)
 
+t6 = HiveOperator(task_id='create_function',
+                  hive_cli_conn_id='hive_default',
+                  schema='default',
+                  hql="CREATE FUNCTION Md5 AS 'org.example.bigdata.Md5'",
+                  dag=dag)
+
+
 hubs_done = DummyOperator(
     task_id='hubs_done',
     dag=dag)
@@ -196,7 +217,7 @@ def create_object(hql, tablename, upstream, downstream):
     t >> downstream
 
 
-t1 >> t2 >> t3 >> t4
+t1 >> t6 >> t2 >> t3 >> t4
 
 # hubs
 create_object(
@@ -267,13 +288,8 @@ create_object(
     upstream=hubs_done,
     downstream=links_done)
 create_object(
-    hql='ddl/link_inventory_film.hql',
-    tablename='link_inventory_film',
-    upstream=hubs_done,
-    downstream=links_done)
-create_object(
-    hql='ddl/link_inventory_store.hql',
-    tablename='link_inventory_store',
+    hql='ddl/link_inventory_film_store.hql',
+    tablename='link_inventory_film_store',
     upstream=hubs_done,
     downstream=links_done)
 create_object(
@@ -282,28 +298,18 @@ create_object(
     upstream=hubs_done,
     downstream=links_done)
 create_object(
-    hql='ddl/link_payment_rental.hql',
-    tablename='link_payment_rental',
-    upstream=hubs_done,
-    downstream=links_done)
-create_object(
-    hql='ddl/link_rental_customer.hql',
+    hql='ddl/link_rental_transaction.hql',
     tablename='link_rental_customer',
-    upstream=hubs_done,
-    downstream=links_done)
-create_object(
-    hql='ddl/link_rental_inventory.hql',
-    tablename='link_rental_inventory',
-    upstream=hubs_done,
-    downstream=links_done)
-create_object(
-    hql='ddl/link_rental_staff.hql',
-    tablename='link_rental_staff',
     upstream=hubs_done,
     downstream=links_done)
 create_object(
     hql='ddl/link_staff_store.hql',
     tablename='link_staff_store',
+    upstream=hubs_done,
+    downstream=links_done)
+create_object(
+    hql='ddl/link_store_manager.hql',
+    tablename='link_store_manager',
     upstream=hubs_done,
     downstream=links_done)
 

@@ -13,4 +13,4 @@ CREATE TABLE IF NOT EXISTS dv_raw.sat_staff (
     , postal_code     STRING
     , phone           STRING
     , country         STRING)
-STORED AS ORC;
+STORED AS PARQUET;
