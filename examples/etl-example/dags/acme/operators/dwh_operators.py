@@ -69,20 +69,23 @@ class PostgresToPostgresOperator(BaseOperator):
         conn = src_pg.get_conn()
         cursor = conn.cursor()
         cursor.execute(self.sql, self.parameters)
+        logging.info("************{}*************".format(cursor.rowcount))
+        if not cursor.rowcount:
+            logging.info("No data for today. Done.")
+        else:
+            if self.pg_preoperator:
+                logging.info("Running Postgres preoperator")
+                dest_pg.run(self.pg_preoperator)
 
-        if self.pg_preoperator:
-            logging.info("Running Postgres preoperator")
-            dest_pg.run(self.pg_preoperator)
+            logging.info("Inserting rows into Postgres")
 
-        logging.info("Inserting rows into Postgres")
+            dest_pg.insert_rows(table=self.pg_table, rows=cursor)
 
-        dest_pg.insert_rows(table=self.pg_table, rows=cursor)
+            if self.pg_postoperator:
+                logging.info("Running Postgres postoperator")
+                dest_pg.run(self.pg_postoperator)
 
-        if self.pg_postoperator:
-            logging.info("Running Postgres postoperator")
-            dest_pg.run(self.pg_postoperator)
-
-        logging.info("Done.")
+            logging.info("Done.")
 
 
 class PostgresOperatorWithTemplatedParams(BaseOperator):
