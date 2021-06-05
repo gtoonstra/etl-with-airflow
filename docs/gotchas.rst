@@ -47,7 +47,7 @@ command line only in that case to get your UI back in order:
 **Don't change start_date + interval**: When a DAG has been run, the scheduler database contains instances of
 the run of that DAG. If you change the start_date or the interval and redeploy it, the scheduler may get confused
 because the intervals are different or the start_date is way back. The best way to deal with this is to change
-the version of the DAG as soon as you change the start_date or interval, i.e. *my_dag_v1* and *my_dag_v1*. This way,
+the version of the DAG as soon as you change the start_date or interval, i.e. *my_dag_v1* and *my_dag_v2*. This way,
 historical information is also kept about the old version.
 
 **Refresh DAG in development**: The webserver loads DAGs into the interpreter and doesn't continuously update them
