@@ -22,7 +22,7 @@ from airflow.models import Variable
 
 args = {
     'owner': 'airflow',
-    'start_date': airflow.utils.dates.days_ago(7),
+    'start_date': datetime(2019, 5, 8, 17, 52),
     'provide_context': True,
     'depends_on_past': True
 }
@@ -31,7 +31,7 @@ tmpl_search_path = Variable.get("sql_path")
 
 dag = airflow.DAG(
     'process_dimensions',
-    schedule_interval="@daily",
+    schedule_interval="*/2 * * * *",
     dagrun_timeout=timedelta(minutes=60),
     template_searchpath=tmpl_search_path,
     default_args=args,
@@ -41,14 +41,14 @@ wait_for_cust_staging = ExternalTaskSensor(
     task_id='wait_for_cust_staging',
     external_dag_id='customer_staging',
     external_task_id='extract_customer',
-    execution_delta=None,  # Same day as today
+    execution_delta=timedelta(minutes=-2),  # Same day as today
     dag=dag)
 
 wait_for_prod_staging = ExternalTaskSensor(
     task_id='wait_for_prod_staging',
     external_dag_id='product_staging',
     external_task_id='extract_product',
-    execution_delta=None,  # Same day as today
+    execution_delta=timedelta(minutes=-2),  # Same day as today
     dag=dag)
 
 process_customer_dim = PostgresOperatorWithTemplatedParams(

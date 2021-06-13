@@ -1,0 +1,24 @@
+version: '2.1'
+services:
+    mysql1:
+        image: mysql1
+        ports:
+            - "33061:3306"
+#        command: service mysql start
+#        environment:
+#            - POSTGRES_USER=airflow
+#            - POSTGRES_PASSWORD=airflow
+#            - POSTGRES_DB=airflow
+
+    mysql2:
+        image: mysql1
+#        environment:
+#            - LOAD_EX=n
+#            - EXECUTOR=Local
+#        volumes:
+#            - ./dags:/root/airflow/dags
+            # Uncomment to include custom plugins
+            # - ./plugins:/usr/local/airflow/plugins
+        ports:
+            - "33062:3306"
+#        command: service mysql start

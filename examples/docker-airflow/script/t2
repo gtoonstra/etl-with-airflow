@@ -1,0 +1,13 @@
+check process sympa
+  with pidfile /var/run/sympa/sympa.pid
+  start program = "/etc/init.d/sympa start"
+  stop program = "/etc/init.d/sympa stop"
+  depends on sympa_bounced, sympa_bulk
+
+check file sympa_bounced
+  with path /var/run/sympa/bounced.pid
+  if does not exist then restart
+
+check file sympa_bulk
+  with path /var/run/sympa/bulk.pid
+  if does not exist then restart

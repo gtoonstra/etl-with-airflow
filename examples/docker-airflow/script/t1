@@ -1,0 +1,14 @@
+check process airflow_scheduler
+    with pidfile /home/ec2-user/airflow/airflow-scheduler.pid
+    start program = "/bin/su - ec2-user -c '/home/ec2-user/data-job-management/utils/start_airflow_master.sh'"
+    stop program = "/bin/su - ec2-user -c 'kill -9 $(cat /home/ec2-user/airflow/airflow-scheduler.pid) $(cat /home/ec2-user/airflow/airflow-worker.pid)'"
+    depends on airflow_worker
+
+check file airflow_worker
+    with pidfile /home/ec2-user/airflow/airflow-worker.pid
+    if does not exist then restart
+
+check process airflow_worker
+    with pidfile /home/ec2-user/airflow/airflow-worker.pid
+    start program = "/bin/su monit restart airflow_scheduler"
+    stop program = "/bin/su monit stop airflow_scheduler"

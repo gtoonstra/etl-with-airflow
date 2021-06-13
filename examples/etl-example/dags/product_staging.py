@@ -22,7 +22,7 @@ from airflow.models import Variable
 
 args = {
     'owner': 'airflow',
-    'start_date': airflow.utils.dates.days_ago(7),
+    'start_date': datetime(2019, 5, 8, 17, 52),
     'provide_context': True
 }
 
@@ -30,7 +30,7 @@ tmpl_search_path = Variable.get("sql_path")
 
 dag = airflow.DAG(
     'product_staging',
-    schedule_interval="@daily",
+    schedule_interval="*/2 * * * *",
     dagrun_timeout=timedelta(minutes=60),
     template_searchpath=tmpl_search_path,
     default_args=args,
