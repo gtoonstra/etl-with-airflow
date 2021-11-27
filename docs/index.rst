@@ -32,3 +32,4 @@ Content
     deployments
     datavault2
     datavault-bigdata
+    datavault-dbt

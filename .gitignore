@@ -3,4 +3,6 @@ _site
 .jekyll-metadata
 **/*.pyc
 examples/datavault2-bigdata-example/dataflow/env
+.idea/
+**/venv
 
