@@ -1,74 +1,35 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html4" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>ETL example &mdash; ETL Best Practices with Airflow v1.8</title>
-  
-
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
-        <link rel="next" title="Hive example" href="hiveexample.html"/>
-        <link rel="prev" title="What makes Airflow great?" href="great.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ETL example &mdash; ETL Best Practices with Airflow v1.8</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Hive example" href="hiveexample.html" />
+    <link rel="prev" title="What makes Airflow great?" href="great.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
-
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.8
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -76,18 +37,11 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
     
-            
-            
-                <ul class="current">
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha’s</a></li>
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ETL example</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#install-airflow-on-host-system">Install airflow on host system</a></li>
@@ -109,8 +63,6 @@
 <li class="toctree-l1"><a class="reference internal" href="datavault-bigdata.html">Data Vault with Big Data processes</a></li>
 </ul>
 
-            
-          
     <br/>
     <br/>
     <a href="https://github.com/gtoonstra/etl-with-airflow"><img src="_images/GitHub-Mark-Light-32px.png">&nbsp;Go to Github</a>
@@ -119,50 +71,35 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">ETL Best Practices with airflow 1.8</a>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ETL Best Practices with airflow 1.8</a>
       </nav>
 
-
-      
       <div class="wy-nav-content">
         <div class="rst-content">
-          
-
- 
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>ETL example</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>ETL example</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
   </ul>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <div class="section" id="etl-example">
 <h1>ETL example<a class="headerlink" href="#etl-example" title="Permalink to this headline">¶</a></h1>
-<p>To demonstrate how the ETL principles come together with airflow, let&#8217;s walk through a simple
-example that implements a data flow pipeline adhering to these principles. I&#8217;m mostly assuming that
+<p>To demonstrate how the ETL principles come together with airflow, let’s walk through a simple
+example that implements a data flow pipeline adhering to these principles. I’m mostly assuming that
 people running airflow will have Linux (I use Ubuntu), but the examples should work for Mac OSX as
 well with a couple of simple changes.</p>
-<p>First, let&#8217;s set up a simple postgres database that has a little bit of data, so that the example
-can materialize in full and the processing becomes clear. You&#8217;ll see that the OLTP product and customer
+<p>First, let’s set up a simple postgres database that has a little bit of data, so that the example
+can materialize in full and the processing becomes clear. You’ll see that the OLTP product and customer
 tables do not have a primary key; this is intentional to simplify how data is ingested into the target
-environment... You&#8217;d have to modify the OLTP database inbetween the runs of airflow DWH processing
+environment… You’d have to modify the OLTP database inbetween the runs of airflow DWH processing
 runs to get some nice dimensions in your data. This structure simulates updates over time.</p>
 <div class="admonition important">
 <p class="first admonition-title">Important</p>
@@ -187,7 +124,7 @@ source code, DAGs, SQL and scripts to generate the databases and load it with da
 <p>Clone this project locally somewhere.</p>
 <p><strong>Install postgres</strong></p>
 <p>Then first install postgres on your machine. For Ubuntu, this can be installed using apt:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ sudo apt-get install postgresql
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get install postgresql
 $ sudo service postgresql restart
 </pre></div>
 </div>
@@ -198,33 +135,33 @@ through the postgresql menu top right.</p>
 <p>On Linux, go to the <em>do-this-first</em> directory in the examples directory of the cloned github project,
 then run the <em>create_everything.sh</em> script. For Mac OSX, you probably have to open the SQL scripts
 separately and run them in order from the command line.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> examples/do-this-first
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> examples/do-this-first
 $ ./create_everything.sh
 </pre></div>
 </div>
-<p>Now, let&#8217;s create some tables and populate it with some data.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./load_data.sh
+<p>Now, let’s create some tables and populate it with some data.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./load_data.sh
 </pre></div>
 </div>
 <p><strong>Configure airflow</strong></p>
 <p>We need to declare two postgres connections in airflow.</p>
 <p>Go to the connections screen in the UI (through Admin) and create a new postgres connection and call this
 <em>postgres_oltp</em>. Then specify conntype=Postgres, Schema=orders, login=oltp_read (same password) and port 5432
-or whatever you&#8217;re using.</p>
-<p>Then add another connection for Postgres, which connects to the data warehouse and call this &#8220;postgres_dwh&#8221;:
+or whatever you’re using.</p>
+<p>Then add another connection for Postgres, which connects to the data warehouse and call this “postgres_dwh”:
 conntype=Postgres, Schema=dwh, login=dwh_svc_account (same password) and port 5432.</p>
 <p>You can check if these connections are working for you in the <em>Ad-hoc query</em> section of the
 <em>Data Profiling</em> menu and select the same connection string from there and doing a select on the order_info table:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="o">*</span> <span class="n">FROM</span> <span class="n">order_info</span><span class="p">;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="o">*</span> <span class="n">FROM</span> <span class="n">order_info</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>Then add a pool to airflow (also under Admin) which should be called <em>postgres_dwh</em>. Let&#8217;s give this a value of 10.</p>
+<p>Then add a pool to airflow (also under Admin) which should be called <em>postgres_dwh</em>. Let’s give this a value of 10.</p>
 <p>Finally add a Variable in the Variables section where the sql templates are stored; these are the SQL files
-from the example repository. Create a new variable &#8220;sql_path&#8221; and set the value to the directory.</p>
+from the example repository. Create a new variable “sql_path” and set the value to the directory.</p>
 <p><strong>Drop dags into airflow</strong></p>
-<p>In a real setup you&#8217;d use continuous integration to update DAG&#8217;s and dependencies in airflow after changes,
-but now we&#8217;re going to drop in the lot straight into the DAG directory for simplicity.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> etl-example/dags
+<p>In a real setup you’d use continuous integration to update DAG’s and dependencies in airflow after changes,
+but now we’re going to drop in the lot straight into the DAG directory for simplicity.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> etl-example/dags
 $ cp -R * <span class="nv">$AIRFLOW_HOME</span>/dags
 $ mkdir <span class="nv">$AIRFLOW_HOME</span>/sql
 $ <span class="nb">cd</span> etl-example/sql
@@ -234,26 +171,26 @@ $ cp *.sql <span class="nv">$AIRFLOW_HOME</span>/sql
 </div>
 <div class="section" id="run-airflow-from-docker">
 <h2>Run airflow from docker<a class="headerlink" href="#run-airflow-from-docker" title="Permalink to this headline">¶</a></h2>
-<p>There&#8217;s a docker compose file in the main directory of the repository that does everything.</p>
+<p>There’s a docker compose file in the main directory of the repository that does everything.</p>
 <p>You may prefer to run the docker-compose process to become aware of issues that may pop up in the
 installation process. The postgres database needs some initialization and this is only applied the
 first time the container is initialized. This is how you start the containers the first time with
 the output to the console:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">LocalExecutor</span><span class="o">.</span><span class="n">yml</span> <span class="n">up</span> <span class="o">--</span><span class="n">abort</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">container</span><span class="o">-</span><span class="n">exit</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">LocalExecutor</span><span class="o">.</span><span class="n">yml</span> <span class="n">up</span> <span class="o">--</span><span class="n">abort</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">container</span><span class="o">-</span><span class="n">exit</span>
 </pre></div>
 </div>
 <p>This is how you can clear the containers, so that you can run the install again after resolving any issues:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">LocalExecutor</span><span class="o">.</span><span class="n">yml</span> <span class="n">down</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">LocalExecutor</span><span class="o">.</span><span class="n">yml</span> <span class="n">down</span>
 </pre></div>
 </div>
-<p>And this is how you&#8217;d typically run the container if everything is ready (as a daemon in the background):</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">LocalExecutor</span><span class="o">.</span><span class="n">yml</span> <span class="n">up</span> <span class="o">-</span><span class="n">d</span>
+<p>And this is how you’d typically run the container if everything is ready (as a daemon in the background):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">LocalExecutor</span><span class="o">.</span><span class="n">yml</span> <span class="n">up</span> <span class="o">-</span><span class="n">d</span>
 </pre></div>
 </div>
 <p><strong>Configure airflow</strong></p>
 <p>We need to declare two postgres connections in airflow, a pool resource and one variable.
 The easiest way to do this is to run the <em>init_docker_example</em> DAG that was created. It will
-apply these settings that you&#8217;d normally do by hand. Activate the DAG by setting it to &#8216;on&#8217;.</p>
+apply these settings that you’d normally do by hand. Activate the DAG by setting it to ‘on’.</p>
 <p>To do this by hand:</p>
 <p>Go to the connections screen in the UI (through Admin) and create a new postgres connection and call this
 <em>postgres_oltp</em>. Then specify conntype=Postgres, host=postgres, Schema=orders, login=oltp_read, password=oltp_read
@@ -264,12 +201,12 @@ conntype=Postgres, Schema=dwh, login=dwh_svc_account, password=dwh_svc_account a
 <em>Data Profiling</em> menu. If the connections are not in the connection drop down, the connection is failing
 because of a dependency issue or typo. If they show up, select the <em>postgres_oltp</em> connection string and
 do a select on the order_info table:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="o">*</span> <span class="n">FROM</span> <span class="n">order_info</span><span class="p">;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="o">*</span> <span class="n">FROM</span> <span class="n">order_info</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>Then add a pool to airflow (also under Admin) which should be called <em>postgres_dwh</em>. Let&#8217;s give this a value of 10.</p>
+<p>Then add a pool to airflow (also under Admin) which should be called <em>postgres_dwh</em>. Let’s give this a value of 10.</p>
 <p>Finally add a Variable in the Variables section where the sql templates are stored; these are the SQL files
-from the example repository. Create a new variable &#8220;sql_path&#8221; and set the value to the directory.</p>
+from the example repository. Create a new variable “sql_path” and set the value to the directory.</p>
 </div>
 <div class="section" id="run-it">
 <h2>Run it<a class="headerlink" href="#run-it" title="Permalink to this headline">¶</a></h2>
@@ -294,7 +231,7 @@ orderlines and some customer and product info.</p>
 <p>The <a href="#id1"><span class="problematic" id="id2">*</span></a>_staging processes extract data from the OLTP database and ingest them into the staging tables in the staging
 schema, taking care to make this process repeatable. Repeatable means removing data for the date window of consideration
 first, then reinserting by issuing a select, only selecting the data that applies to the date window of interest.</p>
-<p>The first thing you&#8217;d do when staging data is present is to process your dimensions. The <em>process_dimensions</em> DAG
+<p>The first thing you’d do when staging data is present is to process your dimensions. The <em>process_dimensions</em> DAG
 updates the customer and product dimensions in the data warehouse. Dimensions should be present before fact tables,
 because there are foreign keys linking facts to dimensions and you need data to be there before you can link to it.</p>
 <p>It is set up with the <em>depends_on_past</em> parameter set to True, because dimensions should be updated in a specific
@@ -302,7 +239,7 @@ sequence. This does have the effect that it can slow down the scheduling, becaus
 parallelized.</p>
 <p>The <em>process_order_fact</em> processes the order+orderline data and associates them with the correct surrogate key in the
 dimension tables, based on the date and time the dimension records were active and usually the business key.</p>
-<p>Also notice how the dimension table update doesn&#8217;t delete data from a specific window. Because of existing facts and
+<p>Also notice how the dimension table update doesn’t delete data from a specific window. Because of existing facts and
 how they link together, this is very dangerous to do! Instead, running the dimension multiple times leads to <em>no-ops</em>
 later, unless some extra data was added, leading to new records. Deletion of records is not implemented in this scenario,
 which would lead to all versions for an entity having a specific end date.</p>
@@ -313,14 +250,14 @@ which would lead to all versions for an entity having a specific end date.</p>
 principles are implemented in the full example.</p>
 <p>The <em>PostgresToPostgresOperator</em> uses a hook to acquire a connection to the source and destination database.
 The data corresponding to the execution date (which is here start of yesterday up to
-most recent midnight, but from the perspective of airflow that&#8217;s <em>tomorrow</em>). There&#8217;s code available in the example
+most recent midnight, but from the perspective of airflow that’s <em>tomorrow</em>). There’s code available in the example
 to work with partitioned tables at the destination, but to keep the example concise and easily runnable, I decided
 to comment them out. Uncomment them and adjust the operators to put this back. The principle <strong>Partition ingested data</strong>
 is not demonstrated by default for that reason; see the comment below for more information about the practice.</p>
 <p>Satisfied principles (not listed are not applicable):</p>
 <ul class="simple">
 <li><strong>Load data incrementally</strong> : extracts only the newly created orders of the day before, not the whole table.</li>
-<li><strong>Process historic data</strong> : it&#8217;s possible to rerun the extract processes, but downstream DAGs have to be started manually.</li>
+<li><strong>Process historic data</strong> : it’s possible to rerun the extract processes, but downstream DAGs have to be started manually.</li>
 <li><strong>Enforce the idempotency constraint</strong> : every DAG cleans out data if required and possible. Rerunning the same DAG multiple
 times has no undesirable side effects like duplication of the data.</li>
 <li><strong>Rest data between tasks</strong> : The data is in persistent storage before and after the operator.</li>
@@ -337,15 +274,15 @@ as a global parameter when the DAG is instantiated.</li>
 <p class="first admonition-title">Important</p>
 <p>The commented code shows how to use the package manager to keep the last 90 days in a partition and then
 move partitions out to the master table as a retention strategy. Partition management is done through another
-scheduled function that runs daily and moves partitions around and creates new ones when required. What&#8217;s not
+scheduled function that runs daily and moves partitions around and creates new ones when required. What’s not
 demonstrated is archiving, which happens after that and depends on the accepted archiving policy for your
 organization.</p>
-<p>The benefit of partitioning is that rerunning ingests is very easy and there&#8217;s better parallellization of tasks
+<p>The benefit of partitioning is that rerunning ingests is very easy and there’s better parallellization of tasks
 in the DB engine. So ingest jobs get less in the way of each other. The downside is that there are many more tables
-and files to manage and this can slow down performance if too heavily used. So it&#8217;s good for the largest of tables
+and files to manage and this can slow down performance if too heavily used. So it’s good for the largest of tables
 like orderline and invoiceline, but other tables should probably deal with a single master table.</p>
 <p class="last">You do not want to reload data older than 90 days in that case, so another operator or function should be added that
-checks whether today-execution_date is greather than 90 and prohibits execution if that&#8217;s the case. Not doing that would
+checks whether today-execution_date is greather than 90 and prohibits execution if that’s the case. Not doing that would
 truncate a non-existing table. An alternative is to follow a different path in the DAG that uses DELETE FROM on the
 master table instead.</p>
 </div>
@@ -372,69 +309,32 @@ of instances 7, it takes longer for the instances to actually run</p>
 
            </div>
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="hiveexample.html" class="btn btn-neutral float-right" title="Hive example" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="great.html" class="btn btn-neutral" title="What makes Airflow great?" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="great.html" class="btn btn-neutral float-left" title="What makes Airflow great?" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hiveexample.html" class="btn btn-neutral float-right" title="Hive example" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2016, Gerard Toonstra.
-
-    </p>
+    <p>&#169; Copyright 2016, Gerard Toonstra.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.8',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
-
-  
-  
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

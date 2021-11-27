@@ -1,74 +1,35 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html4" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Gotcha’s &mdash; ETL Best Practices with Airflow v1.8</title>
-  
-
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
-        <link rel="next" title="What makes Airflow great?" href="great.html"/>
-        <link rel="prev" title="ETL principles" href="principles.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gotcha’s &mdash; ETL Best Practices with Airflow v1.8</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="What makes Airflow great?" href="great.html" />
+    <link rel="prev" title="ETL principles" href="principles.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
-
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.8
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -76,18 +37,11 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
     
-            
-            
-                <ul class="current">
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Gotcha&#8217;s</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Gotcha’s</a></li>
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hiveexample.html">Hive example</a></li>
@@ -101,8 +55,6 @@
 <li class="toctree-l1"><a class="reference internal" href="datavault-bigdata.html">Data Vault with Big Data processes</a></li>
 </ul>
 
-            
-          
     <br/>
     <br/>
     <a href="https://github.com/gtoonstra/etl-with-airflow"><img src="_images/GitHub-Mark-Light-32px.png">&nbsp;Go to Github</a>
@@ -111,84 +63,69 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">ETL Best Practices with airflow 1.8</a>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ETL Best Practices with airflow 1.8</a>
       </nav>
 
-
-      
       <div class="wy-nav-content">
         <div class="rst-content">
-          
-
- 
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Gotcha&#8217;s</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Gotcha’s</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
   </ul>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <div class="section" id="gotcha-s">
-<h1>Gotcha&#8217;s<a class="headerlink" href="#gotcha-s" title="Permalink to this headline">¶</a></h1>
-<p>It&#8217;s always a good idea to point out gotcha&#8217;s, so you don&#8217;t have to ask in forums / online to search
+<h1>Gotcha’s<a class="headerlink" href="#gotcha-s" title="Permalink to this headline">¶</a></h1>
+<p>It’s always a good idea to point out gotcha’s, so you don’t have to ask in forums / online to search
 for these issues when they pop up. Most of theses are consequential issues that cause situations where
 the system behaves differently than what you expect.</p>
 <p><strong>Start_date and interval confusion</strong>: The <em>start_date</em> specifies the first date and time for which
 you want to have data in a database. Airflow will run a job at <em>start_date + interval</em>, so after the
-interval has passed (because that&#8217;s when data becomes available). You can read more about the rationale
+interval has passed (because that’s when data becomes available). You can read more about the rationale
 in the <a class="reference external" href="https://airflow.incubator.apache.org/faq.html">Airflow FAQ</a></p>
 <p><strong>Execution date</strong>: The <em>execution_date</em> specifies the lowest date+time of the interval under consideration.
 This date is available as a macro under a variety of formats (see <em>ds</em>, <em>ds_no_dash</em>, <em>ts</em>, etc).</p>
-<p>As from airflow 1.8 there are additional macro&#8217;s available to select one interval earlier or later than
+<p>As from airflow 1.8 there are additional macro’s available to select one interval earlier or later than
 the execution date, available as python datetime.datetime objects.</p>
 <ul class="simple">
 <li>{{ prev_execution_date }}     the previous execution date (if available) (datetime.datetime)</li>
 <li>{{ next_execution_date }}     the next execution date (datetime.datetime)</li>
 </ul>
-<p>Airflow starts a worker when any interval on the scheduler has just passed. This means you&#8217;d typically
+<p>Airflow starts a worker when any interval on the scheduler has just passed. This means you’d typically
 use <em>execution_date</em> together with <em>next_execution_date</em> to indicate the full interval.</p>
-<p><strong>Don&#8217;t forget to start a scheduler</strong>: When you use airflow for the first time, the tutorial makes
-you run a webserver, but doesn&#8217;t specify how to start a scheduler. If you play around with the web UI,
-specifically the tasks interface, you&#8217;ll notice that nothing gets rescheduled to be re-run.
+<p><strong>Don’t forget to start a scheduler</strong>: When you use airflow for the first time, the tutorial makes
+you run a webserver, but doesn’t specify how to start a scheduler. If you play around with the web UI,
+specifically the tasks interface, you’ll notice that nothing gets rescheduled to be re-run.
 This is because you should run both a webserver and a scheduler.</p>
 <p>You can start a scheduler on the shell through:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">airflow</span> <span class="n">scheduler</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">airflow</span> <span class="n">scheduler</span>
 </pre></div>
 </div>
-<p><strong>Starting your first DAG development</strong>: When you start developing your first DAG you&#8217;ll probably rename
+<p><strong>Starting your first DAG development</strong>: When you start developing your first DAG you’ll probably rename
 a couple of task instances in the process. When a DAG was run for a particular date, the instances are actually
 recorded in the database against the old task instance name. The UI will only ever show the DAG diagram for
-the tasks as they are currently known, so if you renamed things, they won&#8217;t be there. If you had 2 tasks that were
+the tasks as they are currently known, so if you renamed things, they won’t be there. If you had 2 tasks that were
 already run and you renamed both of them, the UI will be empty. You can trigger a full DAG rerun through the
 command line only in that case to get your UI back in order:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">airflow</span> <span class="n">backfill</span> <span class="o">-</span><span class="n">s</span> <span class="n">YYYY</span><span class="o">-</span><span class="n">MM</span><span class="o">-</span><span class="n">DD</span> <span class="o">-</span><span class="n">e</span> <span class="n">YYYY</span><span class="o">-</span><span class="n">MM</span><span class="o">-</span><span class="n">DD</span> <span class="o">&lt;</span><span class="n">dag_id</span><span class="o">&gt;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">airflow</span> <span class="n">backfill</span> <span class="o">-</span><span class="n">s</span> <span class="n">YYYY</span><span class="o">-</span><span class="n">MM</span><span class="o">-</span><span class="n">DD</span> <span class="o">-</span><span class="n">e</span> <span class="n">YYYY</span><span class="o">-</span><span class="n">MM</span><span class="o">-</span><span class="n">DD</span> <span class="o">&lt;</span><span class="n">dag_id</span><span class="o">&gt;</span>
 </pre></div>
 </div>
-<p><strong>Don&#8217;t change start_date + interval</strong>: When a DAG has been run, the scheduler database contains instances of
+<p><strong>Don’t change start_date + interval</strong>: When a DAG has been run, the scheduler database contains instances of
 the run of that DAG. If you change the start_date or the interval and redeploy it, the scheduler may get confused
 because the intervals are different or the start_date is way back. The best way to deal with this is to change
-the version of the DAG as soon as you change the start_date or interval, i.e. <em>my_dag_v1</em> and <em>my_dag_v1</em>. This way,
+the version of the DAG as soon as you change the start_date or interval, i.e. <em>my_dag_v1</em> and <em>my_dag_v2</em>. This way,
 historical information is also kept about the old version.</p>
-<p><strong>Refresh DAG in development</strong>: The webserver loads DAGs into the interpreter and doesn&#8217;t continuously update them
+<p><strong>Refresh DAG in development</strong>: The webserver loads DAGs into the interpreter and doesn’t continuously update them
 or know when they changed. The scheduler however instantiates the DAGs continuously if they are needed. In the UI
-you can therefore see outdated versions when you check out the code or see the execution diagram. This is why there&#8217;s
+you can therefore see outdated versions when you check out the code or see the execution diagram. This is why there’s
 a <em>refresh</em> button on the main DAG screen, which is where you can reload the DAGs manually.</p>
 <p><strong>Run ExternalTaskSensors wisely</strong>. If you simply run them without a good strategy, they can all get started by the
 scheduler and if you have many DAGs that use sensors, this could consume all available task slots in the scheduler.
@@ -200,8 +137,8 @@ The result is a deadlock where tasks cannot run to satisfy the sensor, because t
 <li>Some other method of your choosing that works</li>
 </ul>
 <p><strong>Not all parameters in operators are templated</strong>, so you cannot use <em>Jinja</em> templates everywhere. The Jinja templates
-only work for those fields in operators where it&#8217;s listed in the <em>template_fields</em> list inside the source file, like:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">template_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;audit_key&#39;</span><span class="p">,</span> <span class="s1">&#39;cycle_dtm&#39;</span><span class="p">)</span>
+only work for those fields in operators where it’s listed in the <em>template_fields</em> list inside the source file, like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">template_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;audit_key&#39;</span><span class="p">,</span> <span class="s1">&#39;cycle_dtm&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>Additional info</strong>: Check out the <a class="reference external" href="https://airflow.incubator.apache.org/project.html">Project page</a>
@@ -212,69 +149,32 @@ for additional info (see the <strong>Resources &amp; links</strong> section at t
 
            </div>
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="great.html" class="btn btn-neutral float-right" title="What makes Airflow great?" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="principles.html" class="btn btn-neutral" title="ETL principles" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="principles.html" class="btn btn-neutral float-left" title="ETL principles" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="great.html" class="btn btn-neutral float-right" title="What makes Airflow great?" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2016, Gerard Toonstra.
-
-    </p>
+    <p>&#169; Copyright 2016, Gerard Toonstra.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.8',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
-
-  
-  
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

@@ -1,73 +1,34 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html4" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>ETL best practices with Airflow documentation site &mdash; ETL Best Practices with Airflow v1.8</title>
-  
-
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="#"/>
-        <link rel="next" title="ETL principles" href="principles.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ETL best practices with Airflow documentation site &mdash; ETL Best Practices with Airflow v1.8</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ETL principles" href="principles.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
-
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="#" class="icon icon-home"> ETL Best Practices with airflow 1.8
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.8
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -75,18 +36,11 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
     
-            
-            
-                <ul>
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha’s</a></li>
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hiveexample.html">Hive example</a></li>
@@ -100,8 +54,6 @@
 <li class="toctree-l1"><a class="reference internal" href="datavault-bigdata.html">Data Vault with Big Data processes</a></li>
 </ul>
 
-            
-          
     <br/>
     <br/>
     <a href="https://github.com/gtoonstra/etl-with-airflow"><img src="_images/GitHub-Mark-Light-32px.png">&nbsp;Go to Github</a>
@@ -110,40 +62,25 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="#">ETL Best Practices with airflow 1.8</a>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">ETL Best Practices with airflow 1.8</a>
       </nav>
 
-
-      
       <div class="wy-nav-content">
         <div class="rst-content">
-          
-
- 
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="#">Docs</a> &raquo;</li>
-      
-    <li>ETL best practices with Airflow documentation site</li>
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+      <li>ETL best practices with Airflow documentation site</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
   </ul>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <div class="section" id="etl-best-practices-with-airflow-documentation-site">
 <h1>ETL best practices with Airflow documentation site<a class="headerlink" href="#etl-best-practices-with-airflow-documentation-site" title="Permalink to this headline">¶</a></h1>
 <div class="admonition important">
@@ -162,7 +99,7 @@ much better effect.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha’s</a></li>
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="etlexample.html#install-airflow-on-host-system">Install airflow on host system</a></li>
@@ -207,7 +144,7 @@ much better effect.</p>
 <li class="toctree-l2"><a class="reference internal" href="tips.html#long-running-processes">Long running processes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tips.html#quick-deployment">Quick deployment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tips.html#connection-administration">Connection administration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tips.html#implement-a-functional-etl-approach">Implement a &#8220;Functional ETL&#8221; approach</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tips.html#implement-a-functional-etl-approach">Implement a “Functional ETL” approach</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tips.html#datavault">Datavault</a></li>
 </ul>
 </li>
@@ -246,67 +183,31 @@ much better effect.</p>
 
            </div>
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="principles.html" class="btn btn-neutral float-right" title="ETL principles" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="principles.html" class="btn btn-neutral float-right" title="ETL principles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2016, Gerard Toonstra.
-
-    </p>
+    <p>&#169; Copyright 2016, Gerard Toonstra.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.8',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
-
-  
-  
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

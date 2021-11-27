@@ -1,74 +1,35 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html4" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>ETL principles &mdash; ETL Best Practices with Airflow v1.8</title>
-  
-
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
-        <link rel="next" title="Gotcha’s" href="gotchas.html"/>
-        <link rel="prev" title="ETL best practices with Airflow documentation site" href="index.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ETL principles &mdash; ETL Best Practices with Airflow v1.8</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Gotcha’s" href="gotchas.html" />
+    <link rel="prev" title="ETL best practices with Airflow documentation site" href="index.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
-
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.8
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -76,18 +37,11 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
     
-            
-            
-                <ul class="current">
+              <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ETL principles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha’s</a></li>
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hiveexample.html">Hive example</a></li>
@@ -101,8 +55,6 @@
 <li class="toctree-l1"><a class="reference internal" href="datavault-bigdata.html">Data Vault with Big Data processes</a></li>
 </ul>
 
-            
-          
     <br/>
     <br/>
     <a href="https://github.com/gtoonstra/etl-with-airflow"><img src="_images/GitHub-Mark-Light-32px.png">&nbsp;Go to Github</a>
@@ -111,49 +63,34 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">ETL Best Practices with airflow 1.8</a>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ETL Best Practices with airflow 1.8</a>
       </nav>
 
-
-      
       <div class="wy-nav-content">
         <div class="rst-content">
-          
-
- 
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>ETL principles</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>ETL principles</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
   </ul>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <div class="section" id="etl-principles">
 <h1>ETL principles<a class="headerlink" href="#etl-principles" title="Permalink to this headline">¶</a></h1>
 <p>Before we start diving into airflow and solving problems using specific tools,
-let&#8217;s collect and analyze important ETL best practices and gain a better understanding
+let’s collect and analyze important ETL best practices and gain a better understanding
 of those principles, why they are needed and what they solve for you in the long run.</p>
 <p>The best practices make a lot more sense when you work for a fairly large organization that
 has a large number of data sources, calculation processes, maybe a bit of data science and
 maybe even big data. The best practices will also remind you how ad-hoc scheduling and
-&#8216;solving it quick to get going&#8217; approaches eventually create a tangled mess of data problems,
+‘solving it quick to get going’ approaches eventually create a tangled mess of data problems,
 inconsistencies and downstream issues that are difficult to analyze and solve.</p>
 <p>The nice thing about airflow is that it is designed around the following best practices
 already, so implementing your new workflows is relatively easy. The reason that I started this
@@ -171,7 +108,7 @@ goes back further than the date push your new code into production. In this situ
 <em>start_date</em> parameter in a DAG to specify the start date. Airflow will then back-fill tasks to process that data
 all the way back to that start date. It may not be appropriate or desirable to have so many execution runs to get
 data up-to-date, so there are some other strategies that you can use to process weeks, months or years of data through
-better parametrization of the DAGS. That will be documented in a separate story on this site. I&#8217;ve personally seen
+better parametrization of the DAGS. That will be documented in a separate story on this site. I’ve personally seen
 cases where a lot of effort went into dealing with historical data loads and a lot of manual coding and workarounds
 to achieve this. The idea is to make this effort repeatable and simple.</p>
 <p><strong>Partition ingested data</strong>: By partitioning data being ingested at the destination, you can parallellize dag runs,
@@ -182,9 +119,9 @@ that are no longer relevant can be archived and removed from the database.</p>
 run a process multiple times with the same parameters (even on different days), the outcome is exactly the same. You do
 not end up with multiple copies of the same data in your environment or other undesirable side effects. This is obviously
 only valid when the processing itself has not been modified. If business rules change within the process, then the target
-data will be different. It&#8217;s a good idea here to be aware of auditors or other business requirements on reprocessing historic
-data, because it&#8217;s not always allowed. Also, some processes require anonimization of data after a certain number of days,
-because it&#8217;s not always allowed to keep historical customer data on record <em>forever</em>.</p>
+data will be different. It’s a good idea here to be aware of auditors or other business requirements on reprocessing historic
+data, because it’s not always allowed. Also, some processes require anonimization of data after a certain number of days,
+because it’s not always allowed to keep historical customer data on record <em>forever</em>.</p>
 <p><strong>Enforce deterministic properties</strong>: A function is said to be deterministic if for a given input, the output produced is
 always exactly the same. Examples of cases where behavior of a function can be non-deterministic:</p>
 <blockquote>
@@ -206,7 +143,7 @@ allows you to conditionally skip tasks downstream in the DAG if it’s not the m
 <p><strong>Code workflow as well as the application</strong>:  Most schedulers and workflow tools allow you to create steps and then define either in the UI
 or through XML how the steps are wired together. Eventually there will always be that particular job that becomes limited,
 because the logic of the workflow is not compatible with what you can do in the tool. In airflow, you do not just code
-the application process, you also code the workflow process itself. You can start new DAG&#8217;s dynamically from within a DAG,
+the application process, you also code the workflow process itself. You can start new DAG’s dynamically from within a DAG,
 skip downstream tasks programmatically, use python functions to conditionally execute other code, run sub-dags and so on.</p>
 <p><strong>Rest data between tasks</strong>: To allow airflow to run on multiple workers and even parallelize task instances within
 the same DAG, you need to think where you save data in between steps. An airflow operator would typically read from one system,
@@ -243,7 +180,7 @@ configurations simply by referring to the name of that connection and airflow ma
 Not all schedulers do this properly; sometimes the workflow files contain these details (leading to duplication everywhere
 and a pain to update when it changes).</p>
 <p><strong>Specify configuration details once</strong>: Following the DRY principle, avoid duplication of configuration details by specifying them in a single
-place once and look up the correct configuration from the code. Each airflow instance has &#8220;Variables&#8221; that can be set and looked up to
+place once and look up the correct configuration from the code. Each airflow instance has “Variables” that can be set and looked up to
 specify the context in which a task is run.</p>
 <p><strong>Keep all metadata in one place</strong>: You don’t need to do anything here. Airflow will manage logs, job duration, landing times in one place,
 which reduces the amount of overhead on people to collect this metadata in order to analyze problems.</p>
@@ -255,69 +192,32 @@ important and impactful tasks.</p>
 
            </div>
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="gotchas.html" class="btn btn-neutral float-right" title="Gotcha’s" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="index.html" class="btn btn-neutral" title="ETL best practices with Airflow documentation site" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="ETL best practices with Airflow documentation site" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gotchas.html" class="btn btn-neutral float-right" title="Gotcha’s" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2016, Gerard Toonstra.
-
-    </p>
+    <p>&#169; Copyright 2016, Gerard Toonstra.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.8',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
-
-  
-  
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

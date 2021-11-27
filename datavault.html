@@ -1,74 +1,35 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html4" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Data vault &mdash; ETL Best Practices with Airflow v1.8</title>
-  
-
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
-        <link rel="next" title="Monitoring" href="monitoring.html"/>
-        <link rel="prev" title="Hive example" href="hiveexample.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data vault &mdash; ETL Best Practices with Airflow v1.8</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Monitoring" href="monitoring.html" />
+    <link rel="prev" title="Hive example" href="hiveexample.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
-
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.8
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -76,18 +37,11 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
     
-            
-            
-                <ul class="current">
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha’s</a></li>
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hiveexample.html">Hive example</a></li>
@@ -106,8 +60,6 @@
 <li class="toctree-l1"><a class="reference internal" href="datavault-bigdata.html">Data Vault with Big Data processes</a></li>
 </ul>
 
-            
-          
     <br/>
     <br/>
     <a href="https://github.com/gtoonstra/etl-with-airflow"><img src="_images/GitHub-Mark-Light-32px.png">&nbsp;Go to Github</a>
@@ -116,55 +68,40 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">ETL Best Practices with airflow 1.8</a>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ETL Best Practices with airflow 1.8</a>
       </nav>
 
-
-      
       <div class="wy-nav-content">
         <div class="rst-content">
-          
-
- 
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Data vault</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Data vault</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
   </ul>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <div class="section" id="data-vault">
 <h1>Data vault<a class="headerlink" href="#data-vault" title="Permalink to this headline">¶</a></h1>
-<p>The ETL example on postgres gives us some insights what&#8217;s possible with airflow and to get acquainted
+<p>The ETL example on postgres gives us some insights what’s possible with airflow and to get acquainted
 with the UI and task dependencies.</p>
 <p>The Hive example showed how an interaction between an RDBMS and Hadoop/Hive could look like.</p>
 <p>Both examples apply the Kimball data warehouse design methodology. The methodology has worked really well
-over the 80&#8217;s and 90&#8217;s because businesses wouldn&#8217;t change as fast and often. In a Kimball approach, there is
+over the 80’s and 90’s because businesses wouldn’t change as fast and often. In a Kimball approach, there is
 a particular point in time where you make decisions about design (data model structure) and rules applied to
 data (business rules) that are valid at that point in time, but may change in the future. What you end up with
 is a data warehouse that is set up according to the design at that point in time, but may be difficult to change
 as your business progresses (or rather expensive).</p>
-<p>In Kimball you&#8217;d also chronologically accumulate your data from a staging area, which is usually
-a volatile staging area. The new data &#8220;of the day&#8221; gets loaded into the dimensions and facts and
-from there, it&#8217;s part of the data warehouse (under the restrictions of the above &#8220;design moment in time&#8221;).
-Because it&#8217;s incremental like that, reprocessing your data warehouse to reflect other incantations of
+<p>In Kimball you’d also chronologically accumulate your data from a staging area, which is usually
+a volatile staging area. The new data “of the day” gets loaded into the dimensions and facts and
+from there, it’s part of the data warehouse (under the restrictions of the above “design moment in time”).
+Because it’s incremental like that, reprocessing your data warehouse to reflect other incantations of
 reality becomes very difficult.</p>
 <p>In the Hive example I worked around that by regenerating the DWH from scratch every day, which allows you
 to change destination structures and business rules that get applied to them, but this may be very costly to
@@ -208,11 +145,11 @@ as the ETL processing platform.</p>
 <div class="section" id="how-to-start-the-example">
 <h2>How to start the example<a class="headerlink" href="#how-to-start-the-example" title="Permalink to this headline">¶</a></h2>
 <p>Run the following script on the console</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">dv</span><span class="o">.</span><span class="n">yml</span> <span class="n">up</span> <span class="o">--</span><span class="n">abort</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">container</span><span class="o">-</span><span class="n">exit</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">dv</span><span class="o">.</span><span class="n">yml</span> <span class="n">up</span> <span class="o">--</span><span class="n">abort</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">container</span><span class="o">-</span><span class="n">exit</span>
 </pre></div>
 </div>
 <p>To bring the entire structure down:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">dv</span><span class="o">.</span><span class="n">yml</span> <span class="n">down</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">dv</span><span class="o">.</span><span class="n">yml</span> <span class="n">down</span>
 </pre></div>
 </div>
 </div>
@@ -224,10 +161,10 @@ as the ETL processing platform.</p>
 </div>
 <ul class="simple">
 <li>Multiple records per time window are not managed. This implementation can only process one change record per day</li>
-<li>In order to correctly process entity changes, you need either a mature Change Data Capture solution that stamps the date/time of the change and shows the updates/inserts or the source system has to version them in the application. If you do not use CDC and records have been updated, you cannot &#8220;date&#8221; those records at the time of the change and the system must make assumptions when the change really took place.</li>
+<li>In order to correctly process entity changes, you need either a mature Change Data Capture solution that stamps the date/time of the change and shows the updates/inserts or the source system has to version them in the application. If you do not use CDC and records have been updated, you cannot “date” those records at the time of the change and the system must make assumptions when the change really took place.</li>
 <li>This example uses the DataVault 1.0 methodology that does not depend on hash keys.</li>
 <li>The resulting star schema is rebuilt from scratch daily in this implementation. You probably want to incrementally build that, but it shows what is possible with the data vault.</li>
-<li>Data must be staged in chronological order and not be rerun. You cannot reload existing data into the data vault or run yesterday&#8217;s data over today&#8217;s data.</li>
+<li>Data must be staged in chronological order and not be rerun. You cannot reload existing data into the data vault or run yesterday’s data over today’s data.</li>
 </ul>
 </div>
 </div>
@@ -235,69 +172,32 @@ as the ETL processing platform.</p>
 
            </div>
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="monitoring.html" class="btn btn-neutral float-right" title="Monitoring" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="hiveexample.html" class="btn btn-neutral" title="Hive example" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="hiveexample.html" class="btn btn-neutral float-left" title="Hive example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="monitoring.html" class="btn btn-neutral float-right" title="Monitoring" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2016, Gerard Toonstra.
-
-    </p>
+    <p>&#169; Copyright 2016, Gerard Toonstra.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.8',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
-
-  
-  
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

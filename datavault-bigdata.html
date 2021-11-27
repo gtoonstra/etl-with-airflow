@@ -1,73 +1,34 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html4" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Data Vault with Big Data processes &mdash; ETL Best Practices with Airflow v1.8</title>
-  
-
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
-        <link rel="prev" title="Data Vault 2" href="datavault2.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Vault with Big Data processes &mdash; ETL Best Practices with Airflow v1.8</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Data Vault 2" href="datavault2.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
-
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.8
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -75,18 +36,11 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
     
-            
-            
-                <ul class="current">
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha’s</a></li>
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hiveexample.html">Hive example</a></li>
@@ -109,8 +63,6 @@
 </li>
 </ul>
 
-            
-          
     <br/>
     <br/>
     <a href="https://github.com/gtoonstra/etl-with-airflow"><img src="_images/GitHub-Mark-Light-32px.png">&nbsp;Go to Github</a>
@@ -119,49 +71,34 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">ETL Best Practices with airflow 1.8</a>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ETL Best Practices with airflow 1.8</a>
       </nav>
 
-
-      
       <div class="wy-nav-content">
         <div class="rst-content">
-          
-
- 
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Data Vault with Big Data processes</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Data Vault with Big Data processes</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
   </ul>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <div class="section" id="data-vault-with-big-data-processes">
 <h1>Data Vault with Big Data processes<a class="headerlink" href="#data-vault-with-big-data-processes" title="Permalink to this headline">¶</a></h1>
 <div class="admonition important">
 <p class="first admonition-title">Important</p>
 <p class="last">This example is work in progress. The previous example had many disadvantages and
-after advanced insights, I&#8217;ve started reworking the example to become easier to manage.</p>
+after advanced insights, I’ve started reworking the example to become easier to manage.</p>
 </div>
 <p>This example builds on the previous examples yet again and changes the pre-processing stage.</p>
-<p>The Datavault 2.0 book contains a picture that displays how you&#8217;d extract data from a source system,
+<p>The Datavault 2.0 book contains a picture that displays how you’d extract data from a source system,
 hashes its business keys and then moves it into the data vault. The datavault 2 example was based
 on that, but never really explained very well in the book where the hashing should take place when you have
 multiple source tables with inter-table relationships in 3rd normal form. This is because the main example
@@ -170,7 +107,7 @@ hash all the keys in the source system query, which I think is wrong and not sca
 <p>To explain what I mean; if you have:</p>
 <ul class="simple">
 <li>an <strong>actor</strong> made up of (actor_id, first_name, last_name), where (first_name, last_name) are the chosen business key</li>
-<li>a <strong>film</strong> made up of (film_id, title, release_year, ...), where (title, release_year) is the chosen business key</li>
+<li>a <strong>film</strong> made up of (film_id, title, release_year, …), where (title, release_year) is the chosen business key</li>
 <li>a <strong>film_actor</strong> table made up of (film_id, actor_id), which associates actors with films</li>
 </ul>
 <p>Then:</p>
@@ -186,8 +123,8 @@ the join in staging and you can also load the link table in parallel to the hubs
 load on any involved table, then you can no longer guarantee that the hub records are in staging, which implies
 a lookup which according to the methodology is to be avoided.</p>
 <p>The same is the case for some satellite tables which are <em>extensions</em> to hub tables (usually a 1:1 relationship),
-for example a <strong>customerdetails</strong> table with its own records, potentially has versioned records by &#8216;date&#8217; and
-where the primary key points to a customerid in the customer table. The business key is in <strong>customer</strong>, but it&#8217;s not uaranteed that the <strong>customer</strong> record is in staging when a record in <strong>customerdetails</strong> changes.</p>
+for example a <strong>customerdetails</strong> table with its own records, potentially has versioned records by ‘date’ and
+where the primary key points to a customerid in the customer table. The business key is in <strong>customer</strong>, but it’s not uaranteed that the <strong>customer</strong> record is in staging when a record in <strong>customerdetails</strong> changes.</p>
 <p>In my view the loading process is the biggest pain of the data vault. Soon as the raw datavault is complete,
 all the downstream processes are completely clear and workable.</p>
 <p>This new example relies on a PSA as well. It is typically discouraged to use a PSA as a strategic mechanism
@@ -198,53 +135,53 @@ such opinions can change.</p>
 <p class="first admonition-title">Important</p>
 <p class="last">The implication of a PSA is that in theory, the data vault can be re-generated from scratch.
 One of the purposes of the data vault methodology, as designed by Dan Linstedt, is that it becomes
-a &#8220;System Of Record&#8221;. Recreating it from scratch violates the auditability and traceability properties.</p>
+a “System Of Record”. Recreating it from scratch violates the auditability and traceability properties.</p>
 </div>
 <p>What you gain from a PSA however is that the choice of business key, hashing algorithm, length of hash and
 other such design decisions <em>can</em> be modified later. The purpose of the PSA however is to support the initial
 development and deal with incorrect design decisions in the startup phase. Once the data vault is mature, the
 PSA should no longer be used.</p>
-<p>Anyway, continuing the example... I have designed the data extraction as follows:</p>
+<p>Anyway, continuing the example… I have designed the data extraction as follows:</p>
 <div class="section" id="extract-data">
 <h2>1. Extract data<a class="headerlink" href="#extract-data" title="Permalink to this headline">¶</a></h2>
-<p>Extract data from source either as a full table dump or an &#8216;incremental&#8217; dump. The full dumps go to a preprocessing directory. The incremental dumps go straight to a PSA. My extract doesn&#8217;t extract table by table, it groups certain things together, which I call &#8220;entities&#8221; in the implementation. An entity can be considered an artefact involved in an instance of a business process, so for example an invoice, an order, a product sheet.</p>
-<p>In the current example, I&#8217;m using advanced SQL functions (2016) to extract nested records. The extract is
+<p>Extract data from source either as a full table dump or an ‘incremental’ dump. The full dumps go to a preprocessing directory. The incremental dumps go straight to a PSA. My extract doesn’t extract table by table, it groups certain things together, which I call “entities” in the implementation. An entity can be considered an artefact involved in an instance of a business process, so for example an invoice, an order, a product sheet.</p>
+<p>In the current example, I’m using advanced SQL functions (2016) to extract nested records. The extract is
 actually done in JSON, which is handled perfectly in python. Another method could be XML or any other method of
-exporting data that you can use, as long as it allows you to do the &#8216;nesting&#8217;.</p>
-<p>The extract extracts data &#8220;as is&#8221;, only applying data type transformations to deal with the availability of data types
-in the output format; for example json doesn&#8217;t have a datetime data type, so the output will be a string. These conversions
+exporting data that you can use, as long as it allows you to do the ‘nesting’.</p>
+<p>The extract extracts data “as is”, only applying data type transformations to deal with the availability of data types
+in the output format; for example json doesn’t have a datetime data type, so the output will be a string. These conversions
 should obviously be standardized (dates and times with timezone info, precision of the output of floats, etc)</p>
 </div>
 <div class="section" id="process-full-dumps">
 <h2>2. Process full dumps<a class="headerlink" href="#process-full-dumps" title="Permalink to this headline">¶</a></h2>
-<p>Because we now have both incremental and full dumps of entities, we should convert the full dump to an incremental dump as well. So we use a dataflow process which compares the entities against an &#8216;index&#8217; of the entities processed so far. This index contains the primary key, the business key and a checksum of the entire entity. When anything in the entity changed or is new, the entity as a whole will go to the PSA area. This means that unchanged entities are filtered out.</p>
+<p>Because we now have both incremental and full dumps of entities, we should convert the full dump to an incremental dump as well. So we use a dataflow process which compares the entities against an ‘index’ of the entities processed so far. This index contains the primary key, the business key and a checksum of the entire entity. When anything in the entity changed or is new, the entity as a whole will go to the PSA area. This means that unchanged entities are filtered out.</p>
 <p>At the end of this process, we have new and changed entities in the PSA area, which is going to be the source of next processing for a specific datetime interval.</p>
 </div>
 <div class="section" id="process-incremental-data-psa">
 <h2>3. Process incremental data (PSA)<a class="headerlink" href="#process-incremental-data-psa" title="Permalink to this headline">¶</a></h2>
 <p>The entities from the incremental area are now processed. An entity usually contains some specific data about the main entity itself and collections of sub records related to the main subject. For example, an invoice has a date, last printed date, etc., a list of a single customer, a list of invoicelines.</p>
-<p>There are also references to other entities that need to be resolved. We&#8217;ll use the indexes there to resolve the business keys for such elements. For example, a customer is created in a store; we don&#8217;t have all the store data available in the customer entity, so we use the store_id in the customer entity to resolve the store business key and store that instead.</p>
-<p>The output is an entity that has all the surrogate keys of the source system removed. A &#8220;transformation&#8221; class is utilized per entity type to generate output files for all the data and child objects in the entity. A single entity can therefore result in the output of multiple files, one per each &#8220;target file&#8221;.</p>
+<p>There are also references to other entities that need to be resolved. We’ll use the indexes there to resolve the business keys for such elements. For example, a customer is created in a store; we don’t have all the store data available in the customer entity, so we use the store_id in the customer entity to resolve the store business key and store that instead.</p>
+<p>The output is an entity that has all the surrogate keys of the source system removed. A “transformation” class is utilized per entity type to generate output files for all the data and child objects in the entity. A single entity can therefore result in the output of multiple files, one per each “target file”.</p>
 </div>
 <div class="section" id="loading-into-hive">
 <h2>4. Loading into Hive<a class="headerlink" href="#loading-into-hive" title="Permalink to this headline">¶</a></h2>
 <p>Each of the output files maps cleanly to a hub/satellite, link/satellite or link table in the data vault. So you could say that the design of the raw data vault is determined in this dataflow process.</p>
-<p>Each output file gets generated in &#8220;avro&#8221; format. This output file is referenced immediately in the &#8220;Hive&#8221; loading process, which means that the table is immediately available after it is produced (it doesn&#8217;t get copied into another table on Hive).</p>
-<p>The output is a generic process, determined by the &#8220;avro schema file&#8221;. The same avro schema file is used in the Hive loading process. The table is only created for the data of a single load interval, so it has its load_dtm appended to its name (actor_20050524T000000).</p>
+<p>Each output file gets generated in “avro” format. This output file is referenced immediately in the “Hive” loading process, which means that the table is immediately available after it is produced (it doesn’t get copied into another table on Hive).</p>
+<p>The output is a generic process, determined by the “avro schema file”. The same avro schema file is used in the Hive loading process. The table is only created for the data of a single load interval, so it has its load_dtm appended to its name (actor_20050524T000000).</p>
 </div>
 <div class="section" id="principles">
 <h2>Principles<a class="headerlink" href="#principles" title="Permalink to this headline">¶</a></h2>
-<p>This section lists some extracted principles that I think are extremely important to consider and they are valid if you build any kind of data warehouse. They are based on perceptions how some ODS&#8217;s and Kimball systems evolved and how the specific procedures added complexity or rigidity into the system:</p>
-<p><strong>Extract, verify and keep</strong>: Extract source data and keep it historied in a PSA forever on practically infinite storage. Cloud storage provides eleven 9&#8217;s of durability (1 in 10.000 documents is lost in 1 million years). This means that no other backup scheme can compete with this durability. Why not use that property?  Use UTF-8 as standard encoding, verify data types and precision output, etc. The extraction process is very generic, so once you have a generic process that really works, it is very easy to add more tables, which actually can become as simple as adding another line.</p>
+<p>This section lists some extracted principles that I think are extremely important to consider and they are valid if you build any kind of data warehouse. They are based on perceptions how some ODS’s and Kimball systems evolved and how the specific procedures added complexity or rigidity into the system:</p>
+<p><strong>Extract, verify and keep</strong>: Extract source data and keep it historied in a PSA forever on practically infinite storage. Cloud storage provides eleven 9’s of durability (1 in 10.000 documents is lost in 1 million years). This means that no other backup scheme can compete with this durability. Why not use that property?  Use UTF-8 as standard encoding, verify data types and precision output, etc. The extraction process is very generic, so once you have a generic process that really works, it is very easy to add more tables, which actually can become as simple as adding another line.</p>
 <p><strong>Maintain data in lanes</strong>: Do not combine data from different sources until the very last moment; delay this as far in the future as possible. Think about processing data as having separate lanes of traffic in your data warehouse. The sooner data becomes integrated, the more processes downstream have to be modified when a source system changes, or when they get replaced. Using views on terminal endpoints for each lane allows you to compare results individually and switch the implementation when the results are clear. The more you can keep data separated in lanes per source system, the less complex the management and future development of your dwh will be. Data Vault does this quite naturally, but you have to act like the guard to enable this and follow its principles.</p>
-<p><strong>Divide and conquer</strong>: Don&#8217;t perform all complicated logic in a single query; massage your data step by step, pivoting, filtering, PITting and bridging until you can produce the end result with simple joins. Add static data to define additional attributes where you may be missing some (never use mystical sequences of magic entity id&#8217;s to filter data inside the query, i.e. don&#8217;t hardcode identifiers). It&#8217;s usually difficult to produce a useful analytical view when you depart from the source operational view, see the next principle!</p>
+<p><strong>Divide and conquer</strong>: Don’t perform all complicated logic in a single query; massage your data step by step, pivoting, filtering, PITting and bridging until you can produce the end result with simple joins. Add static data to define additional attributes where you may be missing some (never use mystical sequences of magic entity id’s to filter data inside the query, i.e. don’t hardcode identifiers). It’s usually difficult to produce a useful analytical view when you depart from the source operational view, see the next principle!</p>
 <p><strong>Work on abstraction layers</strong>: Introduce abstraction layers to convert the OLTP design into an analytical structure. Data vault will not allow you to magically transform some OLTP design into a sensible business data model in a single step; the OLTP design always bleeds over into the raw data vault somehow. The OLTP / 3NF design is optimized for operational purposes, so there are important transformations to make there and this requires some thinking. In my example, the abstraction layer is the extracted entity, which allows me to reshape that in meaningful DV structures.</p>
 </div>
 <div class="section" id="entities-not-records">
 <h2>Entities, not records<a class="headerlink" href="#entities-not-records" title="Permalink to this headline">¶</a></h2>
-<p>Entities can be compared to documents in NoSQL systems. Although it&#8217;s also a challenge to analytically query over those in its own format, there are huge advantages to thinking in terms of entities:</p>
+<p>Entities can be compared to documents in NoSQL systems. Although it’s also a challenge to analytically query over those in its own format, there are huge advantages to thinking in terms of entities:</p>
 <ul class="simple">
-<li>Less file types; you don&#8217;t have one file type per table.</li>
+<li>Less file types; you don’t have one file type per table.</li>
 <li>There is no need to combine files to see the data in closer context</li>
 <li>Each entity is an event or object in a business process (invoice, customer, transaction, etc.)</li>
 <li>Much less code, much less repetition and lower complexity.</li>
@@ -262,67 +199,31 @@ should obviously be standardized (dates and times with timezone info, precision 
 
            </div>
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-      
-        <a href="datavault2.html" class="btn btn-neutral" title="Data Vault 2" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="datavault2.html" class="btn btn-neutral float-left" title="Data Vault 2" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2016, Gerard Toonstra.
-
-    </p>
+    <p>&#169; Copyright 2016, Gerard Toonstra.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.8',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
-
-  
-  
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

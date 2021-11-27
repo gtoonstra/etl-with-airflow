@@ -1,74 +1,35 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html4" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Hive example &mdash; ETL Best Practices with Airflow v1.8</title>
-  
-
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
-        <link rel="next" title="Data vault" href="datavault.html"/>
-        <link rel="prev" title="ETL example" href="etlexample.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hive example &mdash; ETL Best Practices with Airflow v1.8</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data vault" href="datavault.html" />
+    <link rel="prev" title="ETL example" href="etlexample.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
-
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.8
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -76,18 +37,11 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
     
-            
-            
-                <ul class="current">
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha’s</a></li>
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Hive example</a><ul>
@@ -107,8 +61,6 @@
 <li class="toctree-l1"><a class="reference internal" href="datavault-bigdata.html">Data Vault with Big Data processes</a></li>
 </ul>
 
-            
-          
     <br/>
     <br/>
     <a href="https://github.com/gtoonstra/etl-with-airflow"><img src="_images/GitHub-Mark-Light-32px.png">&nbsp;Go to Github</a>
@@ -117,40 +69,25 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">ETL Best Practices with airflow 1.8</a>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ETL Best Practices with airflow 1.8</a>
       </nav>
 
-
-      
       <div class="wy-nav-content">
         <div class="rst-content">
-          
-
- 
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Hive example</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Hive example</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
   </ul>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <div class="section" id="hive-example">
 <h1>Hive example<a class="headerlink" href="#hive-example" title="Permalink to this headline">¶</a></h1>
 <div class="admonition important">
@@ -169,56 +106,56 @@ use of the Hive hooks and operators that airflow offers.</p>
 <p>For successful BigData processing, you typically try to process everything in
 parallel as much as possible. The DAGs are therefore larger and show parallel
 paths of execution for the different dimensions and facts.</p>
-<p>The code is located (as usual) in the repository indicated before under the &#8220;hive-example&#8221;
+<p>The code is located (as usual) in the repository indicated before under the “hive-example”
 directory. What is supplied is a docker compose script (docker-compose-hive.yml),
 which starts a docker container, installs client hadoop+hive into airflow and other
 things to make it work. You may need a beefy machine with 32GB to get things to run though.</p>
-<p>If that doesn&#8217;t work, you can always use the source code to connect to a development
+<p>If that doesn’t work, you can always use the source code to connect to a development
 instance of hive somewhere.</p>
 <div class="section" id="how-to-start">
 <h2>How to start<a class="headerlink" href="#how-to-start" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">hive</span><span class="o">.</span><span class="n">yml</span> <span class="n">up</span> <span class="o">--</span><span class="n">abort</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">container</span><span class="o">-</span><span class="n">exit</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">hive</span><span class="o">.</span><span class="n">yml</span> <span class="n">up</span> <span class="o">--</span><span class="n">abort</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">container</span><span class="o">-</span><span class="n">exit</span>
 </pre></div>
 </div>
 <p>This will download and create the docker containers to run everything. This is how you can clear the containers, so that you can run the install again after resolving any issues:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">hive</span><span class="o">.</span><span class="n">yml</span> <span class="n">down</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">hive</span><span class="o">.</span><span class="n">yml</span> <span class="n">down</span>
 </pre></div>
 </div>
-<p>The image that runs airflow needs to have beeline installed to be able to use Hive. I&#8217;ve created
-an updated &#8220;puckel&#8221; image of airflow that does that, which is available here:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">gtoonstra</span><span class="o">/</span><span class="n">docker</span><span class="o">-</span><span class="n">airflow</span>
+<p>The image that runs airflow needs to have beeline installed to be able to use Hive. I’ve created
+an updated “puckel” image of airflow that does that, which is available here:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">gtoonstra</span><span class="o">/</span><span class="n">docker</span><span class="o">-</span><span class="n">airflow</span>
 </pre></div>
 </div>
-<p>This has been pushed to docker cloud as well, so when you run the script, that&#8217;s what it pulls in.</p>
+<p>This has been pushed to docker cloud as well, so when you run the script, that’s what it pulls in.</p>
 </div>
 <div class="section" id="how-to-run">
 <h2>How to run<a class="headerlink" href="#how-to-run" title="Permalink to this headline">¶</a></h2>
-<p>Run the &#8220;init_hive_example&#8221; dag just once to get the connections and variables set up.
+<p>Run the “init_hive_example” dag just once to get the connections and variables set up.
 You can see in that DAG what it requires. This is just to bootstrap the example.</p>
-<p>Run the &#8220;staging_oltp&#8221; DAG and let it finish before you start the processing scripts. This
-is because there&#8217;s currently no operator in the DAG that verifies the dependency of OLTP versus the
+<p>Run the “staging_oltp” DAG and let it finish before you start the processing scripts. This
+is because there’s currently no operator in the DAG that verifies the dependency of OLTP versus the
 processing tasks.</p>
-<p>Finally, run the &#8220;process_hive_dwh&#8221; DAG when the staging_oltp is finished.</p>
+<p>Finally, run the “process_hive_dwh” DAG when the staging_oltp is finished.</p>
 </div>
 <div class="section" id="how-it-works">
 <h2>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this headline">¶</a></h2>
 <p>The staging process gathers the new products and customers that appear over a certain time window.
-Orders and order lines are not updated in this example, so these are always &#8220;new&#8221;. Customers and products
-may receive updates and these are managed by allocating them by their &#8220;change_dtm&#8221;. All data is partitioned
+Orders and order lines are not updated in this example, so these are always “new”. Customers and products
+may receive updates and these are managed by allocating them by their “change_dtm”. All data is partitioned
 per day. This results in a number of partitions per table in Hive.</p>
 <p>The data warehouse is regenerated entirely from scratch using the partition data in the ingested OLTP structures.
 This means the dimensions and facts are truncated and rebuilt on a daily basis.</p>
-<p>In a straight-forward Kimball approach, you&#8217;d persist and maintain the dimensions and facts because they are too
+<p>In a straight-forward Kimball approach, you’d persist and maintain the dimensions and facts because they are too
 expensive to regenerate. For smaller data warehouses though, you can use the multi-processing capabilities to achieve this.</p>
 </div>
 <div class="section" id="strategy">
 <h2>Strategy<a class="headerlink" href="#strategy" title="Permalink to this headline">¶</a></h2>
 <p>The main strategy here is to parallellize the way how data is drawn from the database.
-What I&#8217;ve maintained in this example is a regular star-schema (Kimball like) as you&#8217;d
+What I’ve maintained in this example is a regular star-schema (Kimball like) as you’d
 see one in a regular data mart or DWH, but the dimensions are somewhat simplified and use
 a mix of SCD type 1 and type 2 dimensions. (SCD = Slowly Changing Dimension). Similar to the
-ETL example, the dimensions are processed first, then per fact you&#8217;d tie the data to the dimensions.</p>
-<p>Typical Kimball DWH&#8217;s accumulate data chronologically over time. It is uncommon to reprocess portions
+ETL example, the dimensions are processed first, then per fact you’d tie the data to the dimensions.</p>
+<p>Typical Kimball DWH’s accumulate data chronologically over time. It is uncommon to reprocess portions
 of the DWH historically because of the complications that arise if other processing runs have
 run after a failure.</p>
 <p>In this example therefore, the source data is kept and the entire DWH regenerated from scratch using the source data
@@ -229,69 +166,32 @@ in two simple operations.</p>
 
            </div>
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="datavault.html" class="btn btn-neutral float-right" title="Data vault" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="etlexample.html" class="btn btn-neutral" title="ETL example" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="etlexample.html" class="btn btn-neutral float-left" title="ETL example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="datavault.html" class="btn btn-neutral float-right" title="Data vault" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2016, Gerard Toonstra.
-
-    </p>
+    <p>&#169; Copyright 2016, Gerard Toonstra.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.8',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
-
-  
-  
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

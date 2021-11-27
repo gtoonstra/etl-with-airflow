@@ -1,74 +1,35 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html4" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Building your own ETL platform &mdash; ETL Best Practices with Airflow v1.8</title>
-  
-
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
-        <link rel="next" title="Ingesting files" href="ingestfile.html"/>
-        <link rel="prev" title="Monitoring" href="monitoring.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building your own ETL platform &mdash; ETL Best Practices with Airflow v1.8</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Ingesting files" href="ingestfile.html" />
+    <link rel="prev" title="Monitoring" href="monitoring.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
-
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.8
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -76,18 +37,11 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
     
-            
-            
-                <ul class="current">
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha’s</a></li>
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hiveexample.html">Hive example</a></li>
@@ -107,8 +61,6 @@
 <li class="toctree-l1"><a class="reference internal" href="datavault-bigdata.html">Data Vault with Big Data processes</a></li>
 </ul>
 
-            
-          
     <br/>
     <br/>
     <a href="https://github.com/gtoonstra/etl-with-airflow"><img src="_images/GitHub-Mark-Light-32px.png">&nbsp;Go to Github</a>
@@ -117,44 +69,29 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">ETL Best Practices with airflow 1.8</a>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ETL Best Practices with airflow 1.8</a>
       </nav>
 
-
-      
       <div class="wy-nav-content">
         <div class="rst-content">
-          
-
- 
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Building your own ETL platform</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Building your own ETL platform</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
   </ul>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <div class="section" id="building-your-own-etl-platform">
 <h1>Building your own ETL platform<a class="headerlink" href="#building-your-own-etl-platform" title="Permalink to this headline">¶</a></h1>
-<p>By now you&#8217;ve discovered that airflow is great as a programmable platform with a powerful scheduler in the middle
-that decides when your tasks run. Let&#8217;s dive a bit deeper into the architecture of airflow to be able to understand
+<p>By now you’ve discovered that airflow is great as a programmable platform with a powerful scheduler in the middle
+that decides when your tasks run. Let’s dive a bit deeper into the architecture of airflow to be able to understand
 the consequences of extending the platform for new capabilities and how to most effectively use them.</p>
 <div class="section" id="understanding-the-airflow-platform-design">
 <h2>Understanding the airflow platform design<a class="headerlink" href="#understanding-the-airflow-platform-design" title="Permalink to this headline">¶</a></h2>
@@ -162,8 +99,8 @@ the consequences of extending the platform for new capabilities and how to most 
 that is given some parameters to load the DAG of interest and then another parameter to indicate the task of interest, along with
 some other parameters that belong to that task.</p>
 <p>This new python interpreter could run on the same machine as the scheduler, but it might as well run on a totally different worker
-machine. If you follow through the examples, you&#8217;ll also have noticed that the distribution of airflow across all those machines
-is 100% the same. The scheduler machine does not run different software from the webserver or any of the workers; you&#8217;d typically
+machine. If you follow through the examples, you’ll also have noticed that the distribution of airflow across all those machines
+is 100% the same. The scheduler machine does not run different software from the webserver or any of the workers; you’d typically
 deploy the full airflow software distribution to any type of these machines, which can be good and bad, it certainly has the potential
 to simplify the setup. The only thing that determines the role that each process plays in the grand scale of things is the command
 that you use on each machine to start airflow with; <cite>airflow scheduler</cite>, <cite>airflow webserver</cite> or <cite>airflow worker</cite>. The workers are
@@ -174,19 +111,19 @@ not started by users, but you allocate machines to a cluster through celery.</p>
 </div>
 <p>This is a depiction of how a data platform stack would look like using Apache Airflow:</p>
 <img alt="_images/airflow-stack.png" src="_images/airflow-stack.png" />
-<p>It shows who&#8217;s typically responsible for the different parts of the data platform and gives an intuition as to what kind of tests and control have to implemented to make the data platform sustainable and controlled.</p>
+<p>It shows who’s typically responsible for the different parts of the data platform and gives an intuition as to what kind of tests and control have to implemented to make the data platform sustainable and controlled.</p>
 <p>It is important to understand how these components map to your organization. There are cases where
-&#8220;anyone&#8221; could refer to business analysts, data engineers, data scientists and developers from other
+“anyone” could refer to business analysts, data engineers, data scientists and developers from other
 teams in your organization, or it could refer to only a number of data scientists that work with a
 constrained set of data in a very specific setting with high access controls because it involves financial data.</p>
 <p>Airflow runs on an operating system of a specific distribution that has pre-installs of particular libraries and other daemons that are defined by your organization. From there, the airflow package could be installed from either source or from the pip package. Although airflow contains a number of
-standard components, mostly the hooks and operators, you&#8217;ll probably want to write or extend them yourself, because organizations typically do certain things differently.</p>
+standard components, mostly the hooks and operators, you’ll probably want to write or extend them yourself, because organizations typically do certain things differently.</p>
 <p>Software is about abstractions and what the operators allow you to do is abstract and generalize on
-how you want to &#8220;do things with data&#8221; in your organization. For example, one rule could be that all
+how you want to “do things with data” in your organization. For example, one rule could be that all
 data that you ingest from external sources (FTP, API, SOAP, etc.) get archived on the cloud in some
 specific and general way. You could enforce this as a rule when people build their workflows, but this
-would require someone to &#8220;police&#8221; that all workflow DAGs being constructed utilize that method and
-you&#8217;d have to spend time and effort to ensure that people get educated and trained on how that&#8217;s done
+would require someone to “police” that all workflow DAGs being constructed utilize that method and
+you’d have to spend time and effort to ensure that people get educated and trained on how that’s done
 as part of a workflow. Some of those choices can be generalized within an operator, so that it becomes
 transparent for people writing DAGs and workflows, another way to look at that is that you can update
 your data policies in a much easier way without a lot of rework, so you become more flexible.</p>
@@ -194,7 +131,7 @@ your data policies in a much easier way without a lot of rework, so you become m
 <div class="section" id="understanding-hooks-and-operators">
 <h2>Understanding hooks and operators<a class="headerlink" href="#understanding-hooks-and-operators" title="Permalink to this headline">¶</a></h2>
 <p>Hooks and operators are the key to understanding how airflow can be extended with new capabilities and to keep your DAGs clean and simple.
-A DAG should be <em>readable</em> in the sense that it&#8217;s a description of workflow. Whatever the underlying technical or business principles are that
+A DAG should be <em>readable</em> in the sense that it’s a description of workflow. Whatever the underlying technical or business principles are that
 you must follow, reading through a DAG should be like reading through a reading a business workflow document, describing what a particular
 business process is trying to achieve.</p>
 <p>A <strong>hook</strong> is an object that embodies a connection to a remote server, service or platform.</p>
@@ -213,36 +150,36 @@ of this additional processing. In a similar way you could add metric collection 
 </div>
 <div class="section" id="publish-documentation">
 <h2>Publish documentation<a class="headerlink" href="#publish-documentation" title="Permalink to this headline">¶</a></h2>
-<p>After you finish building airflow, it&#8217;s a good idea to build your own documentation site. The airflow site and this site are built using sphinx,
+<p>After you finish building airflow, it’s a good idea to build your own documentation site. The airflow site and this site are built using sphinx,
 which works great for python projects. You can document a part about your specific use of airflow, agreements and principles that you
 set up and include the documentation for each operator and hook that you develop as part of the platform. Release that documentation site
 as part of your continuous integration pipeline and the documentation, explaining how to use operators and what they do will always be up to date.</p>
 </div>
 <div class="section" id="strategies-for-testing-the-platform">
 <h2>Strategies for testing the platform<a class="headerlink" href="#strategies-for-testing-the-platform" title="Permalink to this headline">¶</a></h2>
-<p>A good understanding of the entire stack also gives you insight as to where &#8220;testing&#8221; needs to happen.
+<p>A good understanding of the entire stack also gives you insight as to where “testing” needs to happen.
 First, you want to ensure that the infrastructure and things at OS level are stable and working.
 You need to understand the quirks of the Apache Airflow core, the bugs it has, which areas and functionalities are best avoided for now, what are the choices you make with regards to authentication, etc.</p>
-<p>Once you understand the core platform, you move into the area of making sure that workflows don&#8217;t break because of code issues. So operators and hooks that are built need to be predictable with regards to their behavior and you&#8217;ll want to spend a good amount of time making sure that corner cases are handled correctly. The &#8220;happy path&#8221; for operators is quite easy to define, but what you need to really spend some time on is how potential failures with hooks, operator code, exceptions and data issues would impact the behavior of that operator. I.e., cases like:</p>
+<p>Once you understand the core platform, you move into the area of making sure that workflows don’t break because of code issues. So operators and hooks that are built need to be predictable with regards to their behavior and you’ll want to spend a good amount of time making sure that corner cases are handled correctly. The “happy path” for operators is quite easy to define, but what you need to really spend some time on is how potential failures with hooks, operator code, exceptions and data issues would impact the behavior of that operator. I.e., cases like:</p>
 <ul class="simple">
-<li>If data from this API comes back as empty, what&#8217;s the behavior of this operator and down-stream from there?</li>
+<li>If data from this API comes back as empty, what’s the behavior of this operator and down-stream from there?</li>
 <li>If the data returned is corrupted (a half-written file), does this operator fail on that?</li>
 <li>If the external API cannot be contacted or times out, how does the operator react to that?  Does it return an empty record or does it fail with an exception?</li>
 <li>Are there cases in which I want to have workflow designers be able to influence these exceptional conditions by ignoring them?</li>
 </ul>
 <p>From the level of the workflow/DAG, you can start asking questions like this:</p>
 <img alt="_images/testing.jpg" src="_images/testing.jpg" />
-<p>Operators are great at implementing general policy and behavior, but they cannot inform a data engineer when bad data is being processed, because it doesn&#8217;t have that contextual information. Very often, data pipelines are built where the developer dumps the data in a temporary table when the pipeline gets constructed and when the data outcome is as expected, the pipeline gets productionized without implementing a continuous data quality check.</p>
+<p>Operators are great at implementing general policy and behavior, but they cannot inform a data engineer when bad data is being processed, because it doesn’t have that contextual information. Very often, data pipelines are built where the developer dumps the data in a temporary table when the pipeline gets constructed and when the data outcome is as expected, the pipeline gets productionized without implementing a continuous data quality check.</p>
 <p>This leads to situations where you cannot make statements about the final quality of data. By chance, some analyst looking at the
-margins or sold quantities from yesterday might see some anomalies, after which an alert is raised and an investigation is started as to how the data got that way. The only real way to deal with that is to integrate data quality checks into each and every run of a DAG which confirms that the results are as expected. Every time an anomaly is observed, it&#8217;s important to keep extending the DAG to trap such cases at the time when the potential corruption is about to happen, so as early as possible. When a table is half transferred, you don&#8217;t want to raise an alert that the calculated margin is wrong, but you raise this at the time it is observed that that table is only half there and block downstream processes from further processing.</p>
+margins or sold quantities from yesterday might see some anomalies, after which an alert is raised and an investigation is started as to how the data got that way. The only real way to deal with that is to integrate data quality checks into each and every run of a DAG which confirms that the results are as expected. Every time an anomaly is observed, it’s important to keep extending the DAG to trap such cases at the time when the potential corruption is about to happen, so as early as possible. When a table is half transferred, you don’t want to raise an alert that the calculated margin is wrong, but you raise this at the time it is observed that that table is only half there and block downstream processes from further processing.</p>
 <p>So, it is important to ask questions when and where tests are happening, what you rely on and assume and what the scope of those tests are. We had a discussion on the dev mailing list about testing strategies for airflow and this discussion is ongoing at the moment.</p>
 <p>So far, my view on that is the following:</p>
 <ul class="simple">
-<li>At the lowest level, the OS + libs, use tools like chef/puppet to ensure a stable installation. (those tools &#8220;test&#8221; the environment against what you declared it to be and make adjustments where necessary)</li>
-<li>Pin the version of airflow you want to use for a specific environment and make sure you have ways to do major upgrades. One way there is to have a complete &#8220;UAT&#8221; environment where you can run all workflows from production.</li>
+<li>At the lowest level, the OS + libs, use tools like chef/puppet to ensure a stable installation. (those tools “test” the environment against what you declared it to be and make adjustments where necessary)</li>
+<li>Pin the version of airflow you want to use for a specific environment and make sure you have ways to do major upgrades. One way there is to have a complete “UAT” environment where you can run all workflows from production.</li>
 <li>Set up a separate project that extends the airflow core (your operators and hooks for your organization) and make sure that those operators are fully unit-tested in terms of how they react to empty datasets, connection failures and other generic faults.</li>
-<li>The workflows themselves are tested in UAT; here it&#8217;s only considering that the workflow runs as expected and completes successfully.</li>
-<li>Each workflow DAG contains data quality checks: &#8220;Is data complete?&#8221;, &#8220;After this operation, is the margin within x % of previous days?&#8221;</li>
+<li>The workflows themselves are tested in UAT; here it’s only considering that the workflow runs as expected and completes successfully.</li>
+<li>Each workflow DAG contains data quality checks: “Is data complete?”, “After this operation, is the margin within x % of previous days?”</li>
 </ul>
 </div>
 </div>
@@ -250,69 +187,32 @@ margins or sold quantities from yesterday might see some anomalies, after which 
 
            </div>
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="ingestfile.html" class="btn btn-neutral float-right" title="Ingesting files" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="monitoring.html" class="btn btn-neutral" title="Monitoring" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="monitoring.html" class="btn btn-neutral float-left" title="Monitoring" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ingestfile.html" class="btn btn-neutral float-right" title="Ingesting files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2016, Gerard Toonstra.
-
-    </p>
+    <p>&#169; Copyright 2016, Gerard Toonstra.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.8',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
-
-  
-  
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

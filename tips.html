@@ -1,74 +1,35 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html4" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Tips &mdash; ETL Best Practices with Airflow v1.8</title>
-  
-
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="ETL Best Practices with Airflow v1.8" href="index.html"/>
-        <link rel="next" title="Deployments" href="deployments.html"/>
-        <link rel="prev" title="Ingesting files" href="ingestfile.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tips &mdash; ETL Best Practices with Airflow v1.8</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Deployments" href="deployments.html" />
+    <link rel="prev" title="Ingesting files" href="ingestfile.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
-
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="index.html" class="icon icon-home"> ETL Best Practices with airflow 1.8
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.8
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -76,18 +37,11 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
     
-            
-            
-                <ul class="current">
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="principles.html">ETL principles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha&#8217;s</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotcha’s</a></li>
 <li class="toctree-l1"><a class="reference internal" href="great.html">What makes Airflow great?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="etlexample.html">ETL example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hiveexample.html">Hive example</a></li>
@@ -99,7 +53,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#long-running-processes">Long running processes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#quick-deployment">Quick deployment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#connection-administration">Connection administration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#implement-a-functional-etl-approach">Implement a &#8220;Functional ETL&#8221; approach</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#implement-a-functional-etl-approach">Implement a “Functional ETL” approach</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#datavault">Datavault</a></li>
 </ul>
 </li>
@@ -108,8 +62,6 @@
 <li class="toctree-l1"><a class="reference internal" href="datavault-bigdata.html">Data Vault with Big Data processes</a></li>
 </ul>
 
-            
-          
     <br/>
     <br/>
     <a href="https://github.com/gtoonstra/etl-with-airflow"><img src="_images/GitHub-Mark-Light-32px.png">&nbsp;Go to Github</a>
@@ -118,40 +70,25 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">ETL Best Practices with airflow 1.8</a>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ETL Best Practices with airflow 1.8</a>
       </nav>
 
-
-      
       <div class="wy-nav-content">
         <div class="rst-content">
-          
-
- 
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Tips</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Tips</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
   </ul>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <div class="section" id="tips">
 <h1>Tips<a class="headerlink" href="#tips" title="Permalink to this headline">¶</a></h1>
 <p>This section gives you some tips for handling specific cases in the use of airflow</p>
@@ -160,19 +97,19 @@
 <p>The main ETL example uses a workflow with only short-running tasks. Extracting
 data and processing that should only take up to 5-10 minutes max at the most.</p>
 <p>There are some cases where you have long running jobs that take one to several hours.
-You&#8217;d typically check in one of two ways whether this job has completed:</p>
+You’d typically check in one of two ways whether this job has completed:</p>
 <ul class="simple">
 <li>Check on an interface of some kind for job completion</li>
 <li>Check for availability of the output of that job</li>
 </ul>
 <p>For example, if you run a spark hadoop job that processes item-to-item recommendations and
-dumps the output into a data file on S3, you&#8217;d start the spark job in one task and keep
+dumps the output into a data file on S3, you’d start the spark job in one task and keep
 checking for the availability of that file on S3 in another.</p>
 </div>
 <div class="section" id="quick-deployment">
 <h2>Quick deployment<a class="headerlink" href="#quick-deployment" title="Permalink to this headline">¶</a></h2>
 <p>Many organizations require a proof of concept to demonstrate the suitability of a software
-product to other engineers. In the root of this repository on github, you&#8217;ll find a file
+product to other engineers. In the root of this repository on github, you’ll find a file
 called _dockercompose-<a href="#id1"><span class="problematic" id="id2">LocalExecutor.yml_</span></a>. This file is used to demonstrate the ETL example
 and you should be able to edit and reuse that concept file to build your own PoC or
 simple deployment.</p>
@@ -196,9 +133,9 @@ where this DAG gets the connection information from and then, after recreating t
 run that DAG once to import all the connection details from a remote system or a local file for example.</p>
 </div>
 <div class="section" id="implement-a-functional-etl-approach">
-<h2>Implement a &#8220;Functional ETL&#8221; approach<a class="headerlink" href="#implement-a-functional-etl-approach" title="Permalink to this headline">¶</a></h2>
+<h2>Implement a “Functional ETL” approach<a class="headerlink" href="#implement-a-functional-etl-approach" title="Permalink to this headline">¶</a></h2>
 <p>The following URL points to a very interesting article that aims to remove chronological data dependencies and
-attempts to &#8220;isolate&#8221; your entire data pipeline into &#8220;intervals&#8221; that are individually reprocessable:</p>
+attempts to “isolate” your entire data pipeline into “intervals” that are individually reprocessable:</p>
 <blockquote>
 <div><a class="reference external" href="https://medium.com/&#64;maximebeauchemin/functional-data-engineering-a-modern-paradigm-for-batch-data-processing-2327ec32c42a">https://medium.com/&#64;maximebeauchemin/functional-data-engineering-a-modern-paradigm-for-batch-data-processing-2327ec32c42a</a></div></blockquote>
 <p>This approach helps you to make your platform more scalable and easier to manage/maintain.</p>
@@ -209,9 +146,9 @@ attempts to &#8220;isolate&#8221; your entire data pipeline into &#8220;interval
 If all of your data is there in a lake or vault and you develop this capability, the discussions and friction you have
 with people on the subject of data warehousing become simpler, because you can simply regenerate everything on the fly
 when business requirements change. I.e. instead of fighting over important design decisions that become fixed in time
-because it&#8217;s really expensive to change them, you can change on a daily basis.</p>
+because it’s really expensive to change them, you can change on a daily basis.</p>
 <p>Data vault is also really interesting to generate different versions of the truth. If you work closely together with
-the business and the outcome of projected changes isn&#8217;t necessarily clear, you can just generate a DWH version of both
+the business and the outcome of projected changes isn’t necessarily clear, you can just generate a DWH version of both
 using the same source data, which makes comparing version A to B a lot cheaper.</p>
 </div>
 </div>
@@ -219,69 +156,32 @@ using the same source data, which makes comparing version A to B a lot cheaper.<
 
            </div>
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="deployments.html" class="btn btn-neutral float-right" title="Deployments" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="ingestfile.html" class="btn btn-neutral" title="Ingesting files" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ingestfile.html" class="btn btn-neutral float-left" title="Ingesting files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="deployments.html" class="btn btn-neutral float-right" title="Deployments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2016, Gerard Toonstra.
-
-    </p>
+    <p>&#169; Copyright 2016, Gerard Toonstra.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.8',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
-
-  
-  
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>
