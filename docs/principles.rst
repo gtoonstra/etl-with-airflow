@@ -26,7 +26,7 @@ at regular intervals and only load data for an hour, day, week, etc. Airflow mak
 jobs such that they process specific intervals with job parameters that allow you select data.
 
 **Process historic data**:  There are cases when you just finished a new workflow and need data that 
-goes back further than the date push your new code into production. In this situation you can simply use the
+goes back further than the date your code is pushed into production. In this situation you can simply use the
 *start_date* parameter in a DAG to specify the start date. Airflow will then back-fill tasks to process that data
 all the way back to that start date. It may not be appropriate or desirable to have so many execution runs to get
 data up-to-date, so there are some other strategies that you can use to process weeks, months or years of data through
@@ -34,7 +34,7 @@ better parametrization of the DAGS. That will be documented in a separate story 
 cases where a lot of effort went into dealing with historical data loads and a lot of manual coding and workarounds
 to achieve this. The idea is to make this effort repeatable and simple.
 
-**Partition ingested data**: By partitioning data being ingested at the destination, you can parallellize dag runs,
+**Partition ingested data**: By partitioning data being ingested at the destination, you can parallelize dag runs,
 avoid write locks on data being ingested and optimize performance when that same data is being read. It will also
 serve as a historical snapshot of what the data looked like at specific moments in time for audit purposes. Partitions
 that are no longer relevant can be archived and removed from the database.
@@ -44,7 +44,7 @@ run a process multiple times with the same parameters (even on different days), 
 not end up with multiple copies of the same data in your environment or other undesirable side effects. This is obviously
 only valid when the processing itself has not been modified. If business rules change within the process, then the target
 data will be different. It's a good idea here to be aware of auditors or other business requirements on reprocessing historic
-data, because it's not always allowed. Also, some processes require anonimization of data after a certain number of days,
+data, because it's not always allowed. Also, some processes require anonymization of data after a certain number of days,
 because it's not always allowed to keep historical customer data on record *forever*.
 
 **Enforce deterministic properties**: A function is said to be deterministic if for a given input, the output produced is
